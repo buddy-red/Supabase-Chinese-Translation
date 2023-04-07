@@ -163,7 +163,7 @@ const Content = (props) => {
               <IconChevronLeft size={10} strokeWidth={3} />
             </div>
           </div>
-          <span>Back to Home</span>
+          <span>返回首页</span>
         </a>
       </Link>
 

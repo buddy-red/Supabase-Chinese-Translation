@@ -134,11 +134,11 @@ const Layout: FC<Props> = (props) => {
               <div className="mt-16 not-prose">
                 <div>
                   <Link
-                    href={`https://github.com/supabase/supabase/edit/master/apps/docs/pages${router.asPath}.mdx`}
+                    href={`https://github.com/buddy-red/Supabase-Chinese-Translation/edit/main/apps/docs/pages${router.asPath}.mdx`}
                     passHref
                   >
                     <a className="text-sm transition flex items-center gap-1 text-scale-1000 hover:text-scale-1200">
-                      Edit this page on GitHub <IconExternalLink size={14} strokeWidth={1.5} />
+                      在GitHub上编辑此页面 <IconExternalLink size={14} strokeWidth={1.5} />
                     </a>
                   </Link>
                 </div>
@@ -158,7 +158,7 @@ const Layout: FC<Props> = (props) => {
           >
             <div className="border-l">
               <span className="block font-mono text-xs uppercase text-scale-1200 px-5 mb-6">
-                On this page
+                本页内容
               </span>
               <GuidesTableOfContents list={tocList} />
             </div>

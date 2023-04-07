@@ -50,13 +50,13 @@ export const REFERENCES: References = {
 
 export const gettingstarted = {
   icon: 'getting-started',
-  title: 'Getting Started',
+  title: '快速上手',
   items: [
-    { name: 'Features', url: '/guides/getting-started/features' },
-    { name: 'Architecture', url: '/guides/getting-started/architecture' },
-    { name: 'Local Development', url: '/guides/cli/local-development' },
+    { name: '特色', url: '/guides/getting-started/features' },
+    { name: '架构', url: '/guides/getting-started/architecture' },
+    { name: '本地开发', url: '/guides/cli/local-development' },
     {
-      name: 'Framework Quickstarts',
+      name: '框架快速上手',
       items: [
         { name: 'React', url: '/guides/getting-started/quickstarts/reactjs' },
         { name: 'NextJS', url: '/guides/getting-started/quickstarts/nextjs' },
@@ -67,7 +67,7 @@ export const gettingstarted = {
       ],
     },
     {
-      name: 'Web app tutorials',
+      name: 'Web应用教程',
       items: [
         {
           name: 'NextJS',
@@ -108,7 +108,7 @@ export const gettingstarted = {
       ],
     },
     {
-      name: 'Mobile tutorials',
+      name: '移动应用教程',
       items: [
         {
           name: 'Flutter',
@@ -812,7 +812,7 @@ export const resources = {
 }
 
 export const self_hosting = {
-  title: 'Self-Hosting',
+  title: '自托管',
   icon: 'resources',
   url: '/guides/self-hosting',
   items: [
@@ -1173,7 +1173,7 @@ export const references = [
     ],
   },
   {
-    label: 'Self-Hosting',
+    label: '自托管',
     items: [
       {
         label: 'Auth server',

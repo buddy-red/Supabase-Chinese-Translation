@@ -411,7 +411,7 @@ export const menuItems: NavMenu = {
       ],
     },
     {
-      label: 'Self-hosting',
+      label: '自托管',
       items: [
         { name: 'Auth Server', url: '/reference/auth', items: [] },
         { name: 'Realtime Server', url: '/reference/realtime', items: [] },
