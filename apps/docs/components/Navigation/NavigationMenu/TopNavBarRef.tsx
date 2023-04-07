@@ -109,7 +109,7 @@ const TopNavBarRef: FC = () => {
             type="text"
             as="a"
             // @ts-ignore
-            href="https://github.com/buddy-red/Supabase-Chinese-Translation"
+            href="https://app.supabase.cc"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -117,7 +117,7 @@ const TopNavBarRef: FC = () => {
           </Button>
           <ul className="flex items-center">
             <Link
-              href="https://app.supabase.cc"
+              href="https://github.com/buddy-red/Supabase-Chinese-Translation"
               target="_blank"
               rel="noreferrer noopener"
             >
