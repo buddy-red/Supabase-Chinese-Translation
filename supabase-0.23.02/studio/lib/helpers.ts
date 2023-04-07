@@ -1,4 +1,3 @@
-import { v4 as _uuidV4 } from 'uuid'
 import { post } from 'lib/common/fetch'
 import { PASSWORD_STRENGTH, DEFAULT_MINIMUM_PASSWORD_STRENGTH, API_URL } from 'lib/constants'
 
@@ -13,9 +12,7 @@ export const tryParseJson = (jsonString: any) => {
 
 export const minifyJSON = (prettifiedJSON: string) => {
   try {
-    const res = JSON.stringify(JSON.parse(prettifiedJSON))
-    if (!isNaN(Number(res))) return Number(res)
-    else return res
+    return JSON.stringify(JSON.parse(prettifiedJSON))
   } catch (err) {
     throw err
   }
@@ -35,8 +32,14 @@ export const prettifyJSON = (minifiedJSON: string) => {
   }
 }
 
+// https://stackoverflow.com/a/2117523
+// a "good enough" unique ID that typescript is happy with, and doesn't have external dependencies
 export const uuidv4 = () => {
-  return _uuidV4()
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = (Math.random() * 16) | 0,
+      v = c == 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
 }
 
 export const timeout = (ms: number) => {
@@ -49,7 +52,7 @@ export const getURL = () => {
       ? process.env.NEXT_PUBLIC_SITE_URL
       : process?.env?.VERCEL_URL && process.env.VERCEL_URL !== ''
       ? process.env.VERCEL_URL
-      : 'https://app.supabase.com'
+      : 'https://app.supabase.io'
   return url.includes('http') ? url : `https://${url}`
 }
 
@@ -110,7 +113,7 @@ export const filterSensitiveProjectProps = (project: any) => {
 }
 
 /**
- * Returns undefined if the string isn't parse-able
+ * Returns undefine if the string isn't parse-able
  */
 export const tryParseInt = (str: string) => {
   try {
@@ -120,7 +123,7 @@ export const tryParseInt = (str: string) => {
   }
 }
 
-// Used as checker for memoized components
+// Used as checker for memoised components
 export const propsAreEqual = (prevProps: any, nextProps: any) => {
   try {
     Object.keys(prevProps).forEach((key) => {
@@ -137,9 +140,9 @@ export const propsAreEqual = (prevProps: any, nextProps: any) => {
 }
 
 export const formatBytes = (bytes: any, decimals = 2) => {
-  if (bytes === 0 || bytes === undefined) return '0 bytes'
+  if (bytes === 0) return '0 bytes'
 
-  const k = 1024
+  const k = 1000
   const dm = decimals < 0 ? 0 : decimals
   const sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
 
@@ -168,30 +171,23 @@ export async function passwordStrength(value: string) {
   let strength = 0
 
   if (value && value !== '') {
-    if (value.length > 99) {
-      message = `${PASSWORD_STRENGTH[0]} Maximum length of password exceeded`
-      warning = `Password should be less than 100 characters`
-    } else {
-      const response = await post(`${API_URL}/profile/password-check`, { password: value })
-      if (!response.error) {
-        const { result } = response
-        const score = (PASSWORD_STRENGTH as any)[result.score]
-        const suggestions = result.feedback?.suggestions
-          ? result.feedback.suggestions.join(' ')
-          : ''
+    const response = await post(`${API_URL}/profile/password-check`, { password: value })
+    if (!response.error) {
+      const { result } = response
+      const score = (PASSWORD_STRENGTH as any)[result.score]
+      const suggestions = result.feedback?.suggestions ? result.feedback.suggestions.join(' ') : ''
 
-        // set message :string
-        message = `${score} ${suggestions}`
+      // set message :string
+      message = `${score} ${suggestions}`
 
-        // set strength :number
-        strength = result.score
+      // set strength :number
+      strength = result.score
 
-        // warning message for anything below 4 strength :string
-        if (result.score < DEFAULT_MINIMUM_PASSWORD_STRENGTH) {
-          warning = `${
-            result?.feedback?.warning ? result?.feedback?.warning + '.' : ''
-          } You need a stronger password.`
-        }
+      // warning message for anything below 4 strength :string
+      if (result.score < DEFAULT_MINIMUM_PASSWORD_STRENGTH) {
+        warning = `${
+          result?.feedback?.warning ? result?.feedback?.warning + '.' : ''
+        } You need a stronger password.`
       }
     }
   }
@@ -200,17 +196,5 @@ export async function passwordStrength(value: string) {
     message,
     warning,
     strength,
-  }
-}
-
-export const detectBrowser = () => {
-  if (!navigator) return undefined
-
-  if (navigator.userAgent.indexOf('Chrome') !== -1) {
-    return 'Chrome'
-  } else if (navigator.userAgent.indexOf('Firefox') !== -1) {
-    return 'Firefox'
-  } else if (navigator.userAgent.indexOf('Safari') !== -1) {
-    return 'Safari'
   }
 }

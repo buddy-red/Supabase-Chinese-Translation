@@ -1,8 +1,8 @@
-import dayjs from 'dayjs'
-import { Loading } from 'ui'
+import { IconBarChart2, Loading } from '@supabase/ui'
 import { useState } from 'react'
 import {
   BarChart as RechartBarChart,
+  AreaChart as RechartAreaChart,
   Area,
   Bar,
   XAxis,
@@ -12,9 +12,16 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
 import { formatBytes } from 'lib/helpers'
-import EmptyState from 'components/ui/Charts/EmptyState'
 import { CHART_COLORS } from 'components/ui/Charts/Charts.constants'
+
+dayjs.extend(customParseFormat)
+dayjs.extend(timezone)
+dayjs.extend(utc)
 
 function dataCheck(data: any, attribute: any) {
   const hasData = data && data.find((record: any) => record[attribute])
@@ -88,7 +95,7 @@ const Header = ({
   const highlighted = (
     <h5
       className={
-        'text-xl font-normal text-scale-1200 ' + (minimalHeader ? 'text-base' : 'text-2xl')
+        'text-xl text-scale-1200 font-normal ' + (minimalHeader ? 'text-base' : 'text-2xl')
       }
     >
       {title}
@@ -107,9 +114,9 @@ const Header = ({
 
   if (minimalHeader) {
     return (
-      <div className="flex flex-row items-center gap-x-4" style={{ minHeight: '1.8rem' }}>
+      <div className="flex flex-row gap-x-4 items-center" style={{ minHeight: '1.8rem' }}>
         {chartTitle}
-        <div className="flex flex-row items-baseline gap-x-2">
+        <div className="flex flex-row gap-x-2 items-baseline">
           {highlighted}
           {date}
         </div>
@@ -126,9 +133,37 @@ const Header = ({
   )
 }
 
-/**
- * @deprecated please use studio/components/ui/Charts/BarChart.tsx instead
- */
+const NoData = ({ title = 'No data to show', message = 'May take 24 hours for data to show' }) => (
+  <div
+    className="
+      h-full w-full
+      border border-dashed border-scale-600
+      flex flex-col items-center justify-center
+      space-y-2 text-center
+    "
+  >
+    <IconBarChart2 className="text-scale-800" />
+    <div>
+      <p className="text-scale-1100 text-xs">{title}</p>
+      <p className="text-scale-900 text-xs">{message}</p>
+    </div>
+  </div>
+)
+const total = (data: any, format: any, attribute: any) => {
+  let total = 0
+  data?.map((item: any) => {
+    total = total + Number(item[attribute])
+  })
+  if (format === '%') {
+    return Number(total).toFixed(2)
+  }
+  return numberWithCommas(total)
+}
+
+function numberWithCommas(x: any) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
 export function BarChart({
   data,
   attribute,
@@ -200,7 +235,7 @@ export function BarChart({
                     left: 0,
                     bottom: 0,
                   }}
-                  className="cursor-pointer overflow-visible"
+                  className="overflow-visible cursor-pointer"
                   onMouseMove={onMouseMove}
                   onMouseLeave={onMouseLeave}
                   onClick={(tooltipData: any) => {
@@ -227,8 +262,6 @@ export function BarChart({
                     fill={CHART_COLORS.GREEN_1}
                     // barSize={2}
                     animationDuration={300}
-                    // max bar size required for LogEventChart, prevents bars from expanding to max width.
-                    maxBarSize={48}
                   >
                     {data?.map((entry: any, index: any) => (
                       <Cell
@@ -249,7 +282,7 @@ export function BarChart({
                 </RechartBarChart>
               </ResponsiveContainer>
               {data && (
-                <div className="-mt-5 flex items-center justify-between text-xs text-scale-900">
+                <div className="text-xs text-scale-900 flex items-center justify-between -mt-5">
                   <span>
                     {day(data[0].period_start).format(
                       customDateFormat ? customDateFormat : DATE_FORMAT__WITH_TIME
@@ -264,9 +297,130 @@ export function BarChart({
               )}
             </>
           ) : (
-            <EmptyState title={noDataTitle} message={noDataMessage} />
+            <NoData title={noDataTitle} message={noDataMessage} />
           )}
         </div>
+      </div>
+    </Loading>
+  )
+}
+
+export function AreaChart({
+  data,
+  attribute,
+  yAxisLimit,
+  format,
+  highlightedValue,
+  customDateFormat,
+  label,
+}: any) {
+  const hasData = dataCheck(data, attribute)
+
+  const [focusBar, setFocusBar] = useState<any>(null)
+  const [mouseLeave, setMouseLeave] = useState<any>(true)
+
+  const onMouseMove = (state: any) => {
+    if (state?.activeTooltipIndex) {
+      setFocusBar(state.activeTooltipIndex)
+      setMouseLeave(false)
+    } else {
+      setFocusBar(null)
+      setMouseLeave(true)
+    }
+  }
+
+  const onMouseLeave = () => {
+    setFocusBar(false)
+    setMouseLeave(true)
+  }
+
+  // For future reference: https://github.com/supabase/supabase/pull/5311#discussion_r800852828
+  const chartHeight = 160
+
+  return (
+    <Loading active={!data}>
+      <Header
+        label={label}
+        attribute={attribute}
+        focus={focusBar}
+        highlightedValue={highlightedValue}
+        data={data}
+        format={format}
+        customDateFormat={customDateFormat}
+      />
+      <div
+        style={{
+          width: '100%',
+          height: `${chartHeight}px`,
+        }}
+      >
+        {hasData ? (
+          <>
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              <RechartAreaChart
+                data={data}
+                margin={{
+                  top: 0,
+                  right: 0,
+                  left: 0,
+                  bottom: 0,
+                }}
+                className="overflow-visible"
+                onMouseMove={onMouseMove}
+                onMouseLeave={onMouseLeave}
+              >
+                <defs>
+                  <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={CHART_COLORS.GREEN_1} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={CHART_COLORS.GREEN_1} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="period_start"
+                  //interval={size === 'small' ? 5 : 1}
+                  interval={data ? data.length - 2 : 0}
+                  angle={0}
+                  // stroke="#4B5563"
+                  tick={{
+                    fontSize: '0px',
+                    color: CHART_COLORS.TICK,
+                  }}
+                  axisLine={{
+                    stroke: CHART_COLORS.AXIS,
+                  }}
+                  tickLine={{
+                    stroke: CHART_COLORS.AXIS,
+                  }}
+                />
+                {yAxisLimit && <YAxis type="number" domain={[0, yAxisLimit]} hide />}
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey={attribute}
+                  stroke={CHART_COLORS.GREEN_1}
+                  fillOpacity={1}
+                  fill="url(#colorUv)"
+                />
+              </RechartAreaChart>
+            </ResponsiveContainer>
+            {data && (
+              <div className="text-scale-900 text-xs flex items-center justify-between -mt-5">
+                <span>
+                  {dayjs(data[0].period_start).format(
+                    customDateFormat ? customDateFormat : DATE_FORMAT__WITH_TIME
+                  )}
+                </span>
+                <span>
+                  {dayjs(data[data?.length - 1]?.period_start).format(
+                    customDateFormat ? customDateFormat : DATE_FORMAT__WITH_TIME
+                  )}
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <NoData />
+        )}
       </div>
     </Loading>
   )

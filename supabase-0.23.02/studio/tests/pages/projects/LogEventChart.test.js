@@ -1,11 +1,5 @@
 import LogEventChart from 'components/interfaces/Settings/Logs/LogEventChart'
-import { screen } from '@testing-library/react'
-import { render } from '../../helpers'
-
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-
-dayjs.extend(utc)
+import { render, waitFor, screen } from '@testing-library/react'
 
 jest.mock('components/ui/Flag/Flag')
 import Flag from 'components/ui/Flag/Flag'
@@ -35,5 +29,5 @@ test('renders chart', async () => {
   // )
   // userEvent.click(paths[0])
   // expect(mock).toBeCalledTimes(1)
-  await screen.findByText(/Logs \/ Time/)
+  await screen.findByText('Events')
 })

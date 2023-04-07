@@ -1,12 +1,15 @@
+import { NextPage } from 'next'
 import { observer } from 'mobx-react-lite'
 
+import { withAuth } from 'hooks'
 import { StorageLayout } from 'components/layouts'
-import { NextPageWithLayout } from 'types'
 
-const Storage: NextPageWithLayout = () => {
-  return <>{/* <h1>Use this as a template for storage pages</h1> */}</>
+const Storage: NextPage = () => {
+  return (
+    <StorageLayout title="Storage">
+      <>{/* <h1>Use this as a template for storage pages</h1> */}</>
+    </StorageLayout>
+  )
 }
 
-Storage.getLayout = (page) => <StorageLayout title="Storage">{page}</StorageLayout>
-
-export default observer(Storage)
+export default withAuth(observer(Storage))

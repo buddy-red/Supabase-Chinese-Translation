@@ -1,49 +1,38 @@
-import { ReactNode, useEffect } from 'react'
+import { FC, ReactNode, useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 
-import { useStore, withAuth } from 'hooks'
-import { useProfileQuery } from 'data/profile/profile-query'
+import { useStore } from 'hooks'
 import Error from 'components/ui/Error'
-import { useSqlEditorStore, SqlEditorContext } from 'localStores/sqlEditor/SqlEditorStore'
 import ProjectLayout from '../ProjectLayout/ProjectLayout'
-import SQLEditorMenu from './SQLEditorMenu'
+// import SQLEditorMenu from './SQLEditorMenu'
+import SQLEditorMenuOld from './SQLEditorMenuOld'
 
-export interface SQLEditorLayoutProps {
+interface Props {
   title: string
   children: ReactNode
 }
 
-const SQLEditorLayout = ({ title, children }: SQLEditorLayoutProps) => {
-  const { ui, content, meta } = useStore()
-  const { data: profile } = useProfileQuery()
-
-  const sqlEditorStore = useSqlEditorStore(ui.selectedProject?.ref, meta)
+const SQLEditorLayout: FC<Props> = ({ title, children }) => {
+  const { content } = useStore()
 
   useEffect(() => {
-    if (sqlEditorStore) {
-      // this calls content.load() for us, as well as loading tabs
-      sqlEditorStore.loadRemotePersistentData(content, profile?.id)
-    }
-  }, [sqlEditorStore])
+    content.load()
+  }, [])
 
-  return (
-    <SqlEditorContext.Provider value={sqlEditorStore}>
-      {content.error ? (
-        <ProjectLayout>
-          <Error error={content.error} />
-        </ProjectLayout>
-      ) : (
-        <ProjectLayout
-          isLoading={content.isLoading || sqlEditorStore === null}
-          title={title || 'SQL'}
-          product="SQL Editor"
-          productMenu={<SQLEditorMenu />}
-        >
-          {children}
-        </ProjectLayout>
-      )}
-    </SqlEditorContext.Provider>
+  return content.error ? (
+    <ProjectLayout>
+      <Error error={content.error} />
+    </ProjectLayout>
+  ) : (
+    <ProjectLayout
+      isLoading={content.isLoading}
+      title={title || 'SQL'}
+      product="SQL Editor"
+      productMenu={<SQLEditorMenuOld />}
+    >
+      {children}
+    </ProjectLayout>
   )
 }
 
-export default withAuth(observer(SQLEditorLayout))
+export default observer(SQLEditorLayout)

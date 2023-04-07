@@ -1,39 +1,30 @@
 import { useState } from 'react'
-import { Button, IconMessageCircle, Popover } from 'ui'
+import { Button, IconMessageCircle, Popover } from '@supabase/ui'
 import FeedbackWidget from './FeedbackWidget'
 
 const FeedbackDropdown = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [feedback, setFeedback] = useState('')
-  const [screenshot, setScreenshot] = useState<string>()
+  const [category, setCategory] = useState('Feedback')
 
   function onOpen() {
     setIsOpen((isOpen) => !isOpen)
   }
 
-  function onClose() {
-    setFeedback('')
-    setScreenshot(undefined)
-    setIsOpen(false)
-  }
-
   return (
     <Popover
       open={isOpen}
-      onOpenChange={(e) => {
-        setIsOpen(e)
-        if (!e) setScreenshot(undefined)
-      }}
+      onOpenChange={(e) => setIsOpen(e)}
       size="content"
       side="bottom"
       align="end"
       overlay={
         <FeedbackWidget
-          onClose={onClose}
-          feedback={feedback}
+          onClose={() => setIsOpen(false)}
           setFeedback={setFeedback}
-          screenshot={screenshot}
-          setScreenshot={setScreenshot}
+          feedback={feedback}
+          category={category}
+          setCategory={setCategory}
         />
       }
     >

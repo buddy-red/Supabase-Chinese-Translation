@@ -1,43 +1,35 @@
-import { Alert, Button, Dropdown, IconClock } from 'ui'
+import { Button, Dropdown, IconClock } from '@supabase/ui'
 import { DatePicker } from 'components/ui/DatePicker'
-import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
-import { DatetimeHelper, getDefaultHelper, LOGS_LARGE_DATE_RANGE_DAYS_THRESHOLD } from '.'
+import { useState, useEffect } from 'react'
 
+type ToFrom = { to: string; from: string }
 interface Props {
-  to: string
-  from: string
-  onChange: React.ComponentProps<typeof DatePicker>['onChange']
-  helpers: DatetimeHelper[]
+  to?: string
+  from?: string
+  onChange: ({ to, from }: ToFrom) => void
 }
-const DatePickers: React.FC<Props> = ({ to, from, onChange, helpers }) => {
-  const defaultHelper = getDefaultHelper(helpers)
-  const [helperValue, setHelperValue] = useState<string>(to || from ? '' : defaultHelper.text)
+
+const HELPERS = [
+  { text: 'Last hour', value: '1_hour' },
+  { text: 'Last 3 hours', value: '3_hour' },
+  { text: 'Last day', value: '1_day' },
+]
+const DEFAULT_HELPER_VALUE = HELPERS[0].value
+
+const DatePickers: React.FC<Props> = ({ to, from, onChange }) => {
+  const [helperValue, setHelperValue] = useState<string>('')
 
   const handleHelperChange = (newValue: string) => {
-    const selectedHelper = helpers.find((h) => h.text === newValue)
-
-    if (onChange && selectedHelper) {
-      onChange({ to: selectedHelper.calcTo(), from: selectedHelper.calcFrom() })
-    }
+    setHelperValue(newValue)
+    const toDate = new Date()
+    const fromDate = {
+      '1_hour': new Date(toDate.getTime() - 60 * 60 * 1000),
+      '3_hour': new Date(toDate.getTime() - 3 * 60 * 60 * 1000),
+      '1_day': new Date(toDate.getTime() - 24 * 60 * 60 * 1000),
+    }[newValue]
+    if (onChange) onChange({ to: toDate.toISOString(), from: fromDate?.toISOString() as string })
   }
-
-  const selectedHelper = helpers.find((helper) => {
-    if (to === helper.calcTo() && from === helper.calcFrom()) {
-      return true
-    } else {
-      return false
-    }
-  })
-
-  useEffect(() => {
-    if (selectedHelper && helperValue !== selectedHelper.text) {
-      setHelperValue(selectedHelper.text)
-    } else if (!selectedHelper && (to || from)) {
-      setHelperValue('')
-    }
-  }, [selectedHelper, to, from])
-
+  const selectedHelper = HELPERS.find((h) => h.value === (helperValue || DEFAULT_HELPER_VALUE))
   return (
     <div className="flex items-center">
       <Dropdown
@@ -46,16 +38,13 @@ const DatePickers: React.FC<Props> = ({ to, from, onChange, helpers }) => {
         align="start"
         overlay={
           <>
-            <Dropdown.RadioGroup onChange={handleHelperChange} value={selectedHelper?.text || ''}>
-              {helpers.map((helper) => (
-                <Dropdown.Radio key={helper.text} value={helper.text} disabled={helper.disabled}>
-                  <span
-                    className={[helper.disabled ? 'text-scale-1000 cursor-not-allowed' : ''].join(
-                      ' '
-                    )}
-                  >
-                    {helper.text}
-                  </span>
+            <Dropdown.RadioGroup
+              onChange={handleHelperChange}
+              value={helperValue || DEFAULT_HELPER_VALUE}
+            >
+              {HELPERS.map((helper) => (
+                <Dropdown.Radio key={helper.value} value={helper.value}>
+                  {helper.text}
                 </Dropdown.Radio>
               ))}
             </Dropdown.RadioGroup>
@@ -68,32 +57,18 @@ const DatePickers: React.FC<Props> = ({ to, from, onChange, helpers }) => {
           icon={<IconClock size={12} />}
           className="rounded-r-none"
         >
-          {selectedHelper?.text || defaultHelper.text}
+          {selectedHelper?.text}
         </Button>
       </Dropdown>
       <DatePicker
         triggerButtonClassName="rounded-l-none"
-        triggerButtonType={selectedHelper ? 'default' : 'secondary'}
-        triggerButtonTitle="Custom"
-        onChange={(value) => {
+        triggerButtonType={helperValue ? 'default' : 'secondary'}
+        onChange={(value: ToFrom) => {
           setHelperValue('')
           if (onChange) onChange(value)
         }}
         to={!helperValue ? to : undefined}
         from={!helperValue ? from : undefined}
-        renderFooter={({ to, from }) => {
-          if (
-            to &&
-            from &&
-            Math.abs(dayjs(from).diff(dayjs(to), 'day')) > LOGS_LARGE_DATE_RANGE_DAYS_THRESHOLD
-          ) {
-            return (
-              <Alert title={''} variant="warning" className="mx-3 pl-2 pr-2 pt-1 pb-2">
-                Large ranges may result in memory errors for big projects.
-              </Alert>
-            )
-          }
-        }}
       />
     </div>
   )

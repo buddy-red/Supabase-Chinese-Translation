@@ -1,8 +1,19 @@
 import React, { FC, useEffect, useState } from 'react'
-import { Button, Input, IconRefreshCw, IconSearch, IconExternalLink, IconEye, IconEyeOff } from 'ui'
-import { Filters, LogSearchCallback, LogTemplate, PREVIEWER_DATEPICKER_HELPERS } from '.'
+import {
+  Button,
+  Input,
+  Typography,
+  IconRefreshCw,
+  IconSearch,
+  IconExternalLink,
+  IconEye,
+  IconEyeOff,
+} from '@supabase/ui'
+import { LogSearchCallback, LogTemplate } from '.'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import { FILTER_OPTIONS, LogsTableName } from './Logs.constants'
-import LogsFilterPopover from './LogsFilterPopover'
+import { LogsFilter } from './Logs.filter'
 import DatePickers from './Logs.DatePickers'
 import CSVButton from 'components/ui/CSVButton'
 
@@ -17,14 +28,16 @@ interface Props {
   onSearch?: LogSearchCallback
   onExploreClick?: () => void
   onSelectTemplate: (template: LogTemplate) => void
+  dispatchWhereFilters: (x: any) => void
+  whereFilters: any
   table: LogsTableName
   condensedLayout: Boolean
   isShowingEventChart: boolean
   onToggleEventChart: () => void
   csvData?: unknown[]
-  onFiltersChange: (filters: Filters) => void
-  filters: Filters
 }
+
+dayjs.extend(utc)
 
 /**
  * Logs control panel header + wrapper
@@ -38,13 +51,13 @@ const PreviewFilterPanel: FC<Props> = ({
   defaultToValue = '',
   defaultFromValue = '',
   onExploreClick,
+  dispatchWhereFilters,
+  whereFilters: filters,
+  table,
   condensedLayout,
   isShowingEventChart,
   onToggleEventChart,
   csvData,
-  onFiltersChange,
-  filters,
-  table,
 }) => {
   const [search, setSearch] = useState('')
 
@@ -65,17 +78,17 @@ const PreviewFilterPanel: FC<Props> = ({
           {newCount > 0 && (
             <div
               className={[
-                'absolute -top-3 right-3 flex items-center justify-center',
-                'z-50 h-4 w-4',
+                'absolute flex items-center justify-center -top-3 right-3',
+                'h-4 w-4 z-50',
               ].join(' ')}
             >
               <div className="absolute z-20">
-                <p style={{ fontSize: '0.6rem' }} className="text-white">
-                  {newCount > 1000 ? `${Math.floor(newCount / 100) / 10}K` : newCount}
-                </p>
+                <Typography.Text style={{ fontSize: '0.6rem' }} className="opacity-80">
+                  {newCount}
+                </Typography.Text>
               </div>
-              <div className="h-full w-full animate-ping rounded-full bg-green-800 opacity-60"></div>
-              <div className="z-60 absolute top-0 right-0 h-full w-full rounded-full bg-green-900 opacity-80"></div>
+              <div className="bg-green-800 rounded-full w-full h-full animate-ping opacity-60"></div>
+              <div className="absolute z-60 top-0 right-0 bg-green-900 opacity-80 rounded-full w-full h-full"></div>
             </div>
           )}
           <IconRefreshCw size={10} />
@@ -88,22 +101,21 @@ const PreviewFilterPanel: FC<Props> = ({
       Refresh
     </Button>
   )
-  const handleDatepickerChange = ({ to, from }: Partial<Parameters<LogSearchCallback>[1]>) => {
-    onSearch('datepicker-change', { to, from })
-  }
-  const handleInputSearch = (query: string) => onSearch('search-input-change', { query })
+
+  const handleSearch = (partial: Partial<{ query: string; to: string; from: string }>) =>
+    onSearch({ query: search, ...partial })
 
   return (
     <div
-      className={'flex w-full items-center justify-between' + (condensedLayout ? ' px-5 pt-4' : '')}
+      className={'flex items-center justify-between w-full' + (condensedLayout ? ' px-5 pt-4' : '')}
     >
-      <div className="flex flex-row items-center gap-4">
+      <div className="flex flex-row gap-4 items-center">
         <form
           id="log-panel-search"
           onSubmit={(e) => {
             // prevent redirection
             e.preventDefault()
-            handleInputSearch(search)
+            handleSearch({})
           }}
         >
           <Input
@@ -113,7 +125,7 @@ const PreviewFilterPanel: FC<Props> = ({
             onChange={(e) => setSearch(e.target.value)}
             onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
               setSearch(e.target.value)
-              handleInputSearch(e.target.value)
+              handleSearch({ query: e.target.value })
             }}
             icon={
               <div className="text-scale-900">
@@ -124,8 +136,8 @@ const PreviewFilterPanel: FC<Props> = ({
             actions={
               hasEdits && (
                 <button
-                  onClick={() => handleInputSearch(search)}
-                  className="mx-2 text-scale-1100 hover:text-scale-1200"
+                  onClick={() => handleSearch({})}
+                  className="text-scale-1100 hover:text-scale-1200 mx-2"
                 >
                   {'↲'}
                 </button>
@@ -135,10 +147,11 @@ const PreviewFilterPanel: FC<Props> = ({
         </form>
 
         <DatePickers
-          onChange={handleDatepickerChange}
+          onChange={async (e: { to: string; from: string }) => {
+            handleSearch(e)
+          }}
           to={defaultToValue}
           from={defaultFromValue}
-          helpers={PREVIEWER_DATEPICKER_HELPERS}
         />
 
         <div>
@@ -161,12 +174,12 @@ const PreviewFilterPanel: FC<Props> = ({
               }
 
               return (
-                <LogsFilterPopover
-                  buttonClassName={classes.join(' ')}
+                <LogsFilter
+                  classes={classes.join(' ')}
                   key={`${x.key}-filter`}
                   options={x}
-                  onFiltersChange={onFiltersChange}
-                  filters={filters}
+                  dispatchFilters={dispatchWhereFilters}
+                  filtersState={filters}
                 />
               )
             })}
@@ -183,7 +196,7 @@ const PreviewFilterPanel: FC<Props> = ({
         <CSVButton data={csvData} disabled={!Boolean(csvData)} title="Download data" />
       </div>
 
-      <Button type="default" onClick={onExploreClick} iconRight={<IconExternalLink size={10} />}>
+      <Button type="secondary" onClick={onExploreClick} iconRight={<IconExternalLink size={10} />}>
         Explore via query
       </Button>
     </div>

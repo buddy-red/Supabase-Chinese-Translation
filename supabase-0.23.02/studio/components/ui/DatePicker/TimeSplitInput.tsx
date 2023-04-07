@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { IconClock } from 'ui'
+import { IconClock } from '@supabase/ui'
 
 import { format } from 'date-fns'
 
@@ -38,10 +38,13 @@ const TimeSplitInput = ({
     // Only run time conflicts if
     // startDate and endDate are the same date
 
+    // console.log(startDate)
+    // console.log(endDate)
     if (format(new Date(startDate), 'dd/mm/yyyy') == format(new Date(endDate), 'dd/mm/yyyy')) {
       // checks if start time is ahead of end time
 
       if (type === 'start') {
+        // console.log('HH in start switch')
         if (_time.HH && Number(_time.HH) > Number(endTime.HH)) {
           endTimePayload.HH = _time.HH
           endTimeChanges = true
@@ -76,6 +79,8 @@ const TimeSplitInput = ({
       }
 
       if (type === 'end') {
+        // console.log('HH in start switch')
+
         if (_time.HH && Number(_time.HH) < Number(startTime.HH)) {
           startTimePayload.HH = _time.HH
           startTimeChanges = true
@@ -123,6 +128,8 @@ const TimeSplitInput = ({
   }
 
   function handleOnChange(value: string, valueType: TimeType) {
+    // console.log('handleOnChange')
+
     const payload = {
       HH: time.HH,
       mm: time.mm,
@@ -144,8 +151,14 @@ const TimeSplitInput = ({
         break
     }
 
+    // console.log('got here')
+
     payload[valueType] = value
     setTime({ ...payload })
+
+    // if (endTimeChanges) {
+    //   setEndTime(endTimePayload)
+    // }
   }
 
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
@@ -160,12 +173,12 @@ const TimeSplitInput = ({
   return (
     <div
       className={`
-        flex h-7 items-center justify-center
-        gap-0 rounded border border-scale-700 bg-scale-100 text-xs text-scale-1100 dark:bg-scaleA-300
-        ${focus && ' border-scale-800 outline outline-2 outline-scale-500'}
+        flex items-center justify-center gap-0
+        text-xs text-scale-1100 bg-scale-100 dark:bg-scaleA-300 border border-scale-700 h-7 rounded
+        ${focus && ' outline outline-2 outline-scale-500 border-scale-800'}
     `}
     >
-      <div className="mr-1 text-scale-900">
+      <div className="text-scale-900 mr-1">
         <IconClock size={14} strokeWidth={1.5} />
       </div>
 
@@ -178,13 +191,13 @@ const TimeSplitInput = ({
         onChange={(e) => handleOnChange(e.target.value, 'HH')}
         aria-label="Hours"
         className="
-            ring-none
             w-4
+            text-center
+            text-xs
+            p-0
+            text-scale-1200 bg-transparent outline-none
             border-none
-            bg-transparent
-            p-0 text-center text-xs
-            text-scale-1200
-            outline-none
+            ring-none
             ring-0
             focus:ring-0
         "
@@ -200,13 +213,13 @@ const TimeSplitInput = ({
         onChange={(e) => handleOnChange(e.target.value, 'mm')}
         aria-label="Minutes"
         className="
-            ring-none
             w-4
+            text-center
+            text-xs
+            p-0
+            text-scale-1200 bg-transparent outline-none
             border-none
-            bg-transparent
-            p-0 text-center text-xs
-            text-scale-1200
-            outline-none
+            ring-none
             ring-0
             focus:ring-0
         "
@@ -222,13 +235,13 @@ const TimeSplitInput = ({
         onChange={(e) => handleOnChange(e.target.value, 'ss')}
         aria-label="Seconds"
         className="
-            ring-none
             w-4
+            text-center
+            text-xs
+            p-0
+            text-scale-1200 bg-transparent outline-none
             border-none
-            bg-transparent
-            p-0 text-center text-xs
-            text-scale-1200
-            outline-none
+            ring-none
             ring-0
             focus:ring-0
         "

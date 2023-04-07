@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { IconChevronRight } from 'ui'
+import { IconChevronRight } from '@supabase/ui'
 import Link from 'next/link'
 
 interface Props {
@@ -27,7 +27,7 @@ const CardButton: FC<Props> = ({
   imgAlt,
   onClick,
   icon,
-  containerHeightClassName = 'h-32',
+  containerHeightClassName="h-32"
 }) => {
   const LinkContainer = ({ children }: { children: React.ReactNode }) => (
     <Link href={linkHref}>
@@ -48,7 +48,7 @@ const CardButton: FC<Props> = ({
     'border border-panel-border-light dark:border-panel-border-dark',
     'rounded-md py-4 px-6 flex flex-row',
     'transition ease-in-out duration-150',
-    containerHeightClassName,
+    containerHeightClassName
   ]
 
   if (isLink) {
@@ -62,7 +62,7 @@ const CardButton: FC<Props> = ({
   }
 
   const ImageContainer = ({ children }: { children: React.ReactNode }) => {
-    return <div className="mr-4 flex flex-col">{children}</div>
+    return <div className="flex flex-col mr-4">{children}</div>
   }
 
   const contents = (
@@ -81,25 +81,23 @@ const CardButton: FC<Props> = ({
         </ImageContainer>
       )}
       {icon && <ImageContainer>{icon}</ImageContainer>}
-      <div className="flex h-full w-full flex-col space-y-2">
+      <div className="flex flex-col space-y-2 w-full h-full">
         <h5 className="text-scale-1200">{title}</h5>
-        {(children || description) && (
-          <div className="flex w-full flex-1 flex-col">
-            <p className="text-sm text-scale-1100">{description}</p>
-            <div className="w-full">{children && children}</div>
-          </div>
-        )}
-        {footer && <div className="w-full">{footer}</div>}
+        <div className="flex flex-col flex-1 w-full">
+          <p className="text-scale-1100 text-sm">{description}</p>
+          <div className="w-full">{children && children}</div>
+        </div>
+        <div className="w-full">{footer && footer}</div>
       </div>
       {isLink && (
         <div
           className="
           absolute
           right-4
-          top-4
+          top-3
           text-scale-900
-          transition-all
-          duration-200
+          transition-all 
+          duration-200 
           group-hover:right-3
           group-hover:text-scale-1200
         "

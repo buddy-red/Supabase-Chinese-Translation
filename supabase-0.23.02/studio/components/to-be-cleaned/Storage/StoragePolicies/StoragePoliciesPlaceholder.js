@@ -1,10 +1,10 @@
-import { IconArchive } from 'ui'
-import Panel from 'components/ui/Panel'
+import { IconArchive } from '@supabase/ui'
+import Panel from 'components/to-be-cleaned/Panel'
 
 const StoragePoliciesPlaceholder = ({ guiHeight }) => (
   <Panel
     title={[
-      <div key="storagePlaceholder" className="flex w-full items-center justify-between">
+      <div key="storagePlaceholder" className="flex items-center justify-between w-full">
         <div className="flex items-center space-x-4">
           <IconArchive size="small" />
           <h4>Bucket policies</h4>

@@ -1,9 +1,3 @@
-export const URL_EXPIRY_DURATION = {
-  WEEK: 60 * 60 * 24 * 7,
-  MONTH: 60 * 60 * 24 * 30,
-  YEAR: 60 * 60 * 24 * 365,
-}
-
 export const STORAGE_VIEWS = {
   COLUMNS: 'COLUMNS',
   LIST: 'LIST',
@@ -14,11 +8,6 @@ export const STORAGE_SORT_BY = {
   UPDATED_AT: 'updated_at',
   CREATED_AT: 'created_at',
   LAST_ACCESSED_AT: 'last_accessed_at',
-}
-
-export const STORAGE_SORT_BY_ORDER = {
-  ASC: 'asc',
-  DESC: 'desc',
 }
 
 export const STORAGE_ROW_TYPES = {
@@ -44,16 +33,17 @@ export const STORAGE_POLICY_DEFAULT_DEFINITION_PLACEHOLDER = `/*
 `
 
 export const STORAGE_CLIENT_LIBRARY_MAPPINGS = {
-  upload: ['INSERT'],
-  download: ['SELECT'],
-  list: ['SELECT'],
-  update: ['SELECT', 'UPDATE'],
-  move: ['SELECT', 'UPDATE'],
-  copy: ['SELECT', 'INSERT'],
-  remove: ['SELECT', 'DELETE'],
-  createSignedUrl: ['SELECT'],
-  createSignedUrls: ['SELECT'],
-  getPublicUrl: [],
+  copyObject: ['INSERT'],
+  createObject: ['INSERT'],
+  deleteObject: ['SELECT', 'DELETE'],
+  deleteObjects: ['SELECT', 'DELETE'],
+  getObject: ['SELECT'],
+  getSignedObject: [],
+  getSignedUrl: ['SELECT'],
+  getSignedUrls: ['SELECT'],
+  listObjects: ['SELECT'],
+  moveObjects: ['SELECT', 'UPDATE'],
+  updateObject: ['SELECT', 'UPDATE'],
 }
 
 export const CONTEXT_MENU_KEYS = {

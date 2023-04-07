@@ -1,49 +1,50 @@
-import { Alert } from 'ui'
+import { Alert } from '@supabase/ui'
 import React from 'react'
 import { LOGS_TAILWIND_CLASSES } from '../Logs.constants'
 import LogsDivider from '../Logs.Divider'
-import {
-  jsonSyntaxHighlight,
-  SelectionDetailedRow,
-  SelectionDetailedTimestampRow,
-  SeverityFormatter,
-} from '../LogsFormatters'
+import { jsonSyntaxHighlight, SeverityFormatter } from '../LogsFormatters'
 
 const DatabasePostgresSelectionRender = ({ log }: any) => {
   const postgresUsername = log?.metadata[0]?.parsed[0]?.user_name
   const sessionId = log?.metadata[0]?.parsed[0]?.session_id
   const hint = log?.metadata[0]?.parsed[0]?.hint
-  const errorSeverity = log?.metadata[0]?.parsed[0]?.error_severity
+
+  const DetailedRow = ({ label, value }: { label: string; value: string | React.ReactNode }) => {
+    return (
+      <div className="grid grid-cols-12">
+        <span className="text-scale-900 text-sm col-span-4">{label}</span>
+        <span className="text-scale-1200 text-base col-span-8">{value}</span>
+      </div>
+    )
+  }
 
   return (
     <>
       <div className={LOGS_TAILWIND_CLASSES.log_selection_x_padding}>
-        <span className="col-span-4 text-sm text-scale-900">Event message</span>
+        <span className="text-scale-900 text-sm col-span-4">Event message</span>
 
-        <div className="text-wrap mt-2 overflow-x-auto whitespace-pre-wrap font-mono  text-xs text-scale-1200">
-          {log.event_message}
-        </div>
+        <div
+          className="text-xs text-wrap font-mono text-scale-1200 mt-2"
+          dangerouslySetInnerHTML={{
+            __html: log.event_message,
+          }}
+        />
       </div>
       <LogsDivider />
       <div className={`${LOGS_TAILWIND_CLASSES.log_selection_x_padding} space-y-2`}>
-        <SelectionDetailedRow
-          label="Severity"
-          value={errorSeverity}
-          valueRender={<SeverityFormatter value={errorSeverity} />}
-        />
-        <SelectionDetailedTimestampRow value={log.timestamp} />
-        <SelectionDetailedRow label="Postgres Username" value={postgresUsername} />
-        <SelectionDetailedRow label="Session ID" value={sessionId} />
+        <DetailedRow label="Severity" value={<SeverityFormatter value={log.error_severity} />} />
+        <DetailedRow label="Postgres Username" value={postgresUsername} />
+        <DetailedRow label="Session ID" value={sessionId} />
       </div>
       {hint && (
         <div className={`mt-4 ${LOGS_TAILWIND_CLASSES.log_selection_x_padding}`}>
-          <Alert variant="warning" withIcon title={hint} />
+          <Alert variant="warning" withIcon title={log?.metadata[0]?.parsed[0]?.hint} />
         </div>
       )}
       <LogsDivider />
       <div className={LOGS_TAILWIND_CLASSES.log_selection_x_padding}>
-        <h3 className="mb-4 text-lg text-scale-1200">Metadata</h3>
-        <pre className="syntax-highlight overflow-x-auto text-sm">
+        <h3 className="text-lg text-scale-1200 mb-4">Metadata</h3>
+        <pre className="text-sm syntax-highlight overflow-x-auto">
           <div
             className="text-wrap"
             dangerouslySetInnerHTML={{

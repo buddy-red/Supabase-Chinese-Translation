@@ -1,33 +1,21 @@
 import { ReactElement, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useRouter } from 'next/router'
 
-import { useFlag, useStore, withAuth } from 'hooks'
+import { useStore } from 'hooks'
 import Error from 'components/ui/Error'
 import ProductMenu from 'components/ui/ProductMenu'
 import ProjectLayout from 'components/layouts/ProjectLayout/ProjectLayout'
 import { generateDocsMenu } from './DocsLayout.utils'
 
 function DocsLayout({ title, children }: { title: string; children: ReactElement }) {
-  const router = useRouter()
   const { meta, ui } = useStore()
   const { data, isLoading, error } = meta.openApi
 
-  const graphiql = useFlag('graphiql')
-
-  const getPage = () => {
-    if (router.pathname.endsWith('graphiql')) return 'graphiql'
-
-    const { page, resource } = router.query
-    if (!page && !resource) return 'introduction'
-    return (page || resource || '') as string
-  }
-
   useEffect(() => {
-    if (ui.selectedProject?.ref) {
+    if (ui.selectedProject) {
       meta.openApi.load()
     }
-  }, [ui.selectedProject?.ref])
+  }, [ui.selectedProject])
 
   if (error) {
     return (
@@ -46,16 +34,11 @@ function DocsLayout({ title, children }: { title: string; children: ReactElement
       title={title || 'API Docs'}
       isLoading={isLoading}
       product="API Docs"
-      productMenu={
-        <ProductMenu
-          page={getPage()}
-          menu={generateDocsMenu(projectRef, tableNames, functionNames, graphiql)}
-        />
-      }
+      productMenu={<ProductMenu menu={generateDocsMenu(projectRef, tableNames, functionNames)} />}
     >
       {children}
     </ProjectLayout>
   )
 }
 
-export default withAuth(observer(DocsLayout))
+export default observer(DocsLayout)

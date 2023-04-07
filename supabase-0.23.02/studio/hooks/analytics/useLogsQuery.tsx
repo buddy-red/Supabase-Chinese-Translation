@@ -1,80 +1,57 @@
-import { useQuery } from '@tanstack/react-query'
-import {
-  EXPLORER_DATEPICKER_HELPERS,
-  genQueryParams,
-  getDefaultHelper,
-} from 'components/interfaces/Settings/Logs'
+import { cleanQuery, genQueryParams } from 'components/interfaces/Settings/Logs'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { LogsEndpointParams, Logs, LogData } from 'components/interfaces/Settings/Logs/Logs.types'
+import useSWRInfinite, { SWRInfiniteKeyLoader } from 'swr/infinite/dist/infinite'
 import { API_URL } from 'lib/constants'
+import useSWR, { mutate } from 'swr'
 import { get } from 'lib/common/fetch'
-export interface LogsQueryData {
+interface Data {
   params: LogsEndpointParams
   isLoading: boolean
   logData: LogData[]
-  data?: never
   error: string | Object | null
 }
-export interface LogsQueryHandlers {
+interface Handlers {
   changeQuery: (newQuery?: string) => void
   runQuery: () => void
-  setParams: Dispatch<SetStateAction<LogsEndpointParams>>
 }
 
 const useLogsQuery = (
   projectRef: string,
   initialParams: Partial<LogsEndpointParams> = {}
-): [LogsQueryData, LogsQueryHandlers] => {
-  const defaultHelper = getDefaultHelper(EXPLORER_DATEPICKER_HELPERS)
+): [Data, Handlers] => {
   const [params, setParams] = useState<LogsEndpointParams>({
-    sql: initialParams?.sql || '',
     project: projectRef,
-    iso_timestamp_start: initialParams.iso_timestamp_start
-      ? initialParams.iso_timestamp_start
-      : defaultHelper.calcFrom(),
-    iso_timestamp_end: initialParams.iso_timestamp_end
-      ? initialParams.iso_timestamp_end
-      : defaultHelper.calcTo(),
+    sql: '',
+    rawSql: '',
+    // timestamp_start: '',
+    // timestamp_end: '',
+    ...initialParams,
   })
-
-  const enabled = typeof projectRef !== 'undefined' && Boolean(params.sql)
 
   const queryParams = genQueryParams(params as any)
   const {
     data,
-    error: rqError,
-    isLoading,
-    isRefetching,
-    refetch,
-  } = useQuery(
-    ['projects', projectRef, 'logs', queryParams],
-    ({ signal }) =>
-      get<Logs>(`${API_URL}/projects/${projectRef}/analytics/endpoints/logs.all?${queryParams}`, {
-        signal,
-      }),
-    {
-      enabled,
-      refetchOnWindowFocus: false,
-    }
+    error: swrError,
+    isValidating: isLoading,
+    mutate,
+  } = useSWR<Logs>(
+    params.sql ? `${API_URL}/projects/${projectRef}/analytics/endpoints/logs.all?${queryParams}` : null,
+    get,
+    { revalidateOnFocus: false }
   )
-
-  let error: null | string | object = rqError ? (rqError as any).message : null
+  let error: null | string | object = swrError ? swrError.message : null
 
   if (!error && data?.error) {
     error = data?.error
   }
   const changeQuery = (newQuery = '') => {
-    setParams((prev) => ({ ...prev, sql: newQuery }))
+    setParams((prev) => ({ ...prev, sql: cleanQuery(newQuery), rawSql: newQuery }))
   }
 
   return [
-    {
-      params,
-      isLoading: (enabled && isLoading) || isRefetching,
-      logData: data?.result ? data?.result : [],
-      error,
-    },
-    { changeQuery, runQuery: () => refetch(), setParams },
+    { params, isLoading, logData: data?.result ? data?.result : [], error },
+    { changeQuery, runQuery: () => mutate() },
   ]
 }
 export default useLogsQuery

@@ -1,9 +1,15 @@
-import Link from 'next/link'
-import { FC, useState } from 'react'
-import { partition, isEmpty } from 'lodash'
-import { Alert, Button, IconEdit, IconHelpCircle, IconKey, IconTrash, IconExternalLink } from 'ui'
-
-import type { PostgresTable, PostgresColumn, PostgresType } from '@supabase/postgres-meta'
+import React, { FC, useState } from 'react'
+import { partition, isEmpty, isUndefined } from 'lodash'
+import {
+  Alert,
+  Button,
+  IconEdit,
+  IconHelpCircle,
+  IconKey,
+  IconTrash,
+  Typography,
+} from '@supabase/ui'
+import { PostgresTable, PostgresColumn, PostgresRelationship } from '@supabase/postgres-meta'
 import {
   DragDropContext,
   Droppable,
@@ -16,15 +22,15 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import Column from './Column'
 import InformationBox from 'components/ui/InformationBox'
 import ForeignKeySelector from '../ForeignKeySelector/ForeignKeySelector'
+import { ColumnField, EnumType } from '../SidePanelEditor.types'
 import { ImportContent } from './TableEditor.types'
 import { generateColumnField } from '../ColumnEditor/ColumnEditor.utils'
-import { ColumnField, ExtendedPostgresRelationship } from '../SidePanelEditor.types'
-import { TEXT_TYPES } from '../SidePanelEditor.constants'
 
 interface Props {
   table?: Partial<PostgresTable>
+  tables: PostgresTable[]
   columns?: ColumnField[]
-  enumTypes: PostgresType[]
+  enumTypes: EnumType[]
   importContent?: ImportContent
   isNewRecord: boolean
   onColumnsUpdated: (columns: ColumnField[]) => void
@@ -34,9 +40,10 @@ interface Props {
 
 const ColumnManagement: FC<Props> = ({
   table,
+  tables = [],
   columns = [],
   enumTypes = [],
-  importContent,
+  importContent = {},
   isNewRecord,
   onColumnsUpdated = () => {},
   onSelectImportData = () => {},
@@ -50,30 +57,26 @@ const ColumnManagement: FC<Props> = ({
     (column: ColumnField) => column.isPrimaryKey
   )
 
-  const saveColumnForeignKey = (foreignKeyConfiguration?: {
-    table: PostgresTable
-    column: PostgresColumn
-    deletionAction: string
-  }) => {
-    if (selectedColumnToEditRelation !== undefined) {
+  const saveColumnForeignKey = (
+    foreignKeyConfiguration: { table: PostgresTable; column: PostgresColumn } | undefined
+  ) => {
+    if (!isUndefined(selectedColumnToEditRelation)) {
       onUpdateColumn(selectedColumnToEditRelation, {
-        foreignKey:
-          foreignKeyConfiguration !== undefined
-            ? {
-                id: 0,
-                constraint_name: '',
-                source_schema: table?.schema ?? '',
-                source_table_name: table?.name ?? '',
-                source_column_name: selectedColumnToEditRelation?.name,
-                target_table_schema: foreignKeyConfiguration.table.schema,
-                target_table_name: foreignKeyConfiguration.table.name,
-                target_column_name: foreignKeyConfiguration.column.name,
-                deletion_action: foreignKeyConfiguration.deletionAction,
-              }
-            : undefined,
-        ...(foreignKeyConfiguration !== undefined && {
+        foreignKey: !isUndefined(foreignKeyConfiguration)
+          ? {
+              id: 0,
+              constraint_name: '',
+              source_schema: table?.schema ?? '',
+              source_table_name: table?.name ?? '',
+              source_column_name: selectedColumnToEditRelation?.name,
+              target_table_schema: foreignKeyConfiguration.table.schema,
+              target_table_name: foreignKeyConfiguration.table.name,
+              target_column_name: foreignKeyConfiguration.column.name,
+            }
+          : undefined,
+        ...(!isUndefined(foreignKeyConfiguration) && {
           format: foreignKeyConfiguration.column.format,
-          defaultValue: null,
+          defaultValue: '',
         }),
       })
     }
@@ -83,13 +86,8 @@ const ColumnManagement: FC<Props> = ({
   const onUpdateColumn = (columnToUpdate: ColumnField, changes: Partial<ColumnField>) => {
     const updatedColumns = columns.map((column: ColumnField) => {
       if (column.id === columnToUpdate.id) {
-        const isTextBasedColumn = TEXT_TYPES.includes(columnToUpdate.format)
-        if (!isTextBasedColumn && changes.defaultValue === '') {
-          changes.defaultValue = null
-        }
-
-        if ('name' in changes && column.foreignKey !== undefined) {
-          const foreignKey: ExtendedPostgresRelationship = {
+        if ('name' in changes && !isUndefined(column.foreignKey)) {
+          const foreignKey: PostgresRelationship = {
             ...column.foreignKey,
             source_column_name: changes?.name ?? '',
           }
@@ -139,9 +137,9 @@ const ColumnManagement: FC<Props> = ({
 
   return (
     <>
-      <div className="w-full space-y-4 table-editor-columns">
-        <div className="flex items-center justify-between w-full">
-          <h5>Columns</h5>
+      <div className="w-full table-editor-columns space-y-4">
+        <div className="w-full flex items-center justify-between">
+          <Typography.Title level={5}>Columns</Typography.Title>
           {isNewRecord && (
             <>
               {hasImportContent ? (
@@ -164,10 +162,10 @@ const ColumnManagement: FC<Props> = ({
 
         {hasImportContent && (
           <div className="my-2 opacity-75">
-            <p>
+            <Typography.Text>
               Your table will be created with {importContent?.rowCount?.toLocaleString()} rows and
               the following {columns.length} columns.
-            </p>
+            </Typography.Text>
           </div>
         )}
 
@@ -184,39 +182,18 @@ const ColumnManagement: FC<Props> = ({
             block
             icon={<IconKey className="text-white" size="large" />}
             title="Composite primary key selected"
-            description="The columns that you've selected will be grouped as a primary key, and will serve
+            description="The columns that you've selected will grouped as a primary key, and will serve
             as the unique identifier for the rows in your table"
           />
         )}
 
         <div className="space-y-2">
           {/* Headers */}
-          <div className="flex w-full px-3">
+          <div className="w-full flex px-3">
             {/* Drag handle */}
             {isNewRecord && <div className="w-[5%]" />}
-            <div className="w-[25%] flex items-center space-x-2">
+            <div className="w-[25%]">
               <h5 className="text-xs text-scale-900">Name</h5>
-              <Tooltip.Root delayDuration={0}>
-                <Tooltip.Trigger>
-                  <h5 className="text-xs text-scale-900">
-                    <IconHelpCircle size={15} strokeWidth={1.5} />
-                  </h5>
-                </Tooltip.Trigger>
-                <Tooltip.Content side="bottom">
-                  <Tooltip.Arrow className="radix-tooltip-arrow" />
-                  <div
-                    className={[
-                      'rounded bg-scale-100 py-1 px-2 leading-none shadow', // background
-                      'border border-scale-200 ', //border
-                    ].join(' ')}
-                  >
-                    <span className="text-xs text-scale-1200">
-                      Recommended to use lowercase and use an underscore to separate words e.g.
-                      column_name
-                    </span>
-                  </div>
-                </Tooltip.Content>
-              </Tooltip.Root>
             </div>
             <div className="w-[25%]">
               <h5 className="text-xs text-scale-900">Type</h5>
@@ -234,11 +211,11 @@ const ColumnManagement: FC<Props> = ({
                   <Tooltip.Arrow className="radix-tooltip-arrow" />
                   <div
                     className={[
-                      'rounded bg-scale-100 py-1 px-2 leading-none shadow', // background
+                      'bg-scale-100 shadow py-1 px-2 rounded leading-none', // background
                       'border border-scale-200 ', //border
                     ].join(' ')}
                   >
-                    <span className="text-xs text-scale-1200">
+                    <span className="text-scale-1200 text-xs">
                       Can be either a value or a SQL expression
                     </span>
                   </div>
@@ -262,7 +239,7 @@ const ColumnManagement: FC<Props> = ({
                 {(droppableProvided: DroppableProvided) => (
                   <div
                     ref={droppableProvided.innerRef}
-                    className={`space-y-2 rounded-md bg-gray-400 px-3 py-2 ${
+                    className={`space-y-2 bg-gray-400 rounded-md px-3 py-2 ${
                       isNewRecord ? '' : '-mx-3'
                     }`}
                   >
@@ -330,28 +307,17 @@ const ColumnManagement: FC<Props> = ({
           </DragDropContext>
         </div>
 
-        <div className="flex items-center justify-between">
-          {!hasImportContent && (
-            <Button type="default" onClick={() => onAddColumn()}>
-              Add column
-            </Button>
-          )}
-          <Link href="https://supabase.com/docs/guides/database/tables#data-types">
-            <a target="_blank" rel="noreferrer">
-              <Button
-                type="text"
-                className="text-scale-1000 hover:text-scale-1200"
-                icon={<IconExternalLink size={12} strokeWidth={2} />}
-              >
-                Learn more about data types
-              </Button>
-            </a>
-          </Link>
-        </div>
+        {!hasImportContent && (
+          <Button type="default" onClick={() => onAddColumn()}>
+            Add column
+          </Button>
+        )}
       </div>
       <ForeignKeySelector
+        tables={tables}
         column={selectedColumnToEditRelation as ColumnField}
-        visible={selectedColumnToEditRelation !== undefined}
+        foreignKey={selectedColumnToEditRelation?.foreignKey}
+        visible={!isUndefined(selectedColumnToEditRelation)}
         closePanel={() => setSelectedColumnToEditRelation(undefined)}
         saveChanges={saveColumnForeignKey}
       />

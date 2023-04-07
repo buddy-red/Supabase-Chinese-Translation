@@ -1,6 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-
 import apiWrapper from 'lib/api/apiWrapper'
+import { NextApiRequest, NextApiResponse } from 'next'
 
 export default (req: NextApiRequest, res: NextApiResponse) => apiWrapper(req, res, handler)
 
@@ -21,7 +20,7 @@ const handleGetAll = async (req: NextApiRequest, res: NextApiResponse) => {
   const response = [
     {
       id: 1,
-      name: process.env.DEFAULT_ORGANIZATION_NAME || 'Default Organization',
+      name: '默认组织',
       slug: 'default-org-slug',
       billing_email: 'billing@supabase.co',
     },

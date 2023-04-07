@@ -1,5 +1,6 @@
 import Editor, { useMonaco } from '@monaco-editor/react'
 import { FC, useEffect, useRef, useState } from 'react'
+import { Typography } from '@supabase/ui'
 
 interface Props {
   queryId?: string
@@ -12,7 +13,7 @@ const JsonEditor: FC<Props> = ({
   queryId = '',
   defaultValue = '',
   readOnly = false,
-  onInputChange = () => {},
+  onInputChange = (value) => {},
 }) => {
   const monaco = useMonaco()
   const editorRef = useRef()
@@ -55,13 +56,13 @@ const JsonEditor: FC<Props> = ({
     })
   }
 
-  const Loading = () => <h4>Loading</h4>
+  const Loading = () => <Typography.Title level={4}>Loading</Typography.Title>
 
   return (
     <Editor
       className="monaco-editor"
       theme="vs-dark"
-      defaultLanguage="json"
+      defaultLanguage={'json'}
       defaultValue={defaultValue}
       path={queryId}
       loading={<Loading />}

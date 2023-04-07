@@ -1,27 +1,21 @@
 import { FC, useState } from 'react'
-import { Button } from 'ui'
+import { Button } from '@supabase/ui'
 
 interface ActionBarProps {
-  loading?: boolean
-  disableApply?: boolean
-  hideApply?: boolean
-  children?: any
   applyButtonLabel?: string
   backButtonLabel?: string
+  children?: any
+  disableApply?: boolean
   applyFunction?: (resolve: any) => void
   closePanel: () => void
-  formId?: string
 }
 const ActionBar: FC<ActionBarProps> = ({
-  loading = false,
-  disableApply = false,
-  hideApply = false,
-  children = undefined,
   applyButtonLabel = 'Apply',
   backButtonLabel = 'Back',
-  applyFunction = undefined,
-  closePanel = () => {},
-  formId,
+  children = null,
+  disableApply = false,
+  applyFunction = null,
+  closePanel,
 }) => {
   const [isRunning, setIsRunning] = useState(false)
 
@@ -35,43 +29,20 @@ const ActionBar: FC<ActionBarProps> = ({
   }
 
   return (
-    <div className="flex w-full justify-end space-x-3 border-t border-scale-500 px-3 py-4">
-      <Button
-        size="small"
-        type="default"
-        htmlType="button"
-        onClick={closePanel}
-        disabled={isRunning || loading}
-      >
+    <div className="space-x-3 w-full flex justify-between px-3 py-4 border-t border-scale-500">
+      <Button size="small" onClick={closePanel} type="default">
         {backButtonLabel}
       </Button>
-
       {children}
-
-      {applyFunction !== undefined ? (
-        // Old solution, necessary when loading is handled by this component itself
+      {applyFunction && (
         <Button
           size="small"
           onClick={onSelectApply}
-          disabled={disableApply || isRunning || loading}
-          loading={isRunning || loading}
+          disabled={disableApply || isRunning}
+          loading={isRunning}
         >
           {applyButtonLabel}
         </Button>
-      ) : !hideApply ? (
-        // New solution, when using the Form component, loading is handled by the Form itself
-        // Does not require applyFunction() callback
-        <Button
-          size="small"
-          disabled={disableApply}
-          loading={loading}
-          htmlType="submit"
-          form={formId}
-        >
-          {applyButtonLabel}
-        </Button>
-      ) : (
-        <div />
       )}
     </div>
   )

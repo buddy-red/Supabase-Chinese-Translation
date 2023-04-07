@@ -1,8 +1,8 @@
-import { SqlSnippets, UserContent } from 'types'
+import { UserContent } from 'types'
 
 export const SQL_SNIPPET_SCHEMA_VERSION = '1.0'
 
-export const NEW_SQL_SNIPPET_SKELETON: UserContent<SqlSnippets.Content> = {
+export const NEW_SQL_SNIPPET_SKELETON: UserContent = {
   name: 'New Query',
   description: '',
   type: 'sql',

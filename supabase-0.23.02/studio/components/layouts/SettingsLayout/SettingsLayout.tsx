@@ -1,11 +1,12 @@
-import { FC, ReactNode, useEffect } from 'react'
+import { FC, ReactNode } from 'react'
+import { isUndefined } from 'lodash'
 import { observer } from 'mobx-react-lite'
-import { useRouter } from 'next/router'
-import { useStore, withAuth } from 'hooks'
-import { generateSettingsMenu } from './SettingsMenu.utils'
 
+import { useStore } from 'hooks'
 import BaseLayout from '../'
 import ProductMenu from 'components/ui/ProductMenu'
+import { generateSettingsMenu } from './SettingsMenu.utils'
+import { useRouter } from 'next/router'
 
 interface Props {
   title?: string
@@ -13,30 +14,16 @@ interface Props {
 }
 
 const SettingsLayout: FC<Props> = ({ title, children }) => {
-  const { ui, meta } = useStore()
-  const projectRef = ui.selectedProjectRef as string
-  const projectBaseInfo = ui.selectedProjectBaseInfo
+  const { ui } = useStore()
+  const projectRef = ui.selectedProject?.ref ?? 'default'
 
   const router = useRouter()
-  // billing pages live under /billing/invoices and /billing/subscription, etc
-  // so we need to pass the [5]th part of the url to the menu
-  const page = router.pathname.includes('billing')
-    ? router.pathname.split('/')[5]
-    : router.pathname.split('/')[4]
-
-  const menuRoutes = generateSettingsMenu(projectRef, projectBaseInfo)
-
-  useEffect(() => {
-    if (ui.selectedProject?.ref) {
-      meta.extensions.load()
-    }
-  }, [ui.selectedProject?.ref])
-
+  const page = router.pathname.split('/')[4]
   return (
     <BaseLayout
       title={title || 'Settings'}
       product="Settings"
-      productMenu={<ProductMenu page={page} menu={menuRoutes} />}
+      productMenu={<ProductMenu page={page} menu={generateSettingsMenu(projectRef)} />}
     >
       <main style={{ maxHeight: '100vh' }} className="flex-1 overflow-y-auto">
         {children}
@@ -45,4 +32,4 @@ const SettingsLayout: FC<Props> = ({ title, children }) => {
   )
 }
 
-export default withAuth(observer(SettingsLayout))
+export default observer(SettingsLayout)

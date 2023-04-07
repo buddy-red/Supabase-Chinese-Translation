@@ -4,9 +4,8 @@ import { useRouter } from 'next/router'
 import { observer, useLocalObservable } from 'mobx-react-lite'
 import { makeAutoObservable } from 'mobx'
 import { debounce } from 'lodash'
-import { Button, Input, Listbox } from 'ui'
-import { Dictionary } from 'components/grid'
-import generator from 'generate-password'
+import { Button, Input, Listbox, Typography } from '@supabase/ui'
+import { Dictionary } from '@supabase/grid'
 
 import { useStore } from 'hooks'
 import { post } from 'lib/common/fetch'
@@ -137,11 +136,13 @@ const SetupProject = () => {
 export default observer(SetupProject)
 
 const Connecting = () => (
-  <div className="flex h-full w-full flex-col items-center justify-center">
-    <div className="flex w-32 items-center justify-center">
+  <div className="w-full h-full flex flex-col items-center justify-center">
+    <div className="w-32 flex items-center justify-center">
       <Loading />
     </div>
-    <p>Connecting...</p>
+    <Typography.Text>
+      <p>Connecting...</p>
+    </Typography.Text>
   </div>
 )
 
@@ -189,17 +190,6 @@ const CreateProject = observer(() => {
     setPasswordStrengthMessage(message)
   }
 
-  function generateStrongPassword() {
-    const password = generator.generate({
-      length: 16,
-      numbers: true,
-      uppercase: true,
-    })
-
-    setDbPass(password)
-    delayedCheckPasswordStrength(password)
-  }
-
   async function createSupabaseProject(dbSql: string) {
     const data = {
       cloud_provider: PROVIDERS.AWS.id, // hardcoded for DB instances to be under AWS
@@ -212,8 +202,7 @@ const CreateProject = observer(() => {
       auth_site_url: _store.selectedVercelProjectUrl,
       vercel_configuration_id: _store.configurationId,
     }
-    const project = await post(`${API_URL}/projects`, data)
-    return { ...project, db_host: `db.${project.ref}.supabase.co`, db_password: dbPass }
+    return await post(`${API_URL}/projects`, data)
   }
 
   async function onCreateProject() {
@@ -259,7 +248,7 @@ const CreateProject = observer(() => {
       const query = new URLSearchParams(_store.queryParams).toString()
       router.push(`/vercel/complete?${query}`)
     } catch (error) {
-      console.error('Error', error)
+      console.log('error', error)
       setLoading(false)
     }
   }
@@ -286,14 +275,12 @@ const CreateProject = observer(() => {
           type="password"
           placeholder="Type in a strong password"
           value={dbPass}
-          copy={dbPass.length > 0}
           onChange={onDbPassChange}
           descriptionText={
             <PasswordStrengthBar
               passwordStrengthScore={passwordStrengthScore}
               password={dbPass}
               passwordStrengthMessage={passwordStrengthMessage}
-              generateStrongPassword={generateStrongPassword}
             />
           }
         />
@@ -305,7 +292,7 @@ const CreateProject = observer(() => {
             type="select"
             value={dbRegion}
             onChange={onDbRegionChange}
-            descriptionText="Select a region close to your users for the best performance."
+            descriptionText="Select a region close to you for the best performance."
           >
             {Object.keys(REGIONS).map((option: string, i) => {
               const label = Object.values(REGIONS)[i]

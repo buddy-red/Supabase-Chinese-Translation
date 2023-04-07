@@ -1,4 +1,4 @@
-import { Modal, Button, Form } from 'ui'
+import { Modal, Button, Form } from '@supabase/ui'
 import { useState, useEffect } from 'react'
 
 // [Joshen] As of 280222, let's just use THIS component as the one and only confirmation modal
@@ -49,27 +49,20 @@ const ConfirmModal = ({
       >
         {() => {
           return (
-            <div className="space-y-4 py-4">
+            <div className="py-4 space-y-4">
               <Modal.Content>
                 <p className="text-sm text-scale-1100">{description}</p>
               </Modal.Content>
-              <Modal.Separator />
+              <Modal.Seperator />
               <Modal.Content>
                 <div className="flex items-center gap-2">
-                  <Button
-                    block
-                    htmlType="button"
-                    type="default"
-                    onClick={onSelectCancel}
-                    disabled={loading}
-                  >
+                  <Button htmlType="button" type="default" onClick={onSelectCancel} block>
                     Cancel
                   </Button>
                   <Button
                     htmlType="submit"
                     block
                     type={danger ? 'danger' : 'primary'}
-                    disabled={loading}
                     loading={loading}
                   >
                     {buttonLoadingLabel && loading

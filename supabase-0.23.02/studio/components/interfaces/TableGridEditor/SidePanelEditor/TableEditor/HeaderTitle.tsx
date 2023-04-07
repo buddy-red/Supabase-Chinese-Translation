@@ -1,30 +1,25 @@
-import { FC } from 'react'
-import type { PostgresTable } from '@supabase/postgres-meta'
+import { PostgresTable } from '@supabase/postgres-meta'
+import { Typography } from '@supabase/ui'
 
 interface Props {
-  schema: string
   table: PostgresTable
   isDuplicating: boolean
 }
 
-const HeaderTitle: FC<Props> = ({ schema, table, isDuplicating }) => {
+const HeaderTitle: React.FC<Props> = ({ table, isDuplicating }) => {
   if (!table) {
-    return (
-      <>
-        Create a new table under <code>{schema}</code>
-      </>
-    )
+    return <>Create a new table</>
   }
   if (isDuplicating) {
     return (
       <>
-        Duplicate table <code>{table.name}</code>
+        Duplicate table <Typography.Text code>{table.name}</Typography.Text>
       </>
     )
   }
   return (
     <>
-      Update table <code>{table.name}</code>
+      Update table <Typography.Text code>{table.name}</Typography.Text>
     </>
   )
 }

@@ -3,19 +3,11 @@
 // Last updated as of 29th March 2022.
 // The code may not necessarily match with the name (ref SE_VAT)
 // https://stripe.com/docs/api/customer_tax_ids/create
-export interface TaxId {
+interface TaxId {
   name: string
   code: string
   country: string
   placeholder: string
-}
-
-export interface StripeTaxId {
-  id: string
-  type: string
-  value: string
-  name: string
-  country?: string
 }
 
 export const TAX_IDS: TaxId[] = [
@@ -117,7 +109,7 @@ export const TAX_IDS: TaxId[] = [
   },
   {
     name: 'CY VAT',
-    code: 'eu_vat',
+    code: 'cy_vat',
     country: 'Cyprus',
     placeholder: 'CY12345678Z',
   },
@@ -182,7 +174,7 @@ export const TAX_IDS: TaxId[] = [
     placeholder: '123456789',
   },
   {
-    name: 'EL VAT',
+    name: 'GR VAT',
     code: 'eu_vat',
     country: 'Greece',
     placeholder: 'EL123456789',
@@ -195,7 +187,7 @@ export const TAX_IDS: TaxId[] = [
   },
   {
     name: 'HR VAT',
-    code: 'eu_vat',
+    code: 'hr_vat',
     country: 'Croatia',
     placeholder: 'HR12345678912',
   },
@@ -215,7 +207,7 @@ export const TAX_IDS: TaxId[] = [
     name: 'IE VAT',
     code: 'eu_vat',
     country: 'Ireland',
-    placeholder: 'IE1234567AB',
+    placeholder: 'IE12345678AB',
   },
   {
     name: 'IL VAT',
@@ -423,8 +415,8 @@ export const TAX_IDS: TaxId[] = [
   },
   {
     name: 'XI VAT',
-    code: 'eu_vat',
-    country: 'United Kingdom (Northern Ireland)',
+    code: 'xi_vat',
+    country: 'United Kingdom',
     placeholder: 'XI123456789',
   },
   {

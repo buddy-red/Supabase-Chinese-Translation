@@ -2,7 +2,7 @@ import { FC, ReactNode, useState, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/router'
 
-import { useStore, withAuth } from 'hooks'
+import { useStore } from 'hooks'
 import BaseLayout from '../'
 import Error from 'components/ui/Error'
 import ProductMenu from 'components/ui/ProductMenu'
@@ -24,13 +24,10 @@ const AuthLayout: FC<Props> = ({ title, children }) => {
   const [loaded, setLoaded] = useState<boolean>(isInitialized)
 
   useEffect(() => {
-    if (ui.selectedProject?.ref) {
-      meta.policies.load()
+    if (ui.selectedProject) {
       meta.tables.load()
-      meta.roles.load()
-      meta.schemas.load()
     }
-  }, [ui.selectedProject?.ref])
+  }, [ui.selectedProject])
 
   useEffect(() => {
     if (!isLoading && !loaded) {
@@ -60,4 +57,4 @@ const AuthLayout: FC<Props> = ({ title, children }) => {
   )
 }
 
-export default withAuth(observer(AuthLayout))
+export default observer(AuthLayout)

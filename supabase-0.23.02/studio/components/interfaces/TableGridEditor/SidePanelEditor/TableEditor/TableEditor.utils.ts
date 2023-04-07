@@ -1,5 +1,5 @@
 import { some } from 'lodash'
-import type { PostgresColumn, PostgresTable } from '@supabase/postgres-meta'
+import { PostgresColumn, PostgresTable } from '@supabase/postgres-meta'
 
 import { ImportContent, TableField } from './TableEditor.types'
 import { DEFAULT_COLUMNS } from './TableEditor.constants'
@@ -8,7 +8,6 @@ import {
   generateColumnField,
   generateColumnFieldFromPostgresColumn,
 } from '../ColumnEditor/ColumnEditor.utils'
-import { ForeignKeyConstraint } from 'data/database/foreign-key-constraints-query'
 
 export const validateFields = (field: TableField) => {
   const errors = {} as any
@@ -30,16 +29,13 @@ export const generateTableField = (): TableField => {
     name: '',
     comment: '',
     columns: DEFAULT_COLUMNS,
-    isRLSEnabled: true,
-    isRealtimeEnabled: false,
+    isRLSEnabled: false,
   }
 }
 
 export const generateTableFieldFromPostgresTable = (
   table: PostgresTable,
-  foreignKeys: ForeignKeyConstraint[],
-  isDuplicating = false,
-  isRealtimeEnabled = false
+  isDuplicating = false
 ): TableField => {
   return {
     id: table.id,
@@ -47,10 +43,9 @@ export const generateTableFieldFromPostgresTable = (
     comment: isDuplicating ? `This is a duplicate of ${table.name}` : table?.comment ?? '',
     // @ts-ignore
     columns: table.columns.map((column: PostgresColumn) => {
-      return generateColumnFieldFromPostgresColumn(column, table, foreignKeys)
+      return generateColumnFieldFromPostgresColumn(column, table)
     }),
     isRLSEnabled: table.rls_enabled,
-    isRealtimeEnabled,
   }
 }
 

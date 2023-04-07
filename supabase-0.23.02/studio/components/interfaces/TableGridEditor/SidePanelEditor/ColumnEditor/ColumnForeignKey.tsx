@@ -1,18 +1,17 @@
 import { FC } from 'react'
 import { isUndefined } from 'lodash'
-import { Badge, Button, IconArrowRight } from 'ui'
+import { Button, IconArrowRight, IconLink, Typography } from '@supabase/ui'
 
 import { ColumnField } from '../SidePanelEditor.types'
 import InformationBox from 'components/ui/InformationBox'
-import { getForeignKeyDeletionAction, getForeignKeyUIState } from './ColumnEditor.utils'
-import type { ExtendedPostgresRelationship } from '../SidePanelEditor.types'
+import { getForeignKeyUIState } from './ColumnEditor.utils'
+import { PostgresRelationship } from '@supabase/postgres-meta'
 
 interface Props {
   column: ColumnField
-  originalForeignKey: ExtendedPostgresRelationship | undefined
+  originalForeignKey: PostgresRelationship | undefined
   onSelectEditRelation: () => void
   onSelectRemoveRelation: () => void
-  onSelectCancelRemoveRelation: () => void
 }
 
 const ColumnForeignKey: FC<Props> = ({
@@ -20,7 +19,6 @@ const ColumnForeignKey: FC<Props> = ({
   originalForeignKey,
   onSelectEditRelation = () => {},
   onSelectRemoveRelation = () => {},
-  onSelectCancelRemoveRelation,
 }) => {
   const hasNoForeignKey = isUndefined(originalForeignKey) && isUndefined(column?.foreignKey)
   if (hasNoForeignKey) {
@@ -49,7 +47,6 @@ const ColumnForeignKey: FC<Props> = ({
           columnName={column.name}
           originalForeignKey={originalForeignKey}
           onSelectEditRelation={onSelectEditRelation}
-          onSelectCancelRemoveRelation={onSelectCancelRemoveRelation}
         />
       )
     case 'Update':
@@ -82,28 +79,25 @@ export default ColumnForeignKey
 
 const ColumnForeignKeyInformation: FC<{
   columnName: string
-  foreignKey?: ExtendedPostgresRelationship
+  foreignKey?: PostgresRelationship
   onSelectEditRelation: () => void
   onSelectRemoveRelation: () => void
 }> = ({ columnName, foreignKey, onSelectEditRelation, onSelectRemoveRelation }) => {
-  const deletionAction = getForeignKeyDeletionAction(foreignKey?.deletion_action)
   return (
     <InformationBox
       block
+      icon={<IconLink />}
       title={
-        <div className="flex flex-col space-y-4">
+        <div className="flex items-center justify-between text-scale-900">
           <div className="space-y-2">
-            <p className="text-scale-1100">This column has the following foreign key relation:</p>
-            <div className="flex items-center space-x-2 text-scale-1200">
-              <span className="text-xs text-code font-mono">{columnName}</span>
+            <span>This column has the following foreign key relation:</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-code">{columnName}</span>
               <IconArrowRight size={14} strokeWidth={2} />
-              <span className="text-xs text-code font-mono">
+              <span className="text-code">
                 {foreignKey?.target_table_schema}.{foreignKey?.target_table_name}.
                 {foreignKey?.target_column_name}
               </span>
-              {deletionAction !== undefined && (
-                <Badge color="gray">On delete: {deletionAction}</Badge>
-              )}
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -122,37 +116,28 @@ const ColumnForeignKeyInformation: FC<{
 
 const ColumnForeignKeyAdded: FC<{
   columnName: string
-  foreignKey?: ExtendedPostgresRelationship
+  foreignKey?: PostgresRelationship
   onSelectEditRelation: () => void
   onSelectRemoveRelation: () => void
 }> = ({ columnName, foreignKey, onSelectEditRelation, onSelectRemoveRelation }) => {
-  const deletionAction = getForeignKeyDeletionAction(foreignKey?.deletion_action)
   return (
     <InformationBox
       block
+      icon={<IconLink />}
       title={
-        <div className="flex flex-col space-y-4 text-scale-1100">
+        <div className="flex items-center justify-between text-scale-1100">
           <div className="space-y-2">
             <span>
               The following foreign key relation will be{' '}
-              <span className="text-brand-900">added</span>:
+              <span className="text-green-900">added</span>:
             </span>
             <div className="flex items-center space-x-2 text-scale-1200">
-              <span
-                className={`${
-                  columnName.length > 0 ? 'text-code font-mono text-xs' : ''
-                } max-w-xs truncate`}
-              >
-                {columnName || 'This column'}
-              </span>
+              <span className="text-code">{columnName}</span>
               <IconArrowRight size={14} strokeWidth={2} />
-              <span className="max-w-xs text-xs truncate text-code font-mono">
+              <span className="text-code">
                 {foreignKey?.target_table_schema}.{foreignKey?.target_table_name}.
                 {foreignKey?.target_column_name}
               </span>
-              {deletionAction !== undefined && (
-                <Badge color="gray">On delete: {deletionAction}</Badge>
-              )}
             </div>
           </div>
           <div className="flex items-center space-x-2">
@@ -171,35 +156,34 @@ const ColumnForeignKeyAdded: FC<{
 
 const ColumnForeignKeyRemoved: FC<{
   columnName: string
-  originalForeignKey?: ExtendedPostgresRelationship
+  originalForeignKey?: PostgresRelationship
   onSelectEditRelation: () => void
-  onSelectCancelRemoveRelation: () => void
-}> = ({ columnName, originalForeignKey, onSelectEditRelation, onSelectCancelRemoveRelation }) => {
+}> = ({ columnName, originalForeignKey, onSelectEditRelation }) => {
   return (
     <InformationBox
       block
+      icon={<IconLink />}
       title={
-        <div className="flex flex-col space-y-4">
+        <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <p className="text-scale-1100">
+            <Typography.Text>
               The following foreign key relation will be{' '}
-              <span className="text-amber-900">removed</span>:
-            </p>
+              <span className="text-amber-900">removed</span> from this column:
+            </Typography.Text>
             <div className="flex items-center space-x-2">
-              <code className="text-xs font-mono">{columnName}</code>
+              <Typography.Text code small>
+                {columnName}
+              </Typography.Text>
               <IconArrowRight size={14} strokeWidth={2} />
-              <code className="text-xs font-mono">
+              <Typography.Text code small>
                 {originalForeignKey?.target_table_schema}.{originalForeignKey?.target_table_name}.
                 {originalForeignKey?.target_column_name}
-              </code>
+              </Typography.Text>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <Button type="outline" onClick={onSelectEditRelation}>
               Edit relation
-            </Button>
-            <Button type="outline" onClick={onSelectCancelRemoveRelation}>
-              Cancel remove
             </Button>
           </div>
         </div>
@@ -210,8 +194,8 @@ const ColumnForeignKeyRemoved: FC<{
 
 const ColumnForeignKeyUpdated: FC<{
   columnName: string
-  originalForeignKey?: ExtendedPostgresRelationship
-  updatedForeignKey?: ExtendedPostgresRelationship
+  originalForeignKey?: PostgresRelationship
+  updatedForeignKey?: PostgresRelationship
   onSelectEditRelation: () => void
   onSelectRemoveRelation: () => void
 }> = ({
@@ -221,45 +205,33 @@ const ColumnForeignKeyUpdated: FC<{
   onSelectEditRelation,
   onSelectRemoveRelation,
 }) => {
-  const originalKey = `${originalForeignKey?.target_table_schema}.${originalForeignKey?.target_table_name}.${originalForeignKey?.target_column_name}`
-  const updatedKey = `${updatedForeignKey?.target_table_schema}.${updatedForeignKey?.target_table_name}.${updatedForeignKey?.target_column_name}`
-
-  const originalDeletionAction = getForeignKeyDeletionAction(originalForeignKey?.deletion_action)
-  const updatedDeletionAction = getForeignKeyDeletionAction(updatedForeignKey?.deletion_action)
-
   return (
     <InformationBox
       block
+      icon={<IconLink />}
       title={
-        <div className="flex flex-col space-y-4">
+        <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <p>
-              The foreign key relation will be <span className="text-brand-900">updated</span> as
+            <Typography.Text>
+              The foreign key relation will be <span className="text-green-500">updated</span> as
               such:
-            </p>
+            </Typography.Text>
             <div className="flex items-start space-x-2">
-              <code className="text-xs font-mono">{columnName}</code>
+              <Typography.Text code small>
+                {columnName}
+              </Typography.Text>
               <IconArrowRight className="mt-1" size={14} strokeWidth={2} />
               <div className="flex flex-col space-y-2">
-                {originalKey !== updatedKey && (
-                  <p className="line-through">
-                    <code className="text-xs font-mono">{originalKey}</code>
-                  </p>
-                )}
-                <code className="text-xs font-mono">{updatedKey}</code>
-              </div>
-              <div className="flex flex-col space-y-2">
-                {originalDeletionAction !== undefined &&
-                  originalDeletionAction !== updatedDeletionAction && (
-                    <Badge color="gray" className="line-through">
-                      On delete: {originalDeletionAction}
-                    </Badge>
-                  )}
-                {updatedDeletionAction !== undefined && (
-                  <div>
-                    <Badge color="green">On delete: {updatedDeletionAction}</Badge>
-                  </div>
-                )}
+                <p className="line-through">
+                  <Typography.Text code small>
+                    {originalForeignKey?.target_table_schema}.
+                    {originalForeignKey?.target_table_name}.{originalForeignKey?.target_column_name}
+                  </Typography.Text>
+                </p>
+                <Typography.Text code small>
+                  {updatedForeignKey?.target_table_schema}.{updatedForeignKey?.target_table_name}.
+                  {updatedForeignKey?.target_column_name}
+                </Typography.Text>
               </div>
             </div>
           </div>

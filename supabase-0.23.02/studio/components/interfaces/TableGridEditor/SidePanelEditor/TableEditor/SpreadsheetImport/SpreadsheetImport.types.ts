@@ -1,4 +1,4 @@
-import { Dictionary } from 'components/grid'
+import { Dictionary } from '@supabase/grid'
 
 export interface SpreadsheetData {
   headers: string[]

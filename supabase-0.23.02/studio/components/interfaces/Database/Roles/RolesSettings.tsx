@@ -1,9 +1,9 @@
 import { FC } from 'react'
 import { observer } from 'mobx-react-lite'
-import { Button, IconChevronLeft } from 'ui'
+import { Button, Typography, IconChevronLeft } from '@supabase/ui'
 import Divider from 'components/ui/Divider'
 
-import Panel from 'components/ui/Panel'
+import Panel from 'components/to-be-cleaned/Panel'
 
 interface Props {
   selectedRole: any
@@ -15,8 +15,8 @@ const RolesSettings: FC<Props> = ({ selectedRole, onSelectBack = () => {} }) => 
     <>
       <div className="mb-8">
         <div className="">
-          <nav className="-mb-px flex">
-            <div className="group mr-4 inline-flex items-center p-1 ">
+          <nav className="flex -mb-px">
+            <div className="group inline-flex items-center p-1 mr-4 ">
               <Button
                 type="outline"
                 onClick={() => onSelectBack()}
@@ -27,8 +27,8 @@ const RolesSettings: FC<Props> = ({ selectedRole, onSelectBack = () => {} }) => 
             <a
               href="#"
               className="
-              group mx-4
-              inline-flex items-center border-b-2 border-green-500 p-1 text-sm font-medium text-typography-body-strong-light focus:outline-none dark:text-typography-body-strong-dark "
+              text-typography-body-strong-light dark:text-typography-body-strong-dark
+              mx-4 group inline-flex items-center p-1 border-b-2 border-green-500 font-medium text-sm focus:outline-none "
               aria-current="page"
             >
               <span>Permissions</span>
@@ -38,29 +38,29 @@ const RolesSettings: FC<Props> = ({ selectedRole, onSelectBack = () => {} }) => 
       </div>
 
       <Panel>
-        <Panel.Content className="flex w-full items-center justify-between">
+        <Panel.Content className="w-full flex justify-between items-center">
           <p className="text-sm">Super user</p>
           <code className="text-sm">{selectedRole.is_superuser ? 'true' : 'false'}</code>
         </Panel.Content>
         <Divider light />
-        <Panel.Content className="flex w-full items-center justify-between">
+        <Panel.Content className="w-full flex justify-between items-center">
           <p className="text-sm">User can login</p>
           <code className="text-sm">{selectedRole.can_login ? 'true' : 'false'}</code>
         </Panel.Content>
         <Divider light />
-        <Panel.Content className="flex w-full items-center justify-between">
+        <Panel.Content className="w-full flex justify-between items-center">
           <p className="text-sm">User can create databases</p>
           <code className="text-sm">{selectedRole.can_create_db ? 'true' : 'false'}</code>
         </Panel.Content>
         <Divider light />
-        <Panel.Content className="flex w-full items-center justify-between">
+        <Panel.Content className="w-full flex justify-between items-center">
           <p className="text-sm">
             User can initiate streaming replication and put the system in and out of backup mode
           </p>
           <code className="text-sm">{selectedRole.is_replication_role ? 'true' : 'false'}</code>
         </Panel.Content>
         <Divider light />
-        <Panel.Content className="flex w-full items-center justify-between">
+        <Panel.Content className="w-full flex justify-between items-center">
           <p className="text-sm">User bypasses every row level security policy</p>
           <code className="text-sm">{selectedRole.can_bypass_rls ? 'true' : 'false'}</code>
         </Panel.Content>

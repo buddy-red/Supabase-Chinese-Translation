@@ -1,68 +1,63 @@
 import Head from 'next/head'
-import { FC, ReactNode } from 'react'
 import { useRouter } from 'next/router'
 import { observer } from 'mobx-react-lite'
 
-import { auth, STORAGE_KEY } from 'lib/gotrue'
-import { useStore, withAuth, useFlag } from 'hooks'
-import { IS_PLATFORM } from 'lib/constants'
+import { API_URL, IS_PLATFORM } from 'lib/constants'
+import { useStore } from 'hooks'
 import WithSidebar from './WithSidebar'
-import { SidebarSection } from './AccountLayout.types'
-import { useQueryClient } from '@tanstack/react-query'
+import { auth } from 'lib/gotrue'
 
-interface Props {
-  title: string
-  breadcrumbs: {
-    key: string
-    label: string
-  }[]
-  children: ReactNode
-}
+/**
+ * layout for dashboard homepage, account and org settings
+ *
+ * @param {String}                      title
+ * @param {JSX.Element|JSX.Element[]}   children
+ * @param {Array<Object>}               breadcrumbs
+ */
 
-const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
+const AccountLayout = ({ children, title, breadcrumbs }: any) => {
   const router = useRouter()
-  const { app, ui } = useStore()
-  const queryClient = useQueryClient()
 
-  const ongoingIncident = useFlag('ongoingIncident')
-  const maxHeight = ongoingIncident ? 'calc(100vh - 44px)' : '100vh'
+  const { app, ui } = useStore()
 
   const onClickLogout = async () => {
     await auth.signOut()
-    localStorage.removeItem(STORAGE_KEY)
-    await router.push('/sign-in')
-    await queryClient.resetQueries()
+    router.reload()
   }
+
+  const baseLogoutLink = {
+    icon: '/icons/feather/power.svg',
+    label: 'Logout',
+    href: `${API_URL}/logout`,
+    key: `${API_URL}/logout`,
+  }
+
+  const logoutLink = { ...baseLogoutLink, href: undefined, onClick: onClickLogout }
 
   const organizationsLinks = app.organizations
     .list()
-    .map((organization) => ({
-      isActive:
-        router.pathname.startsWith('/org/') && ui.selectedOrganization?.slug === organization.slug,
-      label: organization.name,
-      href: `/org/${organization.slug}/general`,
-      key: organization.slug,
+    .map((x: any) => ({
+      isActive: router.pathname.startsWith('/org/') && ui.selectedOrganization?.slug == x.slug,
+      label: x.name,
+      href: `/org/${x.slug}/settings`,
     }))
     .sort((a, b) => a.label.localeCompare(b.label))
 
-  const sectionsWithHeaders: SidebarSection[] = [
+  let linksWithHeaders = [
     {
       heading: 'Projects',
-      key: 'projects',
       links: [
         {
-          isActive: router.pathname === '/projects',
+          isActive: router.pathname == '/',
           label: 'All projects',
-          href: '/projects',
-          key: 'all-projects-item',
+          href: '/',
         },
       ],
     },
-    ...(IS_PLATFORM && organizationsLinks?.length > 0
+    ...(IS_PLATFORM
       ? [
           {
             heading: 'Organizations',
-            key: 'organizations',
             links: organizationsLinks,
           },
         ]
@@ -71,64 +66,48 @@ const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
       ? [
           {
             heading: 'Account',
-            key: 'account',
             links: [
               {
-                isActive: router.pathname === `/account/me`,
+                isActive: router.pathname == `/account/me`,
                 icon: '/img/user.svg',
                 label: 'Preferences',
                 href: `/account/me`,
                 key: `/account/me`,
               },
               {
-                isActive: router.pathname === `/account/tokens`,
+                isActive: router.pathname == `/account/tokens`,
                 icon: '/img/user.svg',
                 label: 'Access Tokens',
                 href: `/account/tokens`,
                 key: `/account/tokens`,
               },
+              logoutLink,
             ],
           },
         ]
       : []),
     {
       heading: 'Documentation',
-      key: 'documentation',
       links: [
         {
           key: 'ext-guides',
           icon: '/img/book.svg',
           label: 'Guides',
           href: 'https://supabase.com/docs',
-          isExternal: true,
+          external: true,
         },
         {
           key: 'ext-guides',
           icon: '/img/book-open.svg',
           label: 'API Reference',
-          href: 'https://supabase.com/docs/guides/database/api',
-          isExternal: true,
+          href: 'https://supabase.com/docs/client/supabase-client',
+          external: true,
         },
       ],
     },
-    ...(IS_PLATFORM
-      ? [
-          {
-            key: 'logout-link',
-            links: [
-              {
-                key: `logout`,
-                icon: '/icons/feather/power.svg',
-                label: 'Logout',
-                href: undefined,
-                onClick: onClickLogout,
-              },
-            ],
-          },
-        ]
-      : []),
   ]
-
+  if (!organizationsLinks?.length)
+    linksWithHeaders = linksWithHeaders.filter((x: any) => x.heading != 'Organizations')
   return (
     <>
       <Head>
@@ -138,10 +117,10 @@ const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
       </Head>
       <div className="flex h-full">
         <main
-          style={{ height: maxHeight, maxHeight }}
-          className="flex flex-col flex-1 w-full overflow-y-auto"
+          style={{ maxHeight: '100vh' }}
+          className="w-full flex flex-col flex-1 overflow-y-auto"
         >
-          <WithSidebar title={title} breadcrumbs={breadcrumbs} sections={sectionsWithHeaders}>
+          <WithSidebar title={title} breadcrumbs={breadcrumbs} links={linksWithHeaders}>
             {children}
           </WithSidebar>
         </main>
@@ -150,6 +129,4 @@ const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
   )
 }
 
-export default withAuth(observer(AccountLayout))
-
-export const AccountLayoutWithoutAuth = observer(AccountLayout)
+export default observer(AccountLayout)

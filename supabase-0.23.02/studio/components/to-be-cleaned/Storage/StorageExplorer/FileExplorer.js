@@ -1,7 +1,6 @@
-import { useEffect, useRef } from 'react'
-import { observer } from 'mobx-react-lite'
-
+import React, { useEffect, useRef } from 'react'
 import { STORAGE_VIEWS, CONTEXT_MENU_KEYS } from '../Storage.constants'
+
 import ItemContextMenu from './ItemContextMenu'
 import FolderContextMenu from './FolderContextMenu'
 import ColumnContextMenu from './ColumnContextMenu'
@@ -13,10 +12,25 @@ const FileExplorer = ({
   openedFolders = [],
   selectedItems = [],
   selectedFilePreview = {},
+  isSearching = false,
+  itemSearchString = '',
+  onCheckItem = () => {},
+  onSelectItemDelete = () => {},
+  onSelectItemRename = () => {},
+  onSelectItemMove = () => {},
+  onSelectFile = () => {},
+  onRenameFile = () => {},
   onFilesUpload = () => {},
+  onCopyFileURL = () => {},
+  onDownloadFile = () => {},
+  onSelectFolder = () => {},
+  onRenameFolder = () => {},
+  onCreateFolder = () => {},
   onSelectAllItemsInColumn = () => {},
   onSelectColumnEmptySpace = () => {},
-  onColumnLoadMore = () => {},
+  onSelectCreateFolder = () => {},
+  onChangeView = () => {},
+  onChangeSortBy = () => {},
 }) => {
   const fileExplorerRef = useRef(null)
 
@@ -34,9 +48,26 @@ const FileExplorer = ({
       ref={fileExplorerRef}
       className="file-explorer flex flex-grow overflow-x-auto justify-between h-full w-full"
     >
-      <ColumnContextMenu id={CONTEXT_MENU_KEYS.STORAGE_COLUMN} />
-      <ItemContextMenu id={CONTEXT_MENU_KEYS.STORAGE_ITEM} />
-      <FolderContextMenu id={CONTEXT_MENU_KEYS.STORAGE_FOLDER} />
+      <ColumnContextMenu
+        id={CONTEXT_MENU_KEYS.STORAGE_COLUMN}
+        onCreateNewFolder={onSelectCreateFolder}
+        onSelectAllItems={onSelectAllItemsInColumn}
+        onSelectView={onChangeView}
+        onSelectSort={onChangeSortBy}
+      />
+      <ItemContextMenu
+        id={CONTEXT_MENU_KEYS.STORAGE_ITEM}
+        onCopyFileURL={onCopyFileURL}
+        onSelectItemRename={onSelectItemRename}
+        onSelectItemMove={onSelectItemMove}
+        onDownloadFile={onDownloadFile}
+        onSelectItemDelete={onSelectItemDelete}
+      />
+      <FolderContextMenu
+        id={CONTEXT_MENU_KEYS.STORAGE_FOLDER}
+        onRenameFolder={onSelectItemRename}
+        onDeleteFolder={onSelectItemDelete}
+      />
       {view === STORAGE_VIEWS.COLUMNS ? (
         <div className="flex">
           {columns.map((column, index) => (
@@ -48,10 +79,20 @@ const FileExplorer = ({
               openedFolders={openedFolders}
               selectedItems={selectedItems}
               selectedFilePreview={selectedFilePreview}
+              onCheckItem={onCheckItem}
+              onSelectFile={onSelectFile}
+              onRenameFile={onRenameFile}
+              onCopyFileURL={onCopyFileURL}
               onFilesUpload={onFilesUpload}
+              onDownloadFile={onDownloadFile}
+              onSelectFolder={onSelectFolder}
+              onRenameFolder={onRenameFolder}
+              onCreateFolder={onCreateFolder}
+              onSelectItemDelete={onSelectItemDelete}
+              onSelectItemRename={onSelectItemRename}
+              onSelectItemMove={onSelectItemMove}
               onSelectAllItemsInColumn={onSelectAllItemsInColumn}
               onSelectColumnEmptySpace={onSelectColumnEmptySpace}
-              onColumnLoadMore={onColumnLoadMore}
             />
           ))}
         </div>
@@ -65,10 +106,22 @@ const FileExplorer = ({
               column={columns[columns.length - 1]}
               selectedItems={selectedItems}
               selectedFilePreview={selectedFilePreview}
+              isSearching={isSearching}
+              itemSearchString={itemSearchString}
+              onCheckItem={onCheckItem}
+              onSelectFile={onSelectFile}
+              onRenameFile={onRenameFile}
+              onCopyFileURL={onCopyFileURL}
               onFilesUpload={onFilesUpload}
+              onDownloadFile={onDownloadFile}
+              onSelectFolder={onSelectFolder}
+              onRenameFolder={onRenameFolder}
+              onCreateFolder={onCreateFolder}
+              onSelectItemDelete={onSelectItemDelete}
+              onSelectItemRename={onSelectItemRename}
+              onSelectItemMove={onSelectItemMove}
               onSelectAllItemsInColumn={onSelectAllItemsInColumn}
               onSelectColumnEmptySpace={onSelectColumnEmptySpace}
-              onColumnLoadMore={onColumnLoadMore}
             />
           )}
         </>
@@ -79,4 +132,4 @@ const FileExplorer = ({
   )
 }
 
-export default observer(FileExplorer)
+export default FileExplorer

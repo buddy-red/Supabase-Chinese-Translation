@@ -1,50 +1,55 @@
+import React, { FC } from 'react'
 import Link from 'next/link'
-import { FC } from 'react'
-import { isUndefined } from 'lodash'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/router'
-import { Button, Dropdown, IconHome, IconSettings, IconUser } from 'ui'
-
-import { useFlag, useStore } from 'hooks'
-import { IS_PLATFORM } from 'lib/constants'
+import { isUndefined } from 'lodash'
 import {
-  generateOtherRoutes,
-  generateProductRoutes,
-  generateToolRoutes,
-} from './NavigationBar.utils'
+  Button,
+  Divider,
+  IconHome,
+  Dropdown,
+  IconUser,
+  Select,
+  Typography,
+  IconSettings,
+} from '@supabase/ui'
+
+import { IS_PLATFORM } from 'lib/constants'
+import { useStore } from 'hooks'
+import { generateProductRoutes, generateOtherRoutes } from './NavigationBar.utils'
 import NavigationIconButton from './NavigationIconButton'
-import { useParams } from 'hooks/misc/useParams'
 
 interface Props {}
 
 const NavigationBar: FC<Props> = ({}) => {
   const router = useRouter()
-  const { ref: projectRef } = useParams()
   const { ui } = useStore()
-  const projectBaseInfo = ui.selectedProjectBaseInfo
-
-  const ongoingIncident = useFlag('ongoingIncident')
+  const projectRef = ui.selectedProject?.ref as string
 
   const activeRoute = router.pathname.split('/')[3]
-  const toolRoutes = generateToolRoutes(projectRef, projectBaseInfo)
-  const productRoutes = generateProductRoutes(projectRef, projectBaseInfo)
-  const otherRoutes = generateOtherRoutes(projectRef, projectBaseInfo)
+  const productRoutes = generateProductRoutes(projectRef)
+  const otherRoutes = generateOtherRoutes(projectRef)
 
   return (
     <div
-      style={{ height: ongoingIncident ? 'calc(100vh - 44px)' : '100vh' }}
-      className={[
-        'flex w-14 flex-col justify-between overflow-y-hidden p-2',
-        'border-r bg-sidebar-light dark:border-dark dark:bg-sidebar-dark',
-      ].join(' ')}
+      className="
+      h-screen w-14 
+      flex flex-col 
+      justify-between 
+      p-2 
+      overflow-y-hidden 
+      bg-sidebar-light 
+      dark:bg-sidebar-dark 
+      border-r 
+      dark:border-dark"
     >
       <ul className="flex flex-col space-y-2">
-        <Link href="/projects">
+        <Link href={'/'}>
           <a className="block">
             <img
               src="/img/supabase-logo.svg"
               alt="Supabase"
-              className="mx-auto h-[40px] w-6 cursor-pointer rounded"
+              className="rounded h-[40px] w-6 mx-auto cursor-pointer"
             />
           </a>
         </Link>
@@ -57,16 +62,7 @@ const NavigationBar: FC<Props> = ({}) => {
             link: `/project/${projectRef}`,
           }}
         />
-        <div className="bg-scale-500 h-px w-full"></div>
-        {toolRoutes.map((route) => (
-          <NavigationIconButton
-            key={route.key}
-            route={route}
-            isActive={activeRoute === route.key}
-          />
-        ))}
-        <div className="bg-scale-500 h-px w-full"></div>
-
+        <div className="h-px w-full bg-scale-500"></div>
         {productRoutes.map((route) => (
           <NavigationIconButton
             key={route.key}
@@ -93,10 +89,10 @@ const NavigationBar: FC<Props> = ({}) => {
                 <>
                   <Link href="/account/me">
                     <Dropdown.Item key="header" icon={<IconSettings size={14} strokeWidth={1.5} />}>
-                      Account Preferences
+                      帐户设置
                     </Dropdown.Item>
                   </Link>
-                  <Dropdown.Separator />
+                  <Dropdown.Seperator />
                 </>
               )}
               <Dropdown.Label>Theme</Dropdown.Label>
@@ -105,9 +101,9 @@ const NavigationBar: FC<Props> = ({}) => {
                 value={ui.themeOption}
                 onChange={(e: any) => ui.onThemeOptionChange(e)}
               >
-                <Dropdown.Radio value="system">System default</Dropdown.Radio>
-                <Dropdown.Radio value="dark">Dark</Dropdown.Radio>
-                <Dropdown.Radio value="light">Light</Dropdown.Radio>
+                <Dropdown.Radio value="system">系统默认</Dropdown.Radio>
+                <Dropdown.Radio value="dark">深色主题</Dropdown.Radio>
+                <Dropdown.Radio value="light">白色主题</Dropdown.Radio>
               </Dropdown.RadioGroup>
             </>
           }

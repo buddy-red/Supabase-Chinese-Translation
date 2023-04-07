@@ -11,14 +11,14 @@ interface Props {}
 
 const Header: FC<Props> = () => {
   return (
-    <div className="dark:border-dark border-b p-3">
-      <div className="flex items-center space-x-2">
-        <Link href="/projects">
+    <div className="p-3 border-b dark:border-dark">
+      <div className="space-x-2 flex items-center">
+        <Link href="/">
           <a>
             <img
               src="/img/supabase-logo.svg"
               alt="Supabase"
-              className="dark:border-dark rounded border p-1 hover:border-white"
+              className="border dark:border-dark rounded p-1 hover:border-white"
               style={{ height: 24 }}
             />
           </a>
@@ -34,36 +34,33 @@ const Header: FC<Props> = () => {
 
 const GenericProjectPage: NextPage = () => {
   const router = useRouter()
-  const { routeSlug, ...queryParams } = router.query
-  const queryString =
-    Object.keys(queryParams).length > 0
-      ? new URLSearchParams(queryParams as Record<string, string>).toString()
-      : ''
+  const { routeSlug } = router.query
 
   const urlRewriterFactory = (slug: string | string[] | undefined) => {
     return (projectRef: string) => {
       if (!Array.isArray(slug)) {
-        return `/project/${projectRef}?${queryString}`
+        return `/project/${projectRef}`
       }
 
       const slugPath = slug.reduce((a: string, b: string) => `${a}/${b}`, '').slice(1)
-      return `/project/${projectRef}/${slugPath}?${queryString}`
+      return `/project/${projectRef}/${slugPath}`
     }
   }
 
   return (
-    <>
+    <div>
       <Header />
-      <div className="flex flex-col mx-auto w-full max-w-5xl">
-        <h1 className="mt-8 text-2xl">Select a project to continue</h1>
-        <div
-          className="flex-grow py-6 space-y-8 overflow-y-auto"
-          style={{ maxHeight: 'calc(100vh - 49px - 64px)' }}
-        >
-          <ProjectList rewriteHref={urlRewriterFactory(routeSlug)} />
+      <div className="py-8 w-full max-w-5xl mx-auto">
+        <h3 className="text-2xl">Select a project to continue</h3>
+        <div className="my-6 space-y-8">
+          <ProjectList
+            rewriteHref={urlRewriterFactory(routeSlug)}
+            onSelectDelete={() => {}}
+            onSelectRestore={() => {}}
+          />
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

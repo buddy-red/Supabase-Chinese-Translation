@@ -1,12 +1,10 @@
-export interface UserContent<
-  T = Dashboards.Content | SqlSnippets.Content | LogSqlSnippets.Content
-> {
+export interface UserContent {
   id?: string
   name: string
   description?: string
   type: 'sql' | 'report' | 'log_sql'
   visibility: 'user' | 'project' | 'org' | 'public'
-  content: T
+  content: Dashboards.Content | SqlSnippets.Content | LogSqlSnippets.Content
   owner_id?: number // user id
   last_updated_by?: number // user id
   inserted_at?: string // '2021-08-26T08:24:52.040695+00:00'

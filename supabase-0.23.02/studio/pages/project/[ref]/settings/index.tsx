@@ -1,12 +1,15 @@
+import { NextPage } from 'next'
 import { observer } from 'mobx-react-lite'
 
+import { withAuth } from 'hooks'
 import { SettingsLayout } from 'components/layouts'
-import { NextPageWithLayout } from 'types'
 
-const Settings: NextPageWithLayout = () => {
-  return <>{/* <h1>Use this as a page template for settings pages</h1> */}</>
+const Settings: NextPage = () => {
+  return (
+    <SettingsLayout>
+      <>{/* <h1>Use this as a page template for settings pages</h1> */}</>
+    </SettingsLayout>
+  )
 }
 
-Settings.getLayout = (page) => <SettingsLayout>{page}</SettingsLayout>
-
-export default observer(Settings)
+export default withAuth(observer(Settings))

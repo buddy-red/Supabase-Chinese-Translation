@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
 import { FC, useState } from 'react'
-import { Button, IconChevronRight, IconMaximize2, IconPlay } from 'ui'
+import { Button, IconChevronRight, IconMaximize2, IconPlay } from '@supabase/ui'
 import Table from 'components/to-be-cleaned/Table'
+import CodeEditor from 'components/ui/CodeEditor'
 import { useRouter } from 'next/router'
-import SqlSnippetCode from './Logs.SqlSnippetCode'
 
 interface Props {
   item: any
@@ -15,6 +15,7 @@ const SavedQueriesItem: FC<Props> = ({ item }: Props) => {
   const router = useRouter()
   const { ref } = router.query
 
+  console.log('item in component', item)
   return (
     <>
       <Table.tr key={item.id} className="expandable-tr">
@@ -46,21 +47,25 @@ const SavedQueriesItem: FC<Props> = ({ item }: Props) => {
             type="alternative"
             iconRight={<IconPlay size={10} />}
             onClick={() =>
-              router.push(`/project/${ref}/logs/explorer?q=${encodeURIComponent(item.content.sql)}`)
+              router.push(`/project/${ref}/logs-explorer?sql=${encodeURI(item.content.sql)}`)
             }
           >
             Run
           </Button>
         </Table.td>
       </Table.tr>
-      <Table.td
-        className={`${
-          expand ? ' h-auto opacity-100' : 'h-0 opacity-0'
-        } expanded-row-content border-l border-r bg-scale-100 !pt-0 !pb-0 transition-all`}
-        colSpan={5}
-      >
-        {expand && <SqlSnippetCode>{item.content.sql}</SqlSnippetCode>}
-      </Table.td>
+      <>
+        <td
+          className={
+            'bg-scale-100 border-l border-r !pt-0 !pb-0 text-scale-1200 transition-all expanded-row-content ' +
+            (expand ? ' h-auto opacity-100' : 'h-0 opacity-0')
+          }
+          colSpan={5}
+        >
+          {/* <CodeEditor defaultValue={item.content.sql} language="pgsql" classname /> */}
+          {expand && <pre className="text-sm break-words py-4 px-3 ">{item.content.sql}</pre>}
+        </td>
+      </>
     </>
   )
 }

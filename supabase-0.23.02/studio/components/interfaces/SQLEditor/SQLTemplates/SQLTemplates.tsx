@@ -1,5 +1,6 @@
 import { FC } from 'react'
 import Link from 'next/link'
+import { Typography } from '@supabase/ui'
 import { observer } from 'mobx-react-lite'
 import { partition } from 'lodash'
 
@@ -18,13 +19,15 @@ const SQLTemplates: FC<Props> = ({}) => {
     <div className="p-6 h-full overflow-y-auto space-y-8">
       <div className="flex flex-col">
         <div className="mb-4">
-          <h4 className="text-lg mb-0">Scripts</h4>
-          <p>
+          <Typography.Title level={4} className="mb-0">
+            Scripts
+          </Typography.Title>
+          <Typography.Text>
             Quick scripts to run on your database.
             <br />
             Click on any script to fill the query box, modify the script, then click
-            <code>Run</code>. More scripts coming soon!
-          </p>
+            <Typography.Text code>Run</Typography.Text>. More scripts coming soon!
+          </Typography.Text>
         </div>
         <div className="grid grid-cols-3 gap-4">
           {templates.map((template) => (
@@ -38,14 +41,16 @@ const SQLTemplates: FC<Props> = ({}) => {
       </div>
       <div className="flex flex-col">
         <div className="mb-4">
-          <h4 className="text-lg mb-0">Quick start</h4>
-          <p>
+          <Typography.Title level={4} className="mb-0">
+            Quick start
+          </Typography.Title>
+          <Typography.Text>
             While we're in beta, we want to offer a quick way to explore Supabase. While we build
             importers, check out these simple starters.
             <br />
             Click on any script to fill the query box, modify the script, then click{' '}
-            <code>Run</code>. More coming soon!
-          </p>
+            <Typography.Text code>Run</Typography.Text>. More coming soon!
+          </Typography.Text>
         </div>
         <div className="grid grid-cols-3 gap-4">
           {quickstarts.map((template) => (

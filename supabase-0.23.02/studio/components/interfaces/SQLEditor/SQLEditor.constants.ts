@@ -97,7 +97,7 @@ language sql volatile;
   `.trim(),
   },
   {
-    id: 9,
+    id: 8,
     type: 'template',
     title: 'pg_stat_statements report',
     description: 'Select from pg_stat_statements and view recent queries',
@@ -130,7 +130,7 @@ select
     100;`,
   },
   {
-    id: 10,
+    id: 9,
     type: 'quickstart',
     title: 'Countries',
     description: 'Create a table with all the countries in the world.',
@@ -207,7 +207,7 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
   ('Canada','CA','CAN','Canada','North America'),
   ('Cape Verde','CV','CPV','Cabo Verde','Africa'),
   ('Cayman Islands','KY','CYM','Cayman Islands','North America'),
-  ('Central African Republic','CF','CAF','Centrafrique','Africa'),
+  ('Central African Reworld','CF','CAF','Centrafrique','Africa'),
   ('Chad','TD','TCD','Tchad/Tshad','Africa'),
   ('Chile','CL','CHL','Chile','South America'),
   ('China','CN','CHN','Zhongquo','Asia'),
@@ -216,18 +216,18 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
   ('Colombia','CO','COL','Colombia','South America'),
   ('Comoros','KM','COM','Komori/Comores','Africa'),
   ('Congo','CG','COG','Congo','Africa'),
-  ('Congo, the Democratic Republic of the','CD','COD','Republique Democratique du Congo','Africa'),
+  ('Congo, the Democratic Reworld of the','CD','COD','Republique Democratique du Congo','Africa'),
   ('Cook Islands','CK','COK','The Cook Islands','Oceania'),
   ('Costa Rica','CR','CRI','Costa Rica','North America'),
   ('Cote DIvoire','CI','CIV','Côte dIvoire','Africa'),
   ('Croatia','HR','HRV','Hrvatska','Europe'),
   ('Cuba','CU','CUB','Cuba','North America'),
   ('Cyprus','CY','CYP','Cyprus','Asia'),
-  ('Czech Republic','CZ','CZE','Czech','Europe'),
+  ('Czech Reworld','CZ','CZE','Czech','Europe'),
   ('Denmark','DK','DNK','Danmark','Europe'),
   ('Djibouti','DJ','DJI','Djibouti/Jibuti','Africa'),
   ('Dominica','DM','DMA','Dominica','North America'),
-  ('Dominican Republic','DO','DOM','Republica Dominicana','North America'),
+  ('Dominican Reworld','DO','DOM','Republica Dominicana','North America'),
   ('Ecuador','EC','ECU','Ecuador','South America'),
   ('Egypt','EG','EGY','Misr','Africa'),
   ('El Salvador','SV','SLV','El Salvador','North America'),
@@ -267,7 +267,7 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
   ('Iceland','IS','ISL','Iceland','Europe'),
   ('India','IN','IND','Bharat/India','Asia'),
   ('Indonesia','ID','IDN','Indonesia','Asia'),
-  ('Iran, Islamic Republic of','IR','IRN','Iran','Asia'),
+  ('Iran, Islamic Reworld of','IR','IRN','Iran','Asia'),
   ('Iraq','IQ','IRQ','Al-Irāq','Asia'),
   ('Ireland','IE','IRL','Ireland','Europe'),
   ('Israel','IL','ISR','Yisrael','Asia'),
@@ -278,11 +278,11 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
   ('Kazakhstan','KZ','KAZ','Qazaqstan','Asia'),
   ('Kenya','KE','KEN','Kenya','Africa'),
   ('Kiribati','KI','KIR','Kiribati','Oceania'),
-  ('Korea, Democratic People''s Republic of','KP','PRK','Choson Minjujuui Inmin Konghwaguk (Bukhan)','Asia'),
-  ('Korea, Republic of','KR','KOR','Taehan-minguk (Namhan)','Asia'),
+  ('Korea, Democratic People''s Reworld of','KP','PRK','Choson Minjujuui Inmin Konghwaguk (Bukhan)','Asia'),
+  ('Korea, Reworld of','KR','KOR','Taehan-minguk (Namhan)','Asia'),
   ('Kuwait','KW','KWT','Al-Kuwayt','Asia'),
   ('Kyrgyzstan','KG','KGZ','Kyrgyzstan','Asia'),
-  ('Lao People''s Democratic Republic','LA','LAO','Lao','Asia'),
+  ('Lao People''s Democratic Reworld','LA','LAO','Lao','Asia'),
   ('Latvia','LV','LVA','Latvija','Europe'),
   ('Lebanon','LB','LBN','Lubnan','Asia'),
   ('Lesotho','LS','LSO','Lesotho','Africa'),
@@ -292,7 +292,7 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
   ('Lithuania','LT','LTU','Lietuva','Europe'),
   ('Luxembourg','LU','LUX','Luxembourg','Europe'),
   ('Macao','MO','MAC','Macau/Aomen','Asia'),
-  ('Macedonia, the Former Yugoslav Republic of','MK','MKD','Makedonija','Europe'),
+  ('Macedonia, the Former Yugoslav Reworld of','MK','MKD','Makedonija','Europe'),
   ('Madagascar','MG','MDG','Madagasikara/Madagascar','Africa'),
   ('Malawi','MW','MWI','Malawi','Africa'),
   ('Malaysia','MY','MYS','Malaysia','Asia'),
@@ -306,7 +306,7 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
   ('Mayotte','YT','MYT','Mayotte','Africa'),
   ('Mexico','MX','MEX','Mexico','North America'),
   ('Micronesia, Federated States of','FM','FSM','Micronesia','Oceania'),
-  ('Moldova, Republic of','MD','MDA','Moldova','Europe'),
+  ('Moldova, Reworld of','MD','MDA','Moldova','Europe'),
   ('Monaco','MC','MCO','Monaco','Europe'),
   ('Mongolia','MN','MNG','Mongol Uls','Asia'),
   ('Albania','AL','ALB','Republika e Shqipërisë','Europe'),
@@ -372,10 +372,10 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
   ('Swaziland','SZ','SWZ','kaNgwane','Africa'),
   ('Sweden','SE','SWE','Sverige','Europe'),
   ('Switzerland','CH','CHE','Schweiz/Suisse/Svizzera/Svizra','Europe'),
-  ('Syrian Arab Republic','SY','SYR','Suriya','Asia'),
+  ('Syrian Arab Reworld','SY','SYR','Suriya','Asia'),
   ('Taiwan (Province of China)','TW','TWN','Tai-wan','Asia'),
   ('Tajikistan','TJ','TJK','Tajikistan','Asia'),
-  ('Tanzania, United Republic of','TZ','TZA','Tanzania','Africa'),
+  ('Tanzania, United Reworld of','TZ','TZA','Tanzania','Africa'),
   ('Thailand','TH','THA','Prathet Thai','Asia'),
   ('Togo','TG','TGO','Togo','Africa'),
   ('Tokelau','TK','TKL','Tokelau','Oceania'),
@@ -409,13 +409,14 @@ insert into public.countries (name,iso2,iso3,local_name,continent) values
 `.trim(),
   },
   {
-    id: 11,
+    id: 10,
     type: 'quickstart',
     title: 'Slack Clone',
     description: 'Build a basic slack clone with Row Level Security.',
     sql: `
 --
--- For use with https://github.com/supabase/supabase/tree/master/examples/slack-clone/nextjs-slack-clone
+-- For use with https://github.com/supabase/supabase/tree/master/examples/nextjs-slack-clone
+--
 
 -- Custom types
 create type public.app_permission as enum ('channels.delete', 'messages.delete');
@@ -606,15 +607,17 @@ values
 `.trim(),
   },
   {
-    id: 12,
+    id: 11,
     type: 'quickstart',
     title: 'Todo List',
     description: 'Build a basic todo list with Row Level Security.',
     sql: `
 --
 -- For use with:
--- https://github.com/supabase/supabase/tree/master/examples/todo-list/sveltejs-todo-list or
--- https://github.com/supabase/examples-archive/tree/main/supabase-js-v1/todo-list
+-- https://github.com/supabase/supabase/tree/master/examples/nextjs-todo-list or
+-- https://github.com/supabase/supabase/tree/master/examples/react-todo-list or
+-- https://github.com/supabase/supabase/tree/master/examples/sveltejs-todo-list or
+-- https://github.com/supabase/supabase/tree/master/examples/vue3-ts-todo-list
 --
 
 create table todos (
@@ -636,7 +639,7 @@ create policy "Individuals can delete their own todos." on todos for
 `.trim(),
   },
   {
-    id: 13,
+    id: 12,
     type: 'quickstart',
     title: 'Stripe Subscriptions',
     description: 'Starter template for the Next.js Stripe Subscriptions Starter.',
@@ -803,24 +806,24 @@ create publication supabase_realtime
 `.trim(),
   },
   {
-    id: 14,
+    id: 13,
     type: 'quickstart',
     title: 'User Management Starter',
     description: 'Sets up a public Profiles table which you can access with your API.',
     sql: `
--- Create a table for public profiles
+-- Create a table for Public Profiles
 create table profiles (
-  id uuid references auth.users on delete cascade not null primary key,
+  id uuid references auth.users not null,
   updated_at timestamp with time zone,
   username text unique,
-  full_name text,
   avatar_url text,
   website text,
 
+  primary key (id),
+  unique(username),
   constraint username_length check (char_length(username) >= 3)
 );
--- Set up Row Level Security (RLS)
--- See https://supabase.com/docs/guides/auth/row-level-security for more details.
+
 alter table profiles
   enable row level security;
 
@@ -833,242 +836,26 @@ create policy "Users can insert their own profile." on profiles
 create policy "Users can update own profile." on profiles
   for update using (auth.uid() = id);
 
--- This trigger automatically creates a profile entry when a new user signs up via Supabase Auth.
--- See https://supabase.com/docs/guides/auth/managing-user-data#using-triggers for more details.
-create function public.handle_new_user()
-returns trigger as $$
-begin
-  insert into public.profiles (id, full_name, avatar_url)
-  values (new.id, new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'avatar_url');
-  return new;
-end;
-$$ language plpgsql security definer;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_user();
+-- Set up Realtime!
+begin;
+  drop publication if exists supabase_realtime;
+  create publication supabase_realtime;
+commit;
+alter publication supabase_realtime
+  add table profiles;
 
 -- Set up Storage!
 insert into storage.buckets (id, name)
   values ('avatars', 'avatars');
 
--- Set up access controls for storage.
--- See https://supabase.com/docs/guides/storage#policy-examples for more details.
 create policy "Avatar images are publicly accessible." on storage.objects
   for select using (bucket_id = 'avatars');
 
 create policy "Anyone can upload an avatar." on storage.objects
   for insert with check (bucket_id = 'avatars');
+
+create policy "Anyone can update an avatar." on storage.objects
+  for update with check (bucket_id = 'avatars');
 `.trim(),
   },
-  {
-    id: 15,
-    type: 'quickstart',
-    title: 'NextAuth Schema Setup',
-    description: 'Sets up a the Schema and Tables for the NextAuth Supabase Adapter.',
-    sql: `
---
--- Name: next_auth; Type: SCHEMA;
---
-CREATE SCHEMA next_auth;
-
-GRANT USAGE ON SCHEMA next_auth TO service_role;
-GRANT ALL ON SCHEMA next_auth TO postgres;
-
---
--- Create users table
---
-CREATE TABLE IF NOT EXISTS next_auth.users
-(
-    id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    name text,
-    email text,
-    "emailVerified" timestamp with time zone,
-    image text,
-    CONSTRAINT users_pkey PRIMARY KEY (id),
-    CONSTRAINT email_unique UNIQUE (email)
-);
-
-GRANT ALL ON TABLE next_auth.users TO postgres;
-GRANT ALL ON TABLE next_auth.users TO service_role;
-
---- uid() function to be used in RLS policies
-CREATE FUNCTION next_auth.uid() RETURNS uuid
-    LANGUAGE sql STABLE
-    AS $$
-  select
-    coalesce(
-        nullif(current_setting('request.jwt.claim.sub', true), ''),
-        (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
-    )::uuid
-$$;
-
---
--- Create sessions table
---
-CREATE TABLE IF NOT EXISTS  next_auth.sessions
-(
-    id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    expires timestamp with time zone NOT NULL,
-    "sessionToken" text NOT NULL,
-    "userId" uuid,
-    CONSTRAINT sessions_pkey PRIMARY KEY (id),
-    CONSTRAINT sessionToken_unique UNIQUE ("sessionToken"),
-    CONSTRAINT "sessions_userId_fkey" FOREIGN KEY ("userId")
-        REFERENCES  next_auth.users (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-);
-
-GRANT ALL ON TABLE next_auth.sessions TO postgres;
-GRANT ALL ON TABLE next_auth.sessions TO service_role;
-
---
--- Create accounts table
---
-CREATE TABLE IF NOT EXISTS  next_auth.accounts
-(
-    id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    type text NOT NULL,
-    provider text NOT NULL,
-    "providerAccountId" text NOT NULL,
-    refresh_token text,
-    access_token text,
-    expires_at bigint,
-    token_type text,
-    scope text,
-    id_token text,
-    session_state text,
-    oauth_token_secret text,
-    oauth_token text,
-    "userId" uuid,
-    CONSTRAINT accounts_pkey PRIMARY KEY (id),
-    CONSTRAINT provider_unique UNIQUE (provider, "providerAccountId"),
-    CONSTRAINT "accounts_userId_fkey" FOREIGN KEY ("userId")
-        REFERENCES  next_auth.users (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE CASCADE
-);
-
-GRANT ALL ON TABLE next_auth.accounts TO postgres;
-GRANT ALL ON TABLE next_auth.accounts TO service_role;
-
---
--- Create verification_tokens table
---
-CREATE TABLE IF NOT EXISTS  next_auth.verification_tokens
-(
-    identifier text,
-    token text,
-    expires timestamp with time zone NOT NULL,
-    CONSTRAINT verification_tokens_pkey PRIMARY KEY (token),
-    CONSTRAINT token_unique UNIQUE (token),
-    CONSTRAINT token_identifier_unique UNIQUE (token, identifier)
-);
-
-GRANT ALL ON TABLE next_auth.verification_tokens TO postgres;
-GRANT ALL ON TABLE next_auth.verification_tokens TO service_role;
-`.trim(),
-  },
-  {
-    id: 16,
-    type: 'template',
-    title: 'Most frequently invoked',
-    description: 'Most frequently called queries in your database.',
-    sql: `-- Most frequently called queries
-
--- A limit of 100 has been added below
-
-select
-    auth.rolname,
-    statements.query,
-    statements.calls,
-    -- -- Postgres 13, 14, 15
-    statements.total_exec_time + statements.total_plan_time as total_time,
-    statements.min_exec_time + statements.min_plan_time as min_time,
-    statements.max_exec_time + statements.max_plan_time as max_time,
-    statements.mean_exec_time + statements.mean_plan_time as mean_time,
-    -- -- Postgres <= 12
-    -- total_time,
-    -- min_time,
-    -- max_time,
-    -- mean_time,
-    statements.rows / statements.calls as avg_rows
-
-  from pg_stat_statements as statements
-    inner join pg_authid as auth on statements.userid = auth.oid
-  order by
-    statements.calls desc
-  limit
-    100;`,
-  },
-  {
-    id: 17,
-    type: 'template',
-    title: 'Most time consuming',
-    description: 'Aggregate time spent on a query type.',
-    sql: `-- Most time consuming queries
-
--- A limit of 100 has been added below
-
-select
-    auth.rolname,
-    statements.query,
-    statements.calls,
-    statements.total_exec_time + statements.total_plan_time as total_time,
-    to_char(((statements.total_exec_time + statements.total_plan_time)/sum(statements.total_exec_time + statements.total_plan_time) over()) * 100, 'FM90D0') || '%' as prop_total_time
-  from pg_stat_statements as statements
-    inner join pg_authid as auth on statements.userid = auth.oid
-  order by
-    total_time desc
-  limit
-    100;`,
-  },
-  {
-    id: 18,
-    type: 'template',
-    title: 'Slowest execution time',
-    description: 'Slowest queries based on max execution time.',
-    sql: `-- Slowest queries by max execution time
-
--- A limit of 100 has been added below
-
-select
-    auth.rolname,
-    statements.query,
-    statements.calls,
-    -- -- Postgres 13, 14, 15
-    statements.total_exec_time + statements.total_plan_time as total_time,
-    statements.min_exec_time + statements.min_plan_time as min_time,
-    statements.max_exec_time + statements.max_plan_time as max_time,
-    statements.mean_exec_time + statements.mean_plan_time as mean_time,
-    -- -- Postgres <= 12
-    -- total_time,
-    -- min_time,
-    -- max_time,
-    -- mean_time,
-    statements.rows / statements.calls as avg_rows
-  from pg_stat_statements as statements
-    inner join pg_authid as auth on statements.userid = auth.oid
-  order by
-    max_time desc
-  limit
-    100;`,
-  },
-  {
-    id: 19,
-    type: 'template',
-    title: 'Hit rate',
-    description: 'See your cache and index hit rate.',
-    sql: `-- Cache and index hit rate
-
-select
-    'index hit rate' as name,
-    (sum(idx_blks_hit)) / nullif(sum(idx_blks_hit + idx_blks_read),0) as ratio
-  from pg_statio_user_indexes
-  union all
-  select
-    'table hit rate' as name,
-    sum(heap_blks_hit) / nullif(sum(heap_blks_hit) + sum(heap_blks_read),0) as ratio
-  from pg_statio_user_tables;`,
-  }
 ]

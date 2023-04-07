@@ -1,162 +1,285 @@
-import { useState, useEffect } from 'react'
-import { partition } from 'lodash'
-import { Button, Listbox, IconSearch, Input, IconExternalLink, IconLock } from 'ui'
-import { observer } from 'mobx-react-lite'
-import { PostgresTable, PostgresPolicy } from '@supabase/postgres-meta'
-import { PermissionAction } from '@supabase/shared-types/out/constants'
+import { isEmpty } from 'lodash'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import { Button, IconSearch, Input } from '@supabase/ui'
+import { observer, useLocalObservable } from 'mobx-react-lite'
 
-import { NextPageWithLayout } from 'types'
-import { checkPermissions, useParams, useStore } from 'hooks'
+import { withAuth, useStore } from 'hooks'
 import { AuthLayout } from 'components/layouts'
-import { Policies } from 'components/interfaces/Auth/Policies'
-import NoPermission from 'components/ui/NoPermission'
+import NoSearchResults from 'components/to-be-cleaned/NoSearchResults'
+import ConfirmModal from 'components/ui/Dialogs/ConfirmDialog'
+import PolicyTableRow from 'components/to-be-cleaned/Auth/PolicyTableRow'
+import PolicyEditorModal from 'components/to-be-cleaned/Auth/PolicyEditorModal'
+import NoTableState from 'components/ui/States/NoTableState'
 
-/**
- * Filter tables by table name and policy name
- *
- * @param tables list of table
- * @param policies list of policy
- * @param searchString filter keywords
- *
- * @returns list of table
- */
-const onFilterTables = (
-  tables: PostgresTable[],
-  policies: PostgresPolicy[],
-  searchString?: string
-) => {
-  if (!searchString) {
-    return tables.slice().sort((a: PostgresTable, b: PostgresTable) => a.name.localeCompare(b.name))
-  } else {
-    const filter = searchString.toLowerCase()
-    const findSearchString = (s: string) => s.toLowerCase().includes(filter)
-    // @ts-ignore Type instantiation is excessively deep and possibly infinite
-    const filteredPolicies = policies.filter((p: PostgresPolicy) => findSearchString(p.name))
+const PageContext = createContext(null)
 
-    return tables
-      .slice()
-      .filter((x: PostgresTable) => {
-        return (
-          x.name.toLowerCase().includes(filter) ||
-          x.id.toString() === filter ||
-          filteredPolicies.some((p: PostgresPolicy) => p.table === x.name)
-        )
-      })
-      .sort((a: PostgresTable, b: PostgresTable) => a.name.localeCompare(b.name))
-  }
-}
+const AuthPoliciesPage = ({}) => {
+  const PageState: any = useLocalObservable(() => ({
+    meta: null,
+    project: null,
+    policiesFilter: '',
+    selectedTableId: null,
+    tables: [],
+    tablesLoading: true,
+    get filteredTables() {
+      if (!PageState.policiesFilter)
+        return PageState.tables.slice().sort((a: any, b: any) => a.name.localeCompare(b.name))
+      else {
+        let filter = PageState.policiesFilter.toLowerCase()
+        let stringSearch = (s: string) => s.toLowerCase().indexOf(filter) != -1
+        return PageState.tables
+          .slice()
+          .filter((x: any) => {
+            let searchTableName = stringSearch(x.name)
+            let searchPolicyName = x.policies.some((p: any) => stringSearch(p.name))
+            return searchTableName || searchPolicyName
+          })
+          .sort((a: any, b: any) => a.name.localeCompare(b.name))
+      }
+    },
+    get selectedTable() {
+      if (!PageState.selectedTableId) return null
+      for (let i = 0; i < PageState.tables.length; i++) {
+        const element: any = PageState.tables[i]
+        if (element.id == PageState.selectedTableId) return element
+      }
+    },
+    onTableUpdated(table: any) {
+      for (let i = 0; i < PageState.tables.length; i++) {
+        let el: any = PageState.tables[i]
+        if (el.id == table.id) {
+          PageState.tables[i] = { ...el, ...table }
+        }
+      }
+    },
+  }))
 
-const AuthPoliciesPage: NextPageWithLayout = () => {
-  const { meta } = useStore()
-  const { search } = useParams()
-  const [selectedSchema, setSelectedSchema] = useState<string>('public')
-  const [searchString, setSearchString] = useState<string>('')
-
-  useEffect(() => {
-    if (search) setSearchString(search)
-  }, [search])
-
-  const schemas = meta.schemas.list()
-  const [protectedSchemas, openSchemas] = partition(schemas, (schema) =>
-    meta.excludedSchemas.includes(schema?.name ?? '')
-  )
-  // @ts-ignore
-  const schema = schemas.find((schema) => schema.name === selectedSchema)
-  const isLocked = protectedSchemas.some((s) => s.id === schema?.id)
-
-  const policies = meta.policies.list()
-
-  const tables = meta.tables.list((table: { schema: string }) => table.schema === selectedSchema)
-  const filteredTables = onFilterTables(tables, policies, searchString)
-
-  const canReadPolicies = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_READ, 'policies')
-
-  if (!canReadPolicies) {
-    return <NoPermission isFullPage resourceText="view this project's RLS policies" />
-  }
+  const { meta, ui } = useStore()
+  PageState.meta = meta as any
+  PageState.project = ui.selectedProject as any
 
   return (
-    <div className="flex flex-col h-full">
+    <PageContext.Provider value={PageState}>
+      <AuthLayout title="Auth">
+        <div className="p-4">
+          <AuthPolicies />
+        </div>
+      </AuthLayout>
+    </PageContext.Provider>
+  )
+}
+export default withAuth(observer(AuthPoliciesPage))
+
+const AuthPolicies = observer(() => {
+  const PageState: any = useContext(PageContext)
+
+  const { meta } = useStore()
+  const tables = meta.tables.list((table: any) => table.schema === 'public')
+
+  useEffect(() => {
+    PageState.tablesLoading = false
+    PageState.tables = tables.sort((a: any, b: any) => a.name.localeCompare(b.name))
+  }, [])
+
+  return (
+    <>
       <div className="mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-[230px]">
-              <Listbox
-                size="small"
-                value={selectedSchema}
-                onChange={(schema: string) => {
-                  setSelectedSchema(schema)
-                  setSearchString('')
-                }}
-                icon={isLocked && <IconLock size={14} strokeWidth={2} />}
-              >
-                <Listbox.Option
-                  disabled
-                  key="normal-schemas"
-                  value="normal-schemas"
-                  label="Schemas"
-                >
-                  <p className="text-sm">Schemas</p>
-                </Listbox.Option>
-                {/* @ts-ignore */}
-                {openSchemas.map((schema) => (
-                  <Listbox.Option
-                    key={schema.id}
-                    value={schema.name}
-                    label={schema.name}
-                    addOnBefore={() => <span className="text-scale-900">schema</span>}
-                  >
-                    <span className="text-scale-1200 text-sm">{schema.name}</span>
-                  </Listbox.Option>
-                ))}
-                <Listbox.Option
-                  disabled
-                  key="protected-schemas"
-                  value="protected-schemas"
-                  label="Protected schemas"
-                >
-                  <p className="text-sm">Protected schemas</p>
-                </Listbox.Option>
-                {protectedSchemas.map((schema) => (
-                  <Listbox.Option
-                    key={schema.id}
-                    value={schema.name}
-                    label={schema.name}
-                    addOnBefore={() => <span className="text-scale-900">schema</span>}
-                  >
-                    <span className="text-scale-1200 text-sm">{schema.name}</span>
-                  </Listbox.Option>
-                ))}
-              </Listbox>
-            </div>
+        <div className="flex justify-between items-center">
+          <div>
             <Input
               size="small"
-              placeholder="Filter tables and policies"
-              className="block w-64 text-sm placeholder-gray-400"
-              value={searchString}
-              onChange={(e) => setSearchString(e.target.value)}
+              placeholder="Filter tables"
+              className="block w-full text-sm placeholder-gray-400"
+              value={PageState.policiesFilter}
+              onChange={(e) => (PageState.policiesFilter = e.target.value)}
               icon={<IconSearch size="tiny" />}
             />
           </div>
-          <a
-            target="_blank"
-            href="https://supabase.com/docs/learn/auth-deep-dive/auth-row-level-security"
-          >
-            <Button type="link" icon={<IconExternalLink size={14} strokeWidth={1.5} />}>
+          <Button type="link">
+            <a
+              target="_blank"
+              href="https://supabase.com/docs/learn/auth-deep-dive/auth-row-level-security"
+            >
               What is RLS?
-            </Button>
-          </a>
+            </a>
+          </Button>
         </div>
       </div>
-      <Policies tables={filteredTables} hasTables={tables.length > 0} isLocked={isLocked} />
+      <div>
+        <AuthPoliciesTables />
+      </div>
+    </>
+  )
+})
+
+const AuthPoliciesTables = observer(() => {
+  const { ui, meta } = useStore()
+  const PageState: any = useContext(PageContext)
+
+  const [selectedSchemaAndTable, setSelectedSchemaAndTable] = useState<any>({})
+  const [selectedTableToToggleRLS, setSelectedTableToToggleRLS] = useState<any>({})
+  const [selectedPolicyToEdit, setSelectedPolicyToEdit] = useState<any>({})
+  const [selectedPolicyToDelete, setSelectedPolicyToDelete] = useState<any>({})
+
+  const closePolicyEditorModal = () => {
+    setSelectedPolicyToEdit({})
+    setSelectedSchemaAndTable({})
+  }
+
+  const closeConfirmModal = () => {
+    setSelectedPolicyToDelete({})
+    setSelectedTableToToggleRLS({})
+  }
+
+  const onSelectToggleRLS = (table: any) => {
+    setSelectedTableToToggleRLS(table)
+  }
+
+  const onSelectCreatePolicy = (table: any) => {
+    setSelectedSchemaAndTable({ schema: table.schema, table: table.name })
+  }
+
+  const onSelectEditPolicy = (policy: any) => {
+    setSelectedPolicyToEdit(policy)
+    setSelectedSchemaAndTable({ schema: policy.schema, table: policy.table })
+  }
+
+  const onSelectDeletePolicy = (policy: any) => {
+    setSelectedPolicyToDelete(policy)
+  }
+
+  const onSavePolicySuccess = async () => {
+    ui.setNotification({ category: 'success', message: 'Policy successfully saved!' })
+    await refreshTables()
+    closePolicyEditorModal()
+  }
+
+  // Methods that involve some API
+
+  const refreshTables = async () => {
+    await meta.tables.load()
+    const res: any = meta.tables.list((table: any) => table.schema === 'public')
+    if (!res.error) PageState.tables.replace(res)
+  }
+
+  const onToggleRLS = async () => {
+    const payload = {
+      id: selectedTableToToggleRLS.id,
+      rls_enabled: !selectedTableToToggleRLS.rls_enabled,
+    }
+
+    const res: any = await meta.tables.update(payload.id, payload)
+    // const url = `${API_URL}/database/${router.query.ref}/tables?id=${payload.id}`
+    // const res = await patch(url, payload)
+    if (res.error) {
+      ui.setNotification({
+        category: 'error',
+        message: `Failed to toggle RLS: ${res.error.message}`,
+      })
+    } else {
+      PageState.onTableUpdated(res)
+    }
+    closeConfirmModal()
+  }
+
+  const onCreatePolicy = async (payload: any) => {
+    const res = await PageState.meta.policies.create(payload)
+    if (res.error) {
+      ui.setNotification({
+        category: 'error',
+        message: `Error adding policy: ${res.error.message}`,
+      })
+      return true
+    }
+    return false
+  }
+
+  const onUpdatePolicy = async (payload: any) => {
+    const res = await PageState.meta.policies.update(payload.id, payload)
+    if (res.error) {
+      ui.setNotification({
+        category: 'error',
+        message: `Error updating policy: ${res.error.message}`,
+      })
+      return true
+    }
+    return false
+  }
+
+  const onDeletePolicy = async () => {
+    const res = await PageState.meta.policies.del(selectedPolicyToDelete.id)
+    if (res.error) {
+      ui.setNotification({
+        category: 'error',
+        message: `Error deleting policy: ${res.error.message}`,
+      })
+    } else {
+      ui.setNotification({ category: 'success', message: 'Successfully deleted policy!' })
+    }
+    await refreshTables()
+    closeConfirmModal()
+  }
+
+  return (
+    <div>
+      {PageState.filteredTables.length > 0 ? (
+        PageState.filteredTables.map((table: any) => (
+          <section key={table.id}>
+            <PolicyTableRow
+              table={table}
+              // @ts-ignore
+              onSelectToggleRLS={onSelectToggleRLS}
+              // @ts-ignore
+              onSelectCreatePolicy={onSelectCreatePolicy}
+              // @ts-ignore
+              onSelectEditPolicy={onSelectEditPolicy}
+              // @ts-ignore
+              onSelectDeletePolicy={onSelectDeletePolicy}
+            />
+          </section>
+        ))
+      ) : PageState.tables.length > 0 ? (
+        <NoSearchResults />
+      ) : (
+        <NoTableState message="A public schema table is required before you can create a row-level security policy" />
+      )}
+
+      <PolicyEditorModal
+        visible={!isEmpty(selectedSchemaAndTable)}
+        schema={selectedSchemaAndTable.schema}
+        table={selectedSchemaAndTable.table}
+        selectedPolicyToEdit={selectedPolicyToEdit}
+        onSelectCancel={closePolicyEditorModal}
+        // @ts-ignore
+        onCreatePolicy={onCreatePolicy}
+        // @ts-ignore
+        onUpdatePolicy={onUpdatePolicy}
+        onSaveSuccess={onSavePolicySuccess}
+      />
+
+      <ConfirmModal
+        danger
+        visible={!isEmpty(selectedPolicyToDelete)}
+        title="Confirm to delete policy"
+        description={`This is permanent! Are you sure you want to delete the policy "${selectedPolicyToDelete.name}"`}
+        buttonLabel="Delete"
+        buttonLoadingLabel="Deleting"
+        onSelectCancel={closeConfirmModal}
+        onSelectConfirm={onDeletePolicy}
+      />
+
+      <ConfirmModal
+        danger={selectedTableToToggleRLS.rls_enabled}
+        visible={!isEmpty(selectedTableToToggleRLS)}
+        title={`Confirm to ${selectedTableToToggleRLS.rls_enabled ? 'disable' : 'enable'} RLS`}
+        description={`Are you sure you want to ${
+          selectedTableToToggleRLS.rls_enabled ? 'disable' : 'enable'
+        } row level security for the table "${selectedTableToToggleRLS.name}"?`}
+        buttonLabel="Confirm"
+        buttonLoadingLabel="Saving"
+        onSelectCancel={closeConfirmModal}
+        onSelectConfirm={onToggleRLS}
+      />
     </div>
   )
-}
-
-AuthPoliciesPage.getLayout = (page) => (
-  <AuthLayout title="Auth">
-    <div className="h-full p-4">{page}</div>
-  </AuthLayout>
-)
-
-export default observer(AuthPoliciesPage)
+})

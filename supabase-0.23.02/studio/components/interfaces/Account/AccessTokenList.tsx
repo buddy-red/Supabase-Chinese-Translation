@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Button, Modal, IconTrash } from 'ui'
+import { Typography, Button, Modal, IconTrash } from '@supabase/ui'
 import { useStore } from 'hooks'
-import { AccessToken, useAccessTokensQuery } from 'data/access-tokens/access-tokens-query'
-import { useAccessTokenDeleteMutation } from 'data/access-tokens/access-tokens-delete-mutation'
+import { delete_ } from 'lib/common/fetch'
+import { API_URL } from 'lib/constants'
+import { AccessToken, useAccessTokens } from 'hooks/queries/useAccessTokens'
 import { observer } from 'mobx-react-lite'
 
 import Table from 'components/to-be-cleaned/Table'
@@ -10,21 +11,21 @@ import ConfirmationModal from 'components/ui/ConfirmationModal'
 
 const AccessTokenList = observer(() => {
   const { ui } = useStore()
-  const { data: tokens, isLoading } = useAccessTokensQuery()
-  const { mutateAsync: deleteToken } = useAccessTokenDeleteMutation()
-
+  const { mutateDeleteToken } = useAccessTokens()
+  const { tokens, isLoading } = useAccessTokens()
   const [isOpen, setIsOpen] = useState(false)
   const [token, setToken] = useState<AccessToken | undefined>(undefined)
 
   async function onDeleteToken(tokenId: number) {
-    try {
-      await deleteToken({ id: tokenId })
-      setIsOpen(false)
-    } catch (error: any) {
+    const response = await delete_(`${API_URL}/profile/access-tokens/${tokenId}`)
+    if (response.error) {
       ui.setNotification({
         category: 'error',
-        message: `Failed to delete token: ${error.message}`,
+        message: `Failed to delete token: ${response.error.message}`,
       })
+    } else {
+      mutateDeleteToken(tokenId)
+      setIsOpen(false)
     }
   }
 
@@ -42,14 +43,14 @@ const AccessTokenList = observer(() => {
             tokens && tokens.length == 0 ? (
               <Table.tr>
                 <Table.td colSpan={5} className="p-3 py-12 text-center">
-                  <p className="text-scale-1000">
-                    {isLoading ? 'Checking for tokens' : 'You do not have any tokens created yet'}
-                  </p>
+                  <Typography.Text type="secondary">
+                    {isLoading ? 'Checking for tokens' : "You don't have any token"}
+                  </Typography.Text>
                 </Table.td>
               </Table.tr>
             ) : (
               <>
-                {tokens?.map((x) => {
+                {tokens?.map((x: AccessToken) => {
                   return (
                     <Table.tr key={x.token_alias}>
                       <Table.td>
@@ -57,7 +58,7 @@ const AccessTokenList = observer(() => {
                       </Table.td>
                       <Table.td>{x.name}</Table.td>
                       <Table.td>
-                        <p>{new Date(x.created_at).toLocaleString()}</p>
+                        <Typography.Text>{new Date(x.created_at).toLocaleString()}</Typography.Text>
                       </Table.td>
                       <Table.td>
                         <Button

@@ -1,24 +1,24 @@
-import { useState, useEffect } from 'react'
-import { observer } from 'mobx-react-lite'
+import { FC, useState, useEffect } from 'react'
 
-import { Project } from 'types'
-import { useParams, useStore } from 'hooks'
+import { useStore } from 'hooks'
 import { API_URL } from 'lib/constants'
 import { get } from 'lib/common/fetch'
 
+import AWSMarketplaceSubscription from './AWSMarketplaceSubscription'
 import ProjectsSummary from './ProjectsSummary'
 import CreditBalance from './CreditBalance'
 import PaymentMethods from './PaymentMethods'
 import BillingAddress from './BillingAddress/BillingAddress'
 import TaxID from './TaxID/TaxID'
-import BillingEmail from './BillingEmail'
 
-const BillingSettings = () => {
-  const { app, ui } = useStore()
-  const { slug } = useParams()
+interface Props {
+  organization: any
+  projects: any[]
+}
 
-  const organization = ui.selectedOrganization
-  const projects = app.projects.list((x: Project) => x.organization_id == organization?.id) || []
+const BillingSettings: FC<Props> = ({ organization, projects = [] }) => {
+  const { ui } = useStore()
+  const { slug } = organization
 
   const [customer, setCustomer] = useState<any>(null)
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false)
@@ -93,33 +93,36 @@ const BillingSettings = () => {
   }
 
   return (
-    <article className="container my-4 max-w-4xl space-y-8">
-      <div className="space-y-8">
-        <ProjectsSummary projects={projects} />
-        <CreditBalance balance={balance} isCredit={isCredit} isDebt={isDebt} />
-        <PaymentMethods
-          loading={isLoadingCustomer || isLoadingPaymentMethods}
-          defaultPaymentMethod={defaultPaymentMethod}
-          paymentMethods={paymentMethods || []}
-          onDefaultMethodUpdated={setCustomer}
-          onPaymentMethodsDeleted={() => getPaymentMethods()}
-        />
-
-        <BillingEmail />
-
-        <BillingAddress
-          loading={isLoadingCustomer}
-          address={customer?.address ?? {}}
-          onAddressUpdated={(address: any) => setCustomer({ ...customer, address })}
-        />
-        <TaxID
-          loading={isLoadingTaxIds}
-          taxIds={taxIds || []}
-          onTaxIdsUpdated={(ids: any) => setTaxIds(ids)}
-        />
-      </div>
+    <article className="my-4 container max-w-4xl space-y-8">
+      {organization.aws_marketplace ? (
+        <AWSMarketplaceSubscription organization={organization} />
+      ) : (
+        <>
+          <div className="space-y-8">
+            <ProjectsSummary projects={projects} />
+            <CreditBalance balance={balance} isCredit={isCredit} isDebt={isDebt} />
+            <PaymentMethods
+              loading={isLoadingCustomer || isLoadingPaymentMethods}
+              defaultPaymentMethod={defaultPaymentMethod}
+              paymentMethods={paymentMethods || []}
+              onDefaultMethodUpdated={setCustomer}
+              onPaymentMethodsDeleted={() => getPaymentMethods()}
+            />
+            <BillingAddress
+              loading={isLoadingCustomer}
+              address={customer?.address ?? {}}
+              onAddressUpdated={(address: any) => setCustomer({ ...customer, address })}
+            />
+            <TaxID
+              loading={isLoadingTaxIds}
+              taxIds={taxIds || []}
+              onTaxIdsUpdated={(ids: any) => setTaxIds(ids)}
+            />
+          </div>
+        </>
+      )}
     </article>
   )
 }
 
-export default observer(BillingSettings)
+export default BillingSettings

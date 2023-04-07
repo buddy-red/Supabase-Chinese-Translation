@@ -1,11 +1,18 @@
-import { FC, createContext, useContext, useState } from 'react'
+import * as React from 'react'
 import { useRouter } from 'next/router'
 import { observer, useLocalObservable } from 'mobx-react-lite'
 import { uniqBy, map as lodashMap } from 'lodash'
 import { Transition } from '@headlessui/react'
-import { Button, IconChevronDown, IconHelpCircle, IconTerminal, SidePanel } from 'ui'
-import { Dictionary } from 'components/grid'
-import SqlEditor from 'components/ui/SqlEditor'
+import {
+  Button,
+  IconChevronDown,
+  IconHelpCircle,
+  IconTerminal,
+  SidePanel,
+  Typography,
+} from '@supabase/ui'
+import { Dictionary } from '@supabase/grid'
+import SqlEditor from 'components/to-be-cleaned/SqlEditor'
 import ProductEmptyState from 'components/to-be-cleaned/ProductEmptyState'
 import InformationBox from 'components/ui/InformationBox'
 
@@ -22,7 +29,7 @@ class ChooseFunctionFormStore implements IChooseFunctionFormStore {
   }
 }
 
-const ChooseFunctionFormContext = createContext<IChooseFunctionFormStore | null>(null)
+const ChooseFunctionFormContext = React.createContext<IChooseFunctionFormStore | null>(null)
 
 type ChooseFunctionFormProps = {
   triggerFunctions: Dictionary<any>[]
@@ -31,7 +38,7 @@ type ChooseFunctionFormProps = {
   setVisible: (value: boolean) => void
 }
 
-const ChooseFunctionForm: FC<ChooseFunctionFormProps> = ({
+const ChooseFunctionForm: React.FC<ChooseFunctionFormProps> = ({
   triggerFunctions,
   visible,
   onChange,
@@ -73,7 +80,7 @@ const ChooseFunctionForm: FC<ChooseFunctionFormProps> = ({
 
 export default observer(ChooseFunctionForm)
 
-const NoticeBox: FC = ({}) => {
+const NoticeBox: React.FC = ({}) => {
   const router = useRouter()
   const { ref } = router.query
   return (
@@ -97,7 +104,7 @@ const NoticeBox: FC = ({}) => {
   )
 }
 
-const NoFunctionsState: FC = ({}) => {
+const NoFunctionsState: React.FC = ({}) => {
   // for the empty 'no tables' state link
   const router = useRouter()
   const { ref } = router.query
@@ -122,29 +129,33 @@ type SchemaFunctionGroupProps = {
   selectFunction: (id: number) => void
 }
 
-const SchemaFunctionGroup: FC<SchemaFunctionGroupProps> = observer(({ schema, selectFunction }) => {
-  const _pageState = useContext(ChooseFunctionFormContext)
-  const _functions = _pageState!.triggerFunctions.filter((x) => x.schema == schema)
-  return (
-    <div className="space-y-4">
-      <div className="sticky top-0 flex items-center space-x-1 px-6 backdrop-blur backdrop-filter">
-        <h5 className="text-scale-1000">schema</h5>
-        <h5>{schema}</h5>
+const SchemaFunctionGroup: React.FC<SchemaFunctionGroupProps> = observer(
+  ({ schema, selectFunction }) => {
+    const _pageState = React.useContext(ChooseFunctionFormContext)
+    const _functions = _pageState!.triggerFunctions.filter((x) => x.schema == schema)
+    return (
+      <div className="space-y-4">
+        <div className="sticky top-0 backdrop-filter backdrop-blur px-6 flex items-center space-x-1">
+          <Typography.Title level={5} className="opacity-50">
+            schema
+          </Typography.Title>
+          <Typography.Title level={5}>{schema}</Typography.Title>
+        </div>
+        <div className="space-y-0 divide-y dark:divide-dark border-t border-b dark:border-dark">
+          {_functions.map((x) => (
+            <Function
+              id={x.id}
+              key={x.id}
+              completeStatement={x.complete_statement}
+              name={x.name}
+              onClick={selectFunction}
+            />
+          ))}
+        </div>
       </div>
-      <div className="space-y-0 divide-y border-t border-b dark:divide-dark dark:border-dark">
-        {_functions.map((x) => (
-          <Function
-            id={x.id}
-            key={x.id}
-            completeStatement={x.complete_statement}
-            name={x.name}
-            onClick={selectFunction}
-          />
-        ))}
-      </div>
-    </div>
-  )
-})
+    )
+  }
+)
 
 type FunctionProps = {
   id: number
@@ -153,19 +164,21 @@ type FunctionProps = {
   onClick: (id: number) => void
 }
 
-const Function: FC<FunctionProps> = ({ id, completeStatement, name, onClick }) => {
-  const [visible, setVisible] = useState(false)
+const Function: React.FC<FunctionProps> = ({ id, completeStatement, name, onClick }) => {
+  const [visible, setVisible] = React.useState(false)
   return (
     <div
-      className="cursor-pointer rounded p-3 px-6 hover:bg-bg-alt-light dark:hover:bg-bg-alt-dark"
+      className="hover:bg-bg-alt-light dark:hover:bg-bg-alt-dark rounded p-3 px-6 cursor-pointer"
       onClick={() => onClick(id)}
     >
-      <div className="flex items-center justify-between space-x-3">
+      <div className="flex items-center space-x-3 justify-between">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center justify-center rounded bg-scale-1200 p-1 text-scale-100 ">
+          <div className="bg-scale-1200 p-1 flex items-center justify-center rounded text-scale-100 ">
             <IconTerminal strokeWidth={2} size={14} />
           </div>
-          <h5 className="mb-0">{name}</h5>
+          <Typography.Title level={5} className="mb-0">
+            {name}
+          </Typography.Title>
         </div>
         <Button
           type="text"
@@ -174,7 +187,7 @@ const Function: FC<FunctionProps> = ({ id, completeStatement, name, onClick }) =
             setVisible(!visible)
           }}
           icon={
-            <IconChevronDown className={visible ? 'rotate-0 transform' : 'rotate-180 transform'} />
+            <IconChevronDown className={visible ? 'transform rotate-0' : 'transform rotate-180'} />
           }
         >
           {visible ? 'Hide definition' : 'View definition'}
@@ -189,7 +202,8 @@ const Function: FC<FunctionProps> = ({ id, completeStatement, name, onClick }) =
         leaveFrom="transform opacity-100"
         leaveTo="transform opacity-0"
       >
-        <div className="mt-4 h-64 border dark:border-dark">
+        <div className="h-64 mt-4 border dark:border-dark">
+          {/* @ts-ignore */}
           <SqlEditor defaultValue={completeStatement} readOnly={true} contextmenu={false} />
         </div>
       </Transition>

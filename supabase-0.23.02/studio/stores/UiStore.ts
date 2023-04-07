@@ -1,23 +1,20 @@
 import { uuidv4 } from 'lib/helpers'
 import { action, makeAutoObservable } from 'mobx'
-import { Project, Notification, User, Organization, ProjectBase, Permission } from 'types'
+import { Project, Notification, User, Organization } from 'types'
 import { IRootStore } from './RootStore'
-import Telemetry, { GoogleAnalyticsProps } from 'lib/telemetry'
+import Telemetry from 'lib/telemetry'
 
 export interface IUiStore {
-  language: 'en-US'
+  language: 'en_US'
   theme: 'dark' | 'light'
   themeOption: 'dark' | 'light' | 'system'
 
   selectedProjectRef?: string
   isDarkTheme: boolean
   selectedProject?: Project
-  selectedProjectBaseInfo?: ProjectBase
   selectedOrganization?: Organization
   notification?: Notification
-  permissions?: Permission[]
-
-  googleAnalyticsProps?: GoogleAnalyticsProps
+  profile?: User
 
   load: () => void
   setTheme: (theme: 'dark' | 'light') => void
@@ -25,20 +22,18 @@ export interface IUiStore {
   setProjectRef: (ref?: string) => void
   setOrganizationSlug: (slug?: string) => void
   setNotification: (notification: Notification) => string
-  setProfile: (value: User) => void
-  setPermissions: (permissions?: Permission[]) => void
-  setGaClientId: (clientId?: string) => void
+  setProfile: (value?: User) => void
 }
 export default class UiStore implements IUiStore {
   rootStore: IRootStore
-  language: 'en-US' = 'en-US'
+  language: 'en_US' = 'en_US'
   theme: 'dark' | 'light' = 'dark'
   themeOption: 'dark' | 'light' | 'system' = 'dark'
 
   selectedProjectRef?: string
   selectedOrganizationSlug?: string
   notification?: Notification
-  permissions?: Permission[] = []
+  profile?: User
 
   constructor(rootStore: IRootStore) {
     this.rootStore = rootStore
@@ -48,32 +43,12 @@ export default class UiStore implements IUiStore {
     })
   }
 
-  /**
-   * we use this getter to check for project ready.
-   * Only return selectedProject when it has full detail
-   * like connectionString prop
-   *
-   * @returns Project or undefined
-   */
   get selectedProject() {
     if (this.selectedProjectRef) {
       const found = this.rootStore.app.projects.find(
-        (x: Project) => x.ref === this.selectedProjectRef
+        (x: Project) => x.ref == this.selectedProjectRef
       )
-      // Self-hosted project details has connectionString set to empty string
-      return found?.connectionString !== undefined ? found : undefined
-    }
-    return undefined
-  }
-
-  /**
-   * Get selected project base info.
-   *
-   * @return ProjectBase or undefined
-   */
-  get selectedProjectBaseInfo(): ProjectBase | undefined {
-    if (this.selectedProjectRef) {
-      return this.rootStore.app.projects.find((x: Project) => x.ref == this.selectedProjectRef)
+      return found
     }
     return undefined
   }
@@ -99,14 +74,6 @@ export default class UiStore implements IUiStore {
     return this.theme === 'dark'
   }
 
-  get googleAnalyticsProps() {
-    return {
-      screenResolution:
-        typeof window !== 'undefined' ? `${window.innerWidth}x${window.innerHeight}` : undefined,
-      language: this.language,
-    }
-  }
-
   load() {
     if (typeof window === 'undefined') return
     const localStorageThemeOption = window.localStorage.getItem('theme')
@@ -126,8 +93,8 @@ export default class UiStore implements IUiStore {
   }
 
   setTheme(theme: 'dark' | 'light') {
-    document.body.classList.replace(this.theme, theme)
     this.theme = theme
+    document.body.className = theme
   }
 
   onThemeOptionChange(themeOption: 'dark' | 'light' | 'system') {
@@ -156,20 +123,11 @@ export default class UiStore implements IUiStore {
     return id
   }
 
-  setProfile(value: User) {
-    Telemetry.sendIdentify(value, this.googleAnalyticsProps)
-  }
+  setProfile(value?: User) {
+    if (value && value?.id !== this.profile?.id) {
+      Telemetry.sendIdentify(value)
+    }
 
-  setPermissions(permissions?: any) {
-    this.permissions = permissions
-  }
-
-  setGaClientId(clientId?: string) {
-    /**
-     * We need to access ga client_id from base.constructHeaders method
-     * in order to set custom header('ga_client_id).
-     * TODO: Do we have a better way than storing in local storage?
-     */
-    window.localStorage.setItem('ga_client_id', String(clientId))
+    this.profile = value
   }
 }

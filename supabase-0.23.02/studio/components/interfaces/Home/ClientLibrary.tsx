@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { IconBookOpen, IconGitHub, Button, Badge } from 'ui'
+import { Typography, IconBookOpen, IconGitHub, Button, Badge } from '@supabase/ui'
 
 interface Props {
   language: string
@@ -11,7 +11,7 @@ interface Props {
 
 const ClientLibrary: FC<Props> = ({ language, releaseState, officialSupport, docsUrl, gitUrl }) => {
   return (
-    <div className="flex items-start space-x-6">
+    <div className="flex space-x-6 items-start">
       <img
         src={`/img/libraries/${language.toLowerCase()}-icon.svg`}
         alt={`${language} logo`}
@@ -19,10 +19,10 @@ const ClientLibrary: FC<Props> = ({ language, releaseState, officialSupport, doc
       />
       <div className="space-y-4">
         <div>
-          <h5 className="flex items-center gap-2 text-base text-scale-1200">
+          <h5 className="text-scale-1200 text-base flex items-center gap-2">
             {language} {releaseState && <Badge color="yellow">{`Public ${releaseState}`}</Badge>}
           </h5>
-          <p className="text-sm text-scale-1000">
+          <p className="text-scale-1000 text-sm">
             {officialSupport
               ? 'This library is officially supported'
               : 'This library is community supported'}

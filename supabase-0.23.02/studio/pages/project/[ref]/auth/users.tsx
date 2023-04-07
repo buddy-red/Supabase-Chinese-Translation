@@ -1,38 +1,32 @@
-import React, { createContext, useContext, useEffect, PropsWithChildren } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
 import { observer, useLocalObservable } from 'mobx-react-lite'
 import { useRouter } from 'next/router'
 import { get } from 'lib/common/fetch'
 
 import { API_URL } from 'lib/constants'
-import { checkPermissions, useStore } from 'hooks'
+import { withAuth, useStore } from 'hooks'
 import { AuthLayout } from 'components/layouts'
-import { Users } from 'components/interfaces/Auth'
-import { NextPageWithLayout } from 'types'
-import { PermissionAction } from '@supabase/shared-types/out/constants'
-import NoPermission from 'components/ui/NoPermission'
+import { Users } from 'components/interfaces/Authentication'
 
 export const PageContext = createContext(null)
 
-const PageLayout = ({ children }: PropsWithChildren<{}>) => {
+const Page = () => {
   const PageState: any = useLocalObservable(() => ({
     projectRef: undefined,
     projectKpsVersion: undefined,
     filterInputValue: '',
     filterKeywords: '',
-    filterVerified: undefined,
     users: [],
     totalUsers: 0,
     usersLoading: true,
     page: 1,
     pageLimit: 10,
     get fetchQuery() {
-      let queryObj = {
+      return {
         limit: this.pageLimit,
         offset: (this.page - 1) * this.pageLimit,
         keywords: this.filterKeywords,
       }
-
-      return this.filterVerified ? { ...queryObj, verified: this.filterVerified } : queryObj
     },
     get fromRow() {
       const value = this.pageLimit * (this.page - 1) + 1
@@ -77,10 +71,15 @@ const PageLayout = ({ children }: PropsWithChildren<{}>) => {
   const router = useRouter()
   PageState.projectRef = router.query.ref
 
-  return <PageContext.Provider value={PageState}>{children}</PageContext.Provider>
+  return (
+    <PageContext.Provider value={PageState}>
+      <PageLayout />
+    </PageContext.Provider>
+  )
 }
+export default withAuth(observer(Page))
 
-const UsersPage: NextPageWithLayout = () => {
+const PageLayout = observer(() => {
   const { ui } = useStore()
   const PageState: any = useContext(PageContext)
   const project: any = ui.selectedProject
@@ -89,19 +88,9 @@ const UsersPage: NextPageWithLayout = () => {
     PageState!.projectKpsVersion = project?.kpsVersion
   }, [project])
 
-  const canReadUsers = checkPermissions(PermissionAction.TENANT_SQL_SELECT, 'auth.users')
-
-  return !canReadUsers ? (
-    <NoPermission isFullPage resourceText="access your project's users" />
-  ) : (
-    <Users />
+  return (
+    <AuthLayout title="Auth">
+      <Users />
+    </AuthLayout>
   )
-}
-
-UsersPage.getLayout = (page) => (
-  <AuthLayout title="Auth">
-    <PageLayout>{page}</PageLayout>
-  </AuthLayout>
-)
-
-export default observer(UsersPage)
+})

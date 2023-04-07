@@ -1,12 +1,10 @@
 import { ProductMenuGroup } from 'components/ui/ProductMenu/ProductMenu.types'
-import SVG from 'react-inlinesvg'
-import { IconBook, IconBookOpen } from 'ui'
+import { IconBook, IconBookOpen } from '@supabase/ui'
 
 export const generateDocsMenu = (
   ref: string,
   tables: string[],
-  functions: string[],
-  showGraphiql: boolean
+  functions: string[]
 ): ProductMenuGroup[] => {
   return [
     {
@@ -15,13 +13,13 @@ export const generateDocsMenu = (
         { name: 'Introduction', key: 'introduction', url: `/project/${ref}/api`, items: [] },
         {
           name: 'Authentication',
-          key: 'auth',
+          key: 'authentication',
           url: `/project/${ref}/api?page=auth`,
           items: [],
         },
         {
           name: 'User Management',
-          key: 'users',
+          key: 'user-management',
           url: `/project/${ref}/api?page=users`,
           items: [],
         },
@@ -32,11 +30,11 @@ export const generateDocsMenu = (
       items: [
         {
           name: 'Introduction',
-          key: 'tables-intro',
+          key: 'tables-introduction',
           url: `/project/${ref}/api?page=tables-intro`,
           items: [],
         },
-        ...tables.sort().map((table) => {
+        ...tables.map((table) => {
           return {
             name: table,
             key: table,
@@ -51,7 +49,7 @@ export const generateDocsMenu = (
       items: [
         {
           name: 'Introduction',
-          key: 'rpc-intro',
+          key: 'sp-introduction',
           url: `/project/${ref}/api?page=rpc-intro`,
           items: [],
         },
@@ -60,31 +58,6 @@ export const generateDocsMenu = (
         }),
       ],
     },
-    ...(showGraphiql
-      ? [
-          {
-            title: 'GraphQL',
-            items: [
-              {
-                name: 'GraphiQL',
-                key: 'graphiql',
-                url: `/project/${ref}/api/graphiql`,
-                icon: (
-                  <SVG
-                    src="/img/graphql.svg"
-                    style={{ width: `${16}px`, height: `${16}px` }}
-                    className="text-scale-1200"
-                    preProcessor={(code) =>
-                      code.replace(/svg/, 'svg class="m-auto text-color-inherit"')
-                    }
-                  />
-                ),
-                items: [],
-              },
-            ],
-          },
-        ]
-      : []),
     {
       title: 'More Resources',
       items: [
@@ -99,7 +72,7 @@ export const generateDocsMenu = (
         {
           name: 'API Reference',
           key: 'api-reference',
-          url: `https://supabase.com/docs/guides/database/api`,
+          url: `https://supabase.com/docs/client/supabase-client`,
           icon: <IconBookOpen size={14} strokeWidth={2} />,
           items: [],
           isExternal: true,

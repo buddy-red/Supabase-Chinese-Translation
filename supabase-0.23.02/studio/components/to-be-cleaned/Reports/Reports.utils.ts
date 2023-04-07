@@ -1,5 +1,6 @@
 import { useProjectContentStore } from 'stores/projectContentStore'
 import { NEW_REPORT_SKELETON } from './Reports.constants'
+import toast from 'react-hot-toast'
 
 /*
  * createReport()

@@ -1,29 +1,25 @@
+import { withAuth } from 'hooks'
 import { AccountLayout } from 'components/layouts'
 import { AccessTokenList, NewAccessTokenButton } from 'components/interfaces/Account'
-import { NextPageWithLayout } from 'types'
 
-const UserAccessTokens: NextPageWithLayout = () => {
+const UserAccessTokens = () => {
   return (
-    <div className="mt-4 space-y-8 p-4 pt-0">
-      <h2 className="text-xl">Access Tokens</h2>
-      <NewAccessTokenButton />
-      <AccessTokenList />
-    </div>
+    <AccountLayout
+      title="Supabase"
+      breadcrumbs={[
+        {
+          key: `supabase-account-tokens`,
+          label: 'Access Tokens',
+        },
+      ]}
+    >
+      <div className="p-4 pt-0 mt-4 space-y-8">
+        <h2 className="text-xl">Access Tokens</h2>
+        <NewAccessTokenButton />
+        <AccessTokenList />
+      </div>
+    </AccountLayout>
   )
 }
 
-UserAccessTokens.getLayout = (page) => (
-  <AccountLayout
-    title="Supabase"
-    breadcrumbs={[
-      {
-        key: 'supabase-account-tokens',
-        label: 'Access Tokens',
-      },
-    ]}
-  >
-    {page}
-  </AccountLayout>
-)
-
-export default UserAccessTokens
+export default withAuth(UserAccessTokens)

@@ -5,23 +5,17 @@ import { IS_PLATFORM } from 'lib/constants'
 import Tab from './Tab'
 import QueryTab from './QueryTab'
 import Favorite from './Favorite'
+// import { useStore } from 'hooks'
 import { SchemasQuery, TableColumnsQuery, AllFunctionsQuery } from './queries'
 import { isUndefined } from 'lodash'
 
 let store = null
 let projectRef = null
-let metaProjectRef = null
 export function useSqlEditorStore(ref, meta) {
-  if ((ref && ref !== projectRef) || (meta?.projectRef && meta.projectRef !== metaProjectRef)) {
+  if (store === null || ref !== projectRef) {
     projectRef = ref
-    metaProjectRef = meta.projectRef
     store = new SqlEditorStore(ref, meta)
   }
-
-  if (!ref || !meta) {
-    store = null
-  }
-
   return store
 }
 
@@ -76,10 +70,6 @@ class SqlEditorStore {
   }
 
   get activeTab() {
-    if (this.tabs.length === 1) {
-      this.selectedTabId = this.tabs[0].id
-    }
-
     const found = this.tabs.find((x) => x.id === this.selectedTabId)
     return found
   }
@@ -122,31 +112,6 @@ class SqlEditorStore {
     else return tab.isExecuting
   }
 
-  tabsFromContentStore(contentStore, user_id) {
-    const snippets = contentStore
-      .sqlSnippets((x) => x.owner_id === user_id)
-      .map((snippet) => toJS(snippet))
-
-    // add the welcome tab
-    let tabs = IS_PLATFORM ? [new Tab('Welcome', TAB_TYPES.WELCOME)] : []
-
-    // add the tabs to array, but with structure the localStore expects
-    snippets.forEach((snippet) => {
-      const data = {
-        desc: snippet.description,
-        id: snippet.id,
-        name: snippet.name,
-        query: snippet.content.sql,
-        type: 'SQL_QUERY',
-        favorite: snippet.content.favorite,
-      }
-
-      tabs.push(data)
-    })
-
-    return tabs
-  }
-
   /*
    * ! Temporary solution !
    *
@@ -155,8 +120,24 @@ class SqlEditorStore {
    */
   async loadRemotePersistentData(contentStore, user_id) {
     await contentStore.load()
+    const sqlSnippets = contentStore.sqlSnippets((x) => x.owner_id === user_id)
+    const snippets = toJS(sqlSnippets)
 
-    const tabs = this.tabsFromContentStore(contentStore, user_id)
+    // add the welcome tab
+    let tabs = IS_PLATFORM ? [new Tab('Welcome', TAB_TYPES.WELCOME)] : []
+
+    // add the tabs to array, but with structure the localStore expects
+    snippets.map((snippet) => {
+      const data = {
+        desc: snippet.description,
+        id: snippet.id,
+        name: snippet.name,
+        query: snippet.content.sql,
+        type: 'SQL_QUERY',
+        favorite: snippet.content.favorite,
+      }
+      tabs.push(data)
+    })
 
     /*
      * Reshape snippet content to fit the SqlEditorStore shape
@@ -216,7 +197,7 @@ class SqlEditorStore {
     this.selectedTabId = this.tabs.length ? this.tabs[0].id : undefined
   }
 
-  loadTabs(values, autoSelectTab = true) {
+  loadTabs(values) {
     const tabs = values.map((x) => {
       switch (x.type) {
         case TAB_TYPES.WELCOME:
@@ -232,10 +213,7 @@ class SqlEditorStore {
     })
 
     this.tabs = tabs.filter((x) => x !== undefined)
-
-    if (autoSelectTab) {
-      this.selectedTabId = this.tabs.length ? this.tabs[0].id : undefined
-    }
+    this.selectedTabId = this.tabs.length ? this.tabs[0].id : undefined
   }
 
   loadFavorites(values) {
@@ -255,7 +233,7 @@ class SqlEditorStore {
   async loadKeywords() {
     const query = 'select * from pg_get_keywords();'
     const response = await this.meta.query(query)
-    if (response && !response.error) {
+    if (!response.error) {
       this.keywordCache = response.map((x) => x.word.toLocaleLowerCase())
     }
   }
@@ -301,15 +279,10 @@ class SqlEditorStore {
   }
 
   closeTab(id) {
-    const tabs = this.tabs.filter((x) => x.id !== id)
+    this.tabs = this.tabs.filter((x) => x.id !== id)
     // if user close selectedTab, select the last tab if available
-    if (tabs.length && this.selectedTabId === id) {
-      const nextId = tabs[tabs.length - 1].id
-
-      if (nextId) {
-        this.selectedTabId = nextId
-      }
-    }
+    if (this.tabs.length && this.selectedTabId === id)
+      this.selectedTabId = this.tabs[this.tabs.length - 1].id
   }
 
   createQueryTab(query, name) {
@@ -358,10 +331,10 @@ class SqlEditorStore {
   }
 
   renameQuery(id, model) {
-    const found = this.tabs.find((x) => x.id === id)
+    const found = this.tabs.find((x) => x.id == id)
     found?.rename(model)
 
-    const favorite = this.favorites.find((x) => x.key === id)
+    const favorite = this.favorites.find((x) => x.key == id)
     favorite?.rename(model)
   }
 

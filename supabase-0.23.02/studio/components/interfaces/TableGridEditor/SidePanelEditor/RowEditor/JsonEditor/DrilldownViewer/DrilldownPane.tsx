@@ -1,7 +1,7 @@
 import { FC } from 'react'
-import { IconChevronRight } from 'ui'
+import { IconChevronRight, Typography } from '@supabase/ui'
 import { isNull } from 'lodash'
-import { Dictionary } from 'components/grid'
+import { Dictionary } from '@supabase/grid'
 
 interface Props {
   pane: number
@@ -14,8 +14,10 @@ const DrilldownPane: FC<Props> = ({ pane, jsonData, activeKey, onSelectKey = () 
   if (!jsonData) {
     return (
       <div className={`flex-1 ${pane === 2 ? 'border-l border-gray-500' : ''}`}>
-        <div className="flex space-x-2 py-2 px-5">
-          <p className="text-sm">Invalid JSON</p>
+        <div className="py-2 px-5 flex space-x-2">
+          <Typography.Text small type="danger">
+            Invalid JSON
+          </Typography.Text>
         </div>
       </div>
     )
@@ -23,9 +25,11 @@ const DrilldownPane: FC<Props> = ({ pane, jsonData, activeKey, onSelectKey = () 
 
   if (Object.keys(jsonData).length === 0) {
     return (
-      <div className={`max-w-[50%] flex-1 ${pane === 2 ? 'border-l border-gray-500' : ''}`}>
-        <div className="flex space-x-2 py-2 px-5">
-          <p className="text-sm opacity-50">No data available</p>
+      <div className={`flex-1 max-w-[50%] ${pane === 2 ? 'border-l border-gray-500' : ''}`}>
+        <div className="py-2 px-5 flex space-x-2">
+          <Typography.Text small className="opacity-50">
+            No data available
+          </Typography.Text>
         </div>
       </div>
     )
@@ -40,31 +44,36 @@ const DrilldownPane: FC<Props> = ({ pane, jsonData, activeKey, onSelectKey = () 
   )
 
   return (
-    <div className={`max-w-[50%] flex-1 ${pane === 2 ? 'border-l border-gray-500' : ''}`}>
+    <div className={`flex-1 max-w-[50%] ${pane === 2 ? 'border-l border-gray-500' : ''}`}>
       {keysWithChildren.map((key: string) => (
         <div
           key={key}
           className={`
               ${key === activeKey ? 'bg-gray-100 dark:bg-gray-400' : ''}
-              group flex cursor-pointer items-center
-              justify-between py-2 px-5 hover:bg-gray-100 dark:hover:bg-gray-500
+              group flex items-center justify-between
+              cursor-pointer py-2 px-5 hover:bg-gray-100 dark:hover:bg-gray-500
             `}
           onClick={() => onSelectKey(key, pane)}
         >
-          <p className="font-mono text-xs !text-blue-700 dark:!text-blue-1100">{key}</p>
+          <Typography.Text small className="font-mono !text-blue-700 dark:!text-blue-300">
+            {key}
+          </Typography.Text>
           <div className={`${key === activeKey ? 'block' : 'hidden'} group-hover:block`}>
-            <IconChevronRight strokeWidth={2} size={16} />
+            <Typography>
+              <IconChevronRight strokeWidth={2} size={16} />
+            </Typography>
           </div>
         </div>
       ))}
       {keysWithoutChildren.map((key: string) => (
-        <div key={key} className="flex space-x-2 py-2 px-5">
-          <p className="font-mono text-xs !text-blue-700 dark:!text-blue-1100">{key}:</p>
-          <p
-            className={`break-all font-mono text-xs ${
-              typeof jsonData[key] !== 'string'
-                ? '!text-green-700 dark:!text-green-1000'
-                : '!text-yellow-700 dark:!text-yellow-900'
+        <div key={key} className="py-2 px-5 flex space-x-2">
+          <Typography.Text small className="font-mono !text-blue-700 dark:!text-blue-300">
+            {key}:
+          </Typography.Text>
+          <Typography.Text
+            small
+            className={`font-mono break-all ${
+              typeof jsonData[key] !== 'string' ? '!text-green-700 dark:!text-green-400' : '!text-yellow-700 dark:!text-yellow-500'
             }`}
           >
             {isNull(jsonData[key])
@@ -72,7 +81,7 @@ const DrilldownPane: FC<Props> = ({ pane, jsonData, activeKey, onSelectKey = () 
               : typeof jsonData[key] === 'string'
               ? `"${jsonData[key]}"`
               : jsonData[key].toString()}
-          </p>
+          </Typography.Text>
         </div>
       ))}
     </div>

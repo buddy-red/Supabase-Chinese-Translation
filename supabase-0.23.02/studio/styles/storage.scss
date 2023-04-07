@@ -40,12 +40,14 @@
 // scroll-behavior: smooth;
 // }
 
-.storage-row:hover,
-button[aria-haspopup='menu'][data-state='open'],
-button[aria-haspopup='menu']:focus-visible {
+.storage-row:hover {
   .storage-row-menu {
     @apply opacity-100;
   }
+}
+
+.storage-row-input {
+  background-color: #2a2a2a !important;
 }
 
 .shimmering-loader {
@@ -63,9 +65,9 @@ button[aria-haspopup='menu']:focus-visible {
   animation: shimmer 2s infinite linear;
   background: linear-gradient(
     to right,
-    var(--colors-scale5) 4%,
-    var(--colors-scale6) 25%,
-    var(--colors-scale5) 36%
+    var(--colors-scale4) 4%,
+    var(--colors-scale5) 25%,
+    var(--colors-scale4) 36%
   );
   background-size: 1000px 100%;
 }

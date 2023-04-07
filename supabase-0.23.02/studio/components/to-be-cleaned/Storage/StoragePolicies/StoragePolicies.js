@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { observer } from 'mobx-react-lite'
-import { IconLoader } from 'ui'
+import { IconLoader, Typography } from '@supabase/ui'
 import { find, get, isEmpty, filter } from 'lodash'
 
 import { useStore } from 'hooks'
@@ -11,14 +11,12 @@ import StoragePoliciesEditPolicyModal from './StoragePoliciesEditPolicyModal'
 import ConfirmModal from 'components/ui/Dialogs/ConfirmDialog'
 import { useStorageStore } from 'localStores/storageExplorer/StorageExplorerStore'
 
-import { PolicyEditorModal } from 'components/interfaces/Auth/Policies'
+import PolicyEditorModal from 'components/to-be-cleaned/Auth/PolicyEditorModal'
 
 const StoragePolicies = () => {
   const { ui, meta } = useStore()
   const storageStore = useStorageStore()
   const { loaded, buckets } = storageStore
-
-  const roles = meta.roles.list((role) => !meta.roles.systemRoles.includes(role.name))
 
   const [policies, setPolicies] = useState([])
   const [selectedPolicyToEdit, setSelectedPolicyToEdit] = useState({})
@@ -35,7 +33,7 @@ const StoragePolicies = () => {
 
   // Policies under storage.objects
   const storageObjectsPolicies = filter(policies, { table: 'objects' })
-  const formattedStorageObjectPolicies = formatPoliciesForStorage(buckets, storageObjectsPolicies)
+  const formattedStorageObjectPolicies = formatPoliciesForStorage(storageObjectsPolicies)
   const ungroupedPolicies = get(
     find(formattedStorageObjectPolicies, { name: 'Ungrouped' }),
     ['policies'],
@@ -85,7 +83,7 @@ const StoragePolicies = () => {
 
   /*
     Functions that involve the CRUD for policies
-    For each API call within the Promise.all, return true if an error occurred, else return false
+    For each API call within the Promise.all, return true if an error occured, else return false
   */
   const onCreatePolicies = async (payloads) => {
     return await Promise.all(
@@ -142,19 +140,19 @@ const StoragePolicies = () => {
   }
 
   return (
-    <div className="flex min-h-full w-full flex-col">
-      <h3 className="text-xl">Storage policies</h3>
-      <p className="mt-2 text-sm text-scale-1100">
+    <div className="flex flex-col w-full min-h-full">
+      <h4 className="text-xl">Storage policies</h4>
+      <p className="text-scale-1100">
         Safeguard your files with policies that define the operations allowed for your users at the
         bucket level.
       </p>
 
       {!loaded ? (
-        <div className="flex h-full items-center justify-center">
+        <div className="h-full flex items-center justify-center">
           <IconLoader className="animate-spin" size={16} />
         </div>
       ) : (
-        <div className="mt-4 space-y-4">
+        <div className="space-y-4 mt-4">
           {buckets.length === 0 && <StoragePoliciesPlaceholder />}
 
           {/* Sections for policies grouped by buckets */}
@@ -178,11 +176,11 @@ const StoragePolicies = () => {
             )
           })}
 
-          <div className="!mb-4 w-full border-b border-gray-600" />
-          <p className="text-sm text-scale-1000">
+          <div className="w-full border-b border-gray-600 !mb-4" />
+          <Typography.Text className="opacity-50">
             You may also write policies for the tables under the storage schema directly for greater
             control
-          </p>
+          </Typography.Text>
 
           {/* Section for policies under storage.objects that are not tied to any buckets */}
           <StoragePoliciesBucketRow
@@ -210,7 +208,6 @@ const StoragePolicies = () => {
       <StoragePoliciesEditPolicyModal
         visible={showStoragePolicyEditor}
         bucketName={isEditingPolicyForBucket.bucket}
-        roles={roles}
         onSelectCancel={onCancelPolicyEdit}
         onCreatePolicies={onCreatePolicies}
         onSaveSuccess={onSavePolicySuccess}
@@ -220,7 +217,6 @@ const StoragePolicies = () => {
       <PolicyEditorModal
         visible={showGeneralPolicyEditor}
         schema="storage"
-        roles={roles}
         table={isEditingPolicyForBucket.table}
         target={isEditingPolicyForBucket.bucket}
         selectedPolicyToEdit={selectedPolicyToEdit}

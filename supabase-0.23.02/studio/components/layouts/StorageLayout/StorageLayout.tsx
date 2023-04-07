@@ -1,11 +1,10 @@
 import { FC, ReactNode, useEffect } from 'react'
-import { useRouter } from 'next/router'
 import { find, filter, get as _get } from 'lodash'
 import { observer } from 'mobx-react-lite'
 
-import { useParams, useStore, withAuth } from 'hooks'
-import { AutoApiService, useProjectApiQuery } from 'data/config/project-api-query'
-import BaseLayout from 'components/layouts'
+import { useStore } from 'hooks'
+import { API_URL } from 'lib/constants'
+import { get } from 'lib/common/fetch'
 import ProjectLayout from '../ProjectLayout/ProjectLayout'
 import StorageMenu from './StorageMenu'
 import { useStorageStore } from 'localStores/storageExplorer/StorageExplorerStore'
@@ -13,7 +12,6 @@ import { formatPoliciesForStorage } from 'components/to-be-cleaned/Storage/Stora
 import CreateBucketModal from 'components/to-be-cleaned/Storage/CreateBucketModal'
 import DeleteBucketModal from 'components/to-be-cleaned/Storage/DeleteBucketModal'
 import ToggleBucketPublicModal from 'components/to-be-cleaned/Storage/ToggleBucketPublicModal'
-import NoPermission from 'components/ui/NoPermission'
 
 interface Props {
   title: string
@@ -22,8 +20,7 @@ interface Props {
 
 const StorageLayout: FC<Props> = ({ title, children }) => {
   const { ui, meta } = useStore()
-  const router = useRouter()
-  const { ref: projectRef } = useParams()
+  const ref = ui.selectedProject?.ref
 
   const storageExplorerStore = useStorageStore()
   const {
@@ -37,38 +34,48 @@ const StorageLayout: FC<Props> = ({ title, children }) => {
     createBucket,
     deleteBucket,
     toggleBucketPublic,
-    buckets,
   } = storageExplorerStore || {}
 
-  const { data: settings, isLoading } = useProjectApiQuery({ projectRef })
-  const apiService = settings?.autoApiService
-
   useEffect(() => {
-    if (!isLoading && apiService) initializeStorageStore(apiService)
-  }, [isLoading])
+    if (ref) {
+      initializeStorageStore(ref)
+    }
+  }, [ref])
 
-  const initializeStorageStore = async (apiService: AutoApiService) => {
-    if (apiService.endpoint) {
-      storageExplorerStore.initStore(
-        projectRef,
-        apiService.endpoint,
-        apiService.serviceApiKey,
-        apiService.protocol
-      )
-      await storageExplorerStore.fetchBuckets()
+  const getProjectConfig = async () => {
+    const { services } = await get(`${API_URL}/props/project/${ref}/settings`)
+    const apiService = find(services, (service) => service.app.id === 1)
+    if (apiService) {
+      const projectUrl = apiService?.app_config?.endpoint ?? ''
+      const serviceKey = find(apiService.service_api_keys, (key) => key.tags === 'service_role')
+      const projectApiKey = serviceKey?.api_key ?? ''
+      return { projectUrl, projectApiKey }
     } else {
+      console.error('Storage layout: Unable to find apiService')
+      return {}
+    }
+  }
+
+  const initializeStorageStore = async (projectRef: any) => {
+    try {
+      const { projectUrl, projectApiKey } = await getProjectConfig()
+      if (projectUrl && projectApiKey) {
+        storageExplorerStore.initStore(projectRef, projectUrl, projectApiKey)
+        await storageExplorerStore.fetchBuckets()
+      } else {
+        throw new Error(
+          `StorageLayout: Failed to getProjectConfig - ${projectUrl} ${projectApiKey}`
+        )
+      }
+    } catch (error: any) {
       ui.setNotification({
+        error,
         category: 'error',
         message:
           'Failed to fetch project configuration. Try refreshing your browser, or reach out to us at support@supabase.io',
       })
     }
     storageExplorerStore.setLoaded(true)
-  }
-
-  const onSelectCreateBucket = async (bucketName: string, isPublic: boolean) => {
-    const bucket = await createBucket(bucketName, isPublic)
-    if (bucket !== undefined) router.push(`/project/${projectRef}/storage/buckets/${bucket.name}`)
   }
 
   const onSelectDeleteBucket = async (bucket: any) => {
@@ -78,10 +85,7 @@ const StorageLayout: FC<Props> = ({ title, children }) => {
     if (res) {
       const policies = meta.policies.list()
       const storageObjectsPolicies = filter(policies, { table: 'objects' })
-      const formattedStorageObjectPolicies = formatPoliciesForStorage(
-        buckets,
-        storageObjectsPolicies
-      )
+      const formattedStorageObjectPolicies = formatPoliciesForStorage(storageObjectsPolicies)
       const bucketPolicies = _get(
         find(formattedStorageObjectPolicies, { name: bucket.name }),
         ['policies'],
@@ -95,23 +99,13 @@ const StorageLayout: FC<Props> = ({ title, children }) => {
     }
   }
 
-  // if (!isLoading && !canAccessStorage) {
-  //   return (
-  //     <BaseLayout>
-  //       <main style={{ maxHeight: '100vh' }} className="flex-1 overflow-y-auto">
-  //         <NoPermission isFullPage resourceText="access your project's storage" />
-  //       </main>
-  //     </BaseLayout>
-  //   )
-  // }
-
   return (
     <ProjectLayout title={title || 'Storage'} product="Storage" productMenu={<StorageMenu />}>
       {children}
       <CreateBucketModal
         visible={showCreateBucketModal}
         onSelectCancel={closeCreateBucketModal}
-        onSelectSave={onSelectCreateBucket}
+        onSelectSave={createBucket}
       />
       <DeleteBucketModal
         visible={showDeleteBucketModal}
@@ -129,4 +123,4 @@ const StorageLayout: FC<Props> = ({ title, children }) => {
   )
 }
 
-export default withAuth(observer(StorageLayout))
+export default observer(StorageLayout)

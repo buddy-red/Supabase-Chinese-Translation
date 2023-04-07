@@ -1,8 +1,8 @@
-import { IconDatabase } from 'ui'
+import { IconDatabase } from '@supabase/ui'
 import SVG from 'react-inlinesvg'
 
 export const vercelIcon = (
-  <div className="flex items-center justify-center rounded bg-black p-1 dark:bg-white">
+  <div className="bg-black dark:bg-white p-1 flex items-center justify-center rounded">
     <svg
       className="m-auto fill-current text-white dark:text-black"
       width="12px"
@@ -15,7 +15,7 @@ export const vercelIcon = (
 )
 
 export const databaseIcon = (
-  <div className="flex items-center justify-center rounded bg-green-500 p-1 dark:text-typography-body-dark ">
+  <div className="bg-green-500 p-1 flex items-center justify-center rounded dark:text-typography-body-dark ">
     {/* <SVG
       src={'/icons/feather/database.svg'}
       style={{ width: `12px`, height: `12px`, strokeWidth: '2px' }}

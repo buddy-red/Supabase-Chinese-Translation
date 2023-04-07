@@ -1,21 +1,28 @@
-import toast from 'react-hot-toast'
 import { createContext, useContext } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { find, compact, isEqual, has, some, chunk, uniq, uniqBy, findIndex } from 'lodash'
-import { BlobReader, BlobWriter, ZipWriter } from '@zip.js/zip.js'
+import {
+  find,
+  compact,
+  isEqual,
+  isNull,
+  isNil,
+  isUndefined,
+  has,
+  some,
+  chunk,
+  get,
+  uniq,
+} from 'lodash'
+import toast from 'react-hot-toast'
 import { createClient } from '@supabase/supabase-js'
 
-import { useStore } from 'hooks'
-import { copyToClipboard } from 'lib/helpers'
-import { API_URL, IS_PLATFORM } from 'lib/constants'
-import { get, patch, post, delete_ } from 'lib/common/fetch'
-import { PROJECT_ENDPOINT_PROTOCOL } from 'pages/api/constants'
 import {
   STORAGE_VIEWS,
   STORAGE_ROW_TYPES,
   STORAGE_ROW_STATUS,
   STORAGE_SORT_BY,
 } from 'components/to-be-cleaned/Storage/Storage.constants.ts'
+import { timeout, copyToClipboard } from 'lib/helpers'
 
 /**
  * This is a preferred method rather than React Context and useStorageExplorerStore().
@@ -35,21 +42,18 @@ export const useStorageExplorerStore = () => {
   return useContext(StorageExplorerContext)
 }
 
-const CORRUPTED_THRESHOLD_MS = 15 * 60 * 1000 // 15 minutes
-const LIMIT = 200
+const LIMIT = 100000
 const OFFSET = 0
-const DEFAULT_EXPIRY = 10 * 365 * 24 * 60 * 60 // in seconds, default to 10 years
+const DEFAULT_EXPIRY = 10 * 365 * 24 * 60 * 60 // in seconds, default to 1 year
 const PREVIEW_SIZE_LIMIT = 10000000 // 10MB
-const BATCH_SIZE = 2
+const BATCH_SIZE = 100
 const EMPTY_FOLDER_PLACEHOLDER_FILE_NAME = '.emptyFolderPlaceholder'
-const STORAGE_PROGRESS_INFO_TEXT = "Please do not close the browser until it's completed"
 
 class StorageExplorerStore {
   projectRef = ''
   loaded = false
   view = STORAGE_VIEWS.COLUMNS
   sortBy = STORAGE_SORT_BY.NAME
-  sortByOrder = 'asc'
   buckets = []
   selectedBucket = {}
   selectedBucketToEdit = {}
@@ -59,21 +63,11 @@ class StorageExplorerStore {
   selectedItemsToDelete = []
   selectedItemsToMove = []
   selectedFilePreview = {}
-  selectedFileCustomExpiry = undefined
 
-  DEFAULT_OPTIONS = {
-    limit: LIMIT,
-    offset: OFFSET,
-    sortBy: { column: this.sortBy, order: this.sortByOrder },
-  }
-
-  /* UI store */
-  ui = null
+  DEFAULT_OPTIONS = { limit: LIMIT, offset: OFFSET, sortBy: { column: this.sortBy, order: 'asc' } }
 
   /* Supabase client */
   supabaseClient = null
-  /* [Joshen] Move towards using API */
-  endpoint = ''
 
   /* FE to toggle page level modals */
   showCreateBucketModal = false
@@ -92,42 +86,26 @@ class StorageExplorerStore {
   constructor(projectRef) {
     makeAutoObservable(this, { supabaseClient: false })
     this.projectRef = projectRef
-    this.ui = useStore().ui
-
-    // ignore when in a non-browser environment
-    if (typeof window !== 'undefined') {
-      this.abortController = new AbortController()
-    }
+    this.abortController = new AbortController()
   }
 
-  initStore(projectRef, url, serviceKey, protocol = PROJECT_ENDPOINT_PROTOCOL) {
+  initStore(projectRef, url, serviceKey) {
     this.projectRef = projectRef
-    this.endpoint = `${API_URL}/storage/${projectRef}`
-    if (serviceKey !== undefined) this.initializeSupabaseClient(serviceKey, url, protocol)
+    this.initializeSupabaseClient(serviceKey, url)
   }
 
   /* Methods which are commonly used + For better readability */
 
-  initializeSupabaseClient = (serviceKey, serviceEndpoint, protocol) => {
-    this.supabaseClient = createClient(
-      `${IS_PLATFORM ? 'https' : protocol}://${serviceEndpoint}`,
-      serviceKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          multiTab: false,
-          detectSessionInUrl: false,
-          localStorage: {
-            getItem: (key) => {
-              return undefined
-            },
-            setItem: (key, value) => {},
-            removeItem: (key) => {},
-          },
+  initializeSupabaseClient = (serviceKey, serviceEndpoint) => {
+    this.supabaseClient = createClient(`https://${serviceEndpoint}`, serviceKey, {
+      localStorage: {
+        getItem: (key) => {
+          return undefined
         },
-      }
-    )
+        setItem: (key, value) => {},
+        removeItem: (key) => {},
+      },
+    })
   }
 
   updateFileInPreviewCache = (fileCache) => {
@@ -230,13 +208,6 @@ class StorageExplorerStore {
     await this.refetchAllOpenedFolders()
   }
 
-  setSortByOrder = async (sortByOrder) => {
-    this.sortByOrder = sortByOrder
-    this.closeFilePreview()
-    this.updateExplorerPreferences()
-    await this.refetchAllOpenedFolders()
-  }
-
   clearColumns = () => {
     this.columns = []
   }
@@ -252,12 +223,6 @@ class StorageExplorerStore {
 
   popColumnAtIndex = (index) => {
     this.columns = this.columns.slice(0, index + 1)
-  }
-
-  setColumnIsLoadingMore = (index, isLoadingMoreItems = true) => {
-    this.columns = this.columns.map((col, idx) => {
-      return idx === index ? { ...col, isLoadingMoreItems } : col
-    })
   }
 
   pushOpenedFolderAtIndex = (folder, index) => {
@@ -280,12 +245,8 @@ class StorageExplorerStore {
     this.selectedItems = items
   }
 
-  clearSelectedItems = (columnIndex) => {
-    if (columnIndex !== undefined) {
-      this.selectedItems = this.selectedItems.filter((item) => item.columnIndex !== columnIndex)
-    } else {
-      this.selectedItems = []
-    }
+  clearSelectedItems = () => {
+    this.selectedItems = []
   }
 
   setSelectedItemsToDelete = (items) => {
@@ -304,39 +265,22 @@ class StorageExplorerStore {
     this.selectedItemsToMove = []
   }
 
-  setSelectedFileCustomExpiry = (item) => {
-    this.selectedFileCustomExpiry = item
-  }
-
   addNewFolderPlaceholder = (columnIndex) => {
-    const isPrepend = true
     const folderName = 'Untitled folder'
     const folderType = STORAGE_ROW_TYPES.FOLDER
     const columnIdx = columnIndex === -1 ? this.getLatestColumnIndex() : columnIndex
-    this.addTempRow(folderType, folderName, STORAGE_ROW_STATUS.EDITING, columnIdx, {}, isPrepend)
+    this.addTempRow(folderType, folderName, STORAGE_ROW_STATUS.EDITING, columnIdx)
   }
 
   addNewFolder = async (folderName, columnIndex) => {
     const autofix = false
     const formattedName = this.sanitizeNameForDuplicateInColumn(folderName, autofix, columnIndex)
-    if (formattedName === null) return
 
-    if (!/^[a-zA-Z0-9_-]*$/.test(formattedName)) {
-      return this.ui.setNotification({
-        message: 'Folder name contains invalid special characters',
-        category: 'error',
-        duration: 8000,
-      })
+    if (isNull(formattedName)) {
+      return
     }
-    /**
-     * todo: move this to a util file, as renameFolder() uses same logic
-     */
     if (formattedName.includes('/') || formattedName.includes('\\')) {
-      return this.ui.setNotification({
-        message: 'Folder names should not have forward or back slashes.',
-        category: 'error',
-        duration: 8000,
-      })
+      return toast.error('Folder names should not have forward or back slashes.')
     }
     if (formattedName.length === 0) {
       return this.removeTempRows(columnIndex)
@@ -357,9 +301,9 @@ class StorageExplorerStore {
       .upload(formattedPathToEmptyPlaceholderFile, new File([], EMPTY_FOLDER_PLACEHOLDER_FILE_NAME))
 
     if (pathToFolder.length > 0) {
-      await delete_(`${this.endpoint}/buckets/${this.selectedBucket.id}/objects`, {
-        paths: [`${pathToFolder}/${EMPTY_FOLDER_PLACEHOLDER_FILE_NAME}`],
-      })
+      await this.supabaseClient.storage
+        .from(this.selectedBucket.name)
+        .remove([`${pathToFolder}/${EMPTY_FOLDER_PLACEHOLDER_FILE_NAME}`])
     }
   }
 
@@ -377,15 +321,16 @@ class StorageExplorerStore {
       this.selectedFilePreview = { ...file, previewUrl: 'loading' }
       const cachedPreview = find(this.filePreviewCache, { id: file.id })
 
-      const fetchedAt = cachedPreview?.fetchedAt ?? null
-      const expiresIn = cachedPreview?.expiresIn ?? null
-      const existsInCache = fetchedAt !== null && expiresIn !== null
+      const fetchedAt = get(cachedPreview, ['fetchedAt'], null)
+      const expiresIn = get(cachedPreview, ['expiresIn'], null)
+      const existsInCache = !isNull(fetchedAt) && !isNull(expiresIn)
       const isExpired = existsInCache ? fetchedAt + expiresIn * 1000 < Date.now() : true
 
       if (!isExpired) {
         this.selectedFilePreview = { ...file, previewUrl: cachedPreview.url }
       } else {
         const previewUrl = await this.fetchFilePreview(file.name)
+
         const formattedPreviewUrl = this.selectedBucket.public
           ? `${previewUrl}?t=${new Date().toISOString()}`
           : previewUrl
@@ -412,45 +357,26 @@ class StorageExplorerStore {
     this.selectedFilePreview = {}
   }
 
-  copyFileURLToClipboard = async (file, expiresIn = 0) => {
+  copyFileURLToClipboard = async (file) => {
     const filePreview = find(this.filePreviewCache, { id: file.id })
-    if (filePreview && expiresIn === 0) {
+    if (filePreview) {
       // Already generated signed URL
       copyToClipboard(filePreview.url, () => {
-        this.ui.setNotification({
-          category: 'success',
-          message: `Copied URL for ${file.name} to clipboard.`,
-          duration: 4000,
-        })
+        toast(`Copied URL for ${file.name} to clipboard.`)
       })
     } else {
       // Need to generate signed URL, and might as well save it to cache as well
-      const signedUrl = await this.fetchFilePreview(file.name, expiresIn)
-
-      try {
-        let formattedUrl = new URL(signedUrl)
-        formattedUrl.searchParams.set('t', new Date().toISOString())
-
-        copyToClipboard(formattedUrl.toString(), () => {
-          this.ui.setNotification({
-            category: 'success',
-            message: `Copied URL for ${file.name} to clipboard.`,
-            duration: 4000,
-          })
-        })
-        const fileCache = {
-          id: file.id,
-          url: formattedUrl.toString(),
-          expiresIn: DEFAULT_EXPIRY,
-          fetchedAt: Date.now(),
-        }
-        this.addFileToPreviewCache(fileCache)
-      } catch (error) {
-        this.ui.setNotification({
-          category: 'error',
-          message: `Failed to copy URL: ${error}`,
-        })
+      const signedUrl = await this.fetchFilePreview(file.name)
+      copyToClipboard(signedUrl, () => {
+        toast(`Copied URL for ${file.name} to clipboard.`)
+      })
+      const fileCache = {
+        id: file.id,
+        url: signedUrl,
+        expiresIn: DEFAULT_EXPIRY,
+        fetchedAt: Date.now(),
       }
+      this.addFileToPreviewCache(fileCache)
     }
   }
 
@@ -458,16 +384,20 @@ class StorageExplorerStore {
   /* Bucket CRUD */
 
   createBucket = async (bucketName, isPublic = false) => {
-    const res = await post(`${this.endpoint}/buckets`, { id: bucketName, public: isPublic })
-    if (res.error) {
-      this.ui.setNotification({ category: 'error', message: res.error.message })
-      this.closeCreateBucketModal()
-      return undefined
-    } else {
-      await this.fetchBuckets()
-      this.closeCreateBucketModal()
-      return res
+    if (isNil(this.supabaseClient)) {
+      return toast.error('Failed to initialize supabase client, try refreshing your browser.')
     }
+
+    const { error } = await this.supabaseClient.storage.createBucket(bucketName, {
+      public: isPublic,
+    })
+    if (error) {
+      toast.error(error.message)
+      return this.closeCreateBucketModal()
+    }
+
+    await this.fetchBuckets()
+    this.closeCreateBucketModal()
   }
 
   openBucket = async (bucket) => {
@@ -480,10 +410,10 @@ class StorageExplorerStore {
   }
 
   fetchBuckets = async () => {
-    const res = await get(`${this.endpoint}/buckets`)
-    if (res.error) return this.ui.setNotification({ category: 'error', message: res.error.message })
+    const { data: buckets, error } = await this.supabaseClient.storage.listBuckets()
+    if (error) return toast(error.message)
 
-    const formattedBuckets = res.map((bucket) => {
+    const formattedBuckets = buckets.map((bucket) => {
       return { ...bucket, type: STORAGE_ROW_TYPES.BUCKET, status: STORAGE_ROW_STATUS.READY }
     })
     this.buckets = formattedBuckets
@@ -495,15 +425,15 @@ class StorageExplorerStore {
     // hence delete bucket and empty bucket are coupled tightly here
     const { id, name: bucketName } = bucket
 
-    const emptyBucketRes = await post(`${this.endpoint}/buckets/${id}/empty`, {})
-    if (emptyBucketRes.error) {
-      this.ui.setNotification({ category: 'error', message: emptyBucketRes.error.message })
+    const { error: emptyBucketError } = await this.supabaseClient.storage.emptyBucket(id)
+    if (emptyBucketError) {
+      toast(emptyBucketError.message)
       return false
     }
 
-    const deleteBucketRes = await delete_(`${this.endpoint}/buckets/${id}`)
-    if (deleteBucketRes.error) {
-      this.ui.setNotification({ category: 'error', message: deleteBucketRes.error.message })
+    const { error: deleteBucketError } = await this.supabaseClient.storage.deleteBucket(id)
+    if (deleteBucketError) {
+      toast(deleteBucketError.message)
       return false
     }
 
@@ -519,9 +449,13 @@ class StorageExplorerStore {
   }
 
   toggleBucketPublic = async (bucket) => {
-    const res = await patch(`${this.endpoint}/buckets/${bucket.id}`, { public: !bucket.public })
-    if (res.error) {
-      this.ui.setNotification({ category: 'error', message: res.error.message })
+    const { name: bucketName } = bucket
+
+    const { data, error } = await this.supabaseClient.storage.updateBucket(bucketName, {
+      public: !bucket.public,
+    })
+    if (error) {
+      toast(error.message)
       return this.closeToggleBucketPublicModal()
     }
 
@@ -545,10 +479,7 @@ class StorageExplorerStore {
 
   // https://stackoverflow.com/a/53058574
   getFilesDataTransferItems = async (items) => {
-    const toastId = this.ui.setNotification({
-      category: 'loading',
-      message: 'Retrieving items to upload...',
-    })
+    const toastId = toast.loading('Retrieving items to upload...')
     const files = []
     const queue = []
     for (const item of items) {
@@ -558,7 +489,7 @@ class StorageExplorerStore {
       const entry = queue.shift() || {}
       if (entry.isFile) {
         const file = await this.getFile(entry)
-        if (file !== undefined) {
+        if (!isUndefined(file)) {
           file.path = entry.fullPath.slice(1)
           files.push(file)
         }
@@ -607,7 +538,7 @@ class StorageExplorerStore {
 
     // If we're uploading a folder which name already exists in the same folder that we're uploading to
     // We sanitize the folder name and let all file uploads through. (This is only via drag drop)
-    const topLevelFolders = (this.columns?.[derivedColumnIndex]?.items ?? [])
+    const topLevelFolders = get(this.columns, [derivedColumnIndex, 'items'], [])
       .filter((item) => !item.id)
       .map((item) => item.name)
     const formattedFilesToUpload = filesToUpload.map((file) => {
@@ -629,9 +560,9 @@ class StorageExplorerStore {
       return file
     })
 
-    this.uploadProgress = 0
     const uploadedTopLevelFolders = []
-    const numberOfFilesToUpload = formattedFilesToUpload.length
+    this.uploadProgress = 0
+    let numberOfFilesToUpload = formattedFilesToUpload.length
     let numberOfFilesUploadedSuccess = 0
     let numberOfFilesUploadedFail = 0
 
@@ -640,21 +571,18 @@ class StorageExplorerStore {
       .map((folder) => folder.name)
       .join('/')
 
-    const toastId = this.ui.setNotification({
-      category: 'loading',
-      message: `Uploading ${formattedFilesToUpload.length} file${
+    const toastId = toast.loading(
+      `Uploading ${formattedFilesToUpload.length} file${
         formattedFilesToUpload.length > 1 ? 's' : ''
-      }...`,
-      description: STORAGE_PROGRESS_INFO_TEXT,
-      progress: 0,
-    })
+      }...`
+    )
 
     // Upload files in batches
     const promises = formattedFilesToUpload.map((file) => {
-      const fileOptions = { cacheControl: '3600' }
+      const fileOptions = { cacheControl: 3600 }
       const metadata = { mimetype: file.type, size: file.size }
 
-      const isWithinFolder = (file?.path ?? '').split('/').length > 1
+      const isWithinFolder = get(file, ['path'], '').split('/').length > 1
       const fileName = !isWithinFolder
         ? this.sanitizeNameForDuplicateInColumn(file.name, autofix)
         : file.name
@@ -685,25 +613,25 @@ class StorageExplorerStore {
       }
 
       return () => {
-        return new Promise(async (resolve) => {
-          const { error } = await this.supabaseClient.storage
-            .from(this.selectedBucket.name)
-            .upload(formattedPathToFile, file, fileOptions)
+        return Promise.race([
+          new Promise(async (resolve) => {
+            const { error } = await this.supabaseClient.storage
+              .from(this.selectedBucket.name)
+              .upload(formattedPathToFile, file, fileOptions)
 
-          this.uploadProgress = this.uploadProgress + 1 / formattedFilesToUpload.length
+            this.uploadProgress = this.uploadProgress + 1 / formattedFilesToUpload.length
 
-          if (error) {
-            numberOfFilesUploadedFail += 1
-            this.ui.setNotification({
-              message: `Failed to upload ${file.name}: ${error.message}`,
-              category: 'error',
-            })
-            resolve()
-          } else {
-            numberOfFilesUploadedSuccess += 1
-            resolve()
-          }
-        })
+            if (error) {
+              numberOfFilesUploadedFail += 1
+              toast.error(`Failed to upload ${file.name}: ${error.message}`)
+              resolve()
+            } else {
+              numberOfFilesUploadedSuccess += 1
+              resolve()
+            }
+          }),
+          timeout(30000),
+        ])
       }
     })
 
@@ -716,21 +644,18 @@ class StorageExplorerStore {
       await batchedPromises.reduce(async (previousPromise, nextBatch) => {
         await previousPromise
         await Promise.allSettled(nextBatch.map((batch) => batch()))
-        this.ui.setNotification({
-          id: toastId,
-          category: 'loading',
-          message: `Uploading ${formattedFilesToUpload.length} file${
+        toast.loading(
+          `Uploading ${formattedFilesToUpload.length} file${
             formattedFilesToUpload.length > 1 ? 's' : ''
-          }...`,
-          description: STORAGE_PROGRESS_INFO_TEXT,
-          progress: this.uploadProgress * 100,
-        })
+          }... (${(this.uploadProgress * 100).toFixed(2)}%)`,
+          { id: toastId }
+        )
       }, Promise.resolve())
 
       if (numberOfFilesUploadedSuccess > 0) {
-        await delete_(`${this.endpoint}/buckets/${this.selectedBucket.id}/objects`, {
-          paths: [`${pathToFile}/${EMPTY_FOLDER_PLACEHOLDER_FILE_NAME}`],
-        })
+        await this.supabaseClient.storage
+          .from(this.selectedBucket.name)
+          .remove([`${pathToFile}/${EMPTY_FOLDER_PLACEHOLDER_FILE_NAME}`])
       }
 
       await this.refetchAllOpenedFolders()
@@ -738,40 +663,31 @@ class StorageExplorerStore {
       if (numberOfFilesToUpload === 0) {
         toast.dismiss(toastId)
       } else if (numberOfFilesUploadedFail === numberOfFilesToUpload) {
-        this.ui.setNotification({
-          id: toastId,
-          category: 'error',
-          message: `Failed to upload ${numberOfFilesToUpload} file${
-            numberOfFilesToUpload > 1 ? 's' : ''
-          }!`,
-        })
+        toast.error(
+          `Failed to upload ${numberOfFilesToUpload} file${numberOfFilesToUpload > 1 ? 's' : ''}!`,
+          { id: toastId }
+        )
       } else if (numberOfFilesUploadedSuccess === numberOfFilesToUpload) {
-        this.ui.setNotification({
-          id: toastId,
-          category: 'success',
-          message: `Successfully uploaded ${numberOfFilesToUpload} file${
+        toast.success(
+          `Successfully uploaded ${numberOfFilesToUpload} file${
             numberOfFilesToUpload > 1 ? 's' : ''
           }!`,
-        })
+          { id: toastId }
+        )
       } else {
-        this.ui.setNotification({
-          id: toastId,
-          category: 'success',
-          message: `Successfully uploaded ${numberOfFilesUploadedSuccess} out of ${numberOfFilesToUpload} file${
+        toast.success(
+          `Successfully uploaded ${numberOfFilesUploadedSuccess} out of ${numberOfFilesToUpload} file${
             numberOfFilesToUpload > 1 ? 's' : ''
           }!`,
-        })
+          { id: toastId }
+        )
       }
     } catch (e) {
-      this.ui.setNotification({
-        id: toastId,
-        error: e,
-        message: 'Failed to upload files',
-        category: 'error',
-      })
+      console.error(e)
+      toast.error(`Failed to upload files`)
     }
-
     const t2 = new Date()
+
     console.log(
       `Total time taken for ${formattedFilesToUpload.length} files: ${(t2 - t1) / 1000} seconds`
     )
@@ -782,10 +698,6 @@ class StorageExplorerStore {
     const formattedNewPathToFile = newPaths.join('/')
     let numberOfFilesMovedFail = 0
     this.clearSelectedItems()
-
-    const infoToastId = toast('Please do not close the browser until the delete is completed', {
-      duration: Infinity,
-    })
 
     await Promise.all(
       this.selectedItemsToMove.map(async (item) => {
@@ -798,32 +710,26 @@ class StorageExplorerStore {
         const toPath =
           newPathToFile.length > 0 ? `${formattedNewPathToFile}/${item.name}` : item.name
 
-        const res = await post(`${this.endpoint}/buckets/${this.selectedBucket.id}/objects/move`, {
-          from: fromPath,
-          to: toPath,
-        })
-        if (res.error) {
+        const { error } = await this.supabaseClient.storage
+          .from(this.selectedBucket.name)
+          .move(fromPath, toPath)
+
+        if (error) {
           numberOfFilesMovedFail += 1
-          this.ui.setNotification({ category: 'error', message: res.error.message })
+          toast.error(error.message)
         }
       })
     )
 
     if (numberOfFilesMovedFail === this.selectedItemsToMove.length) {
-      this.ui.setNotification({
-        message: 'Failed to move files',
-        category: 'error',
-      })
+      toast.error(`Failed to move files`)
     } else {
-      this.ui.setNotification({
-        message: `Successfully moved ${
+      toast.success(
+        `Successfully moved ${
           this.selectedItemsToMove.length - numberOfFilesMovedFail
-        } to ${formattedNewPathToFile}`,
-        category: 'success',
-      })
+        } to ${formattedNewPathToFile}`
+      )
     }
-
-    toast.dismiss(infoToastId)
 
     // Clear file preview cache if moved files exist in cache
     const idsOfItemsToMove = this.selectedItemsToMove.map((item) => item.id)
@@ -836,32 +742,34 @@ class StorageExplorerStore {
     this.clearSelectedItemsToMove()
   }
 
-  fetchFilePreview = async (fileName, expiresIn = 0) => {
+  fetchFilePreview = async (fileName) => {
     const includeBucket = false
     const pathToFile = this.getPathAlongOpenedFolders(includeBucket)
     const formattedPathToFile = pathToFile.length > 0 ? `${pathToFile}/${fileName}` : fileName
 
     if (this.selectedBucket.public) {
-      const res = await post(
-        `${this.endpoint}/buckets/${this.selectedBucket.id}/objects/public-url`,
-        { path: formattedPathToFile }
-      )
-      if (!res.error) return res.publicUrl
-      else console.error('Failed to fetch public file preview', res.error.message)
-    } else {
-      const res = await post(`${this.endpoint}/buckets/${this.selectedBucket.id}/objects/sign`, {
-        path: formattedPathToFile,
-        expiresIn: expiresIn || DEFAULT_EXPIRY,
-      })
-      if (!res.error) return res.signedUrl
-      else console.error('Failed to fetch signed url preview', res.error.message)
+      const { data, error } = await this.supabaseClient.storage
+        .from(this.selectedBucket.name)
+        .getPublicUrl(formattedPathToFile)
+
+      if (!error) {
+        return data.publicURL
+      }
     }
+
+    const { data, error } = await this.supabaseClient.storage
+      .from(this.selectedBucket.name)
+      .createSignedUrl(formattedPathToFile, DEFAULT_EXPIRY)
+
+    if (!error) {
+      return data.signedURL
+    }
+
     return null
   }
 
   deleteFiles = async (files, isDeleteFolder = false) => {
     this.closeFilePreview()
-    let progress = 0
 
     // If every file has the 'prefix' property, then just construct the prefix
     // directly (from delete folder). Otherwise go by the opened folders.
@@ -879,33 +787,13 @@ class StorageExplorerStore {
 
     this.clearSelectedItems()
 
-    const toastId = this.ui.setNotification({
-      category: 'loading',
-      message: `Deleting ${prefixes.length} file(s)...`,
-      description: STORAGE_PROGRESS_INFO_TEXT,
-      progress: 0,
-    })
-
-    // batch BATCH_SIZE prefixes per request
-    const batches = chunk(prefixes, BATCH_SIZE).map((batch) => () => {
-      progress = progress + batch.length / prefixes.length
-      return delete_(`${this.endpoint}/buckets/${this.selectedBucket.name}/objects`, {
-        paths: batch,
-      })
-    })
-
-    // make BATCH_SIZE requests at the same time
-    await chunk(batches, BATCH_SIZE).reduce(async (previousPromise, nextBatch) => {
-      await previousPromise
-      await Promise.all(nextBatch.map((batch) => batch()))
-      this.ui.setNotification({
-        id: toastId,
-        category: 'loading',
-        message: `Deleting ${prefixes.length} file(s)...`,
-        description: STORAGE_PROGRESS_INFO_TEXT,
-        progress: progress * 100,
-      })
-    }, Promise.resolve())
+    const batches = chunk(prefixes, BATCH_SIZE)
+    await Promise.all(
+      batches.map(
+        async (batchedPrefixes) =>
+          await this.supabaseClient.storage.from(this.selectedBucket.name).remove(batchedPrefixes)
+      )
+    )
 
     // Clear file preview cache if deleted files exist in cache
     const idsOfFilesDeleted = files.map((file) => file.id)
@@ -925,183 +813,56 @@ class StorageExplorerStore {
       await Promise.all(
         parentFolderPrefixes.map((prefix) => this.validateParentFolderEmpty(prefix))
       )
-      this.ui.setNotification({
-        id: toastId,
-        category: 'success',
-        message: `Successfully deleted ${prefixes.length} file(s)`,
-      })
+
+      toast.success(`Successfully deleted ${prefixes.length} file(s)`)
       await this.refetchAllOpenedFolders()
       this.clearSelectedItemsToDelete()
-    } else {
-      toast.dismiss(toastId)
     }
   }
 
-  downloadFolder = async (folder) => {
-    let progress = 0
-    const toastId = this.ui.setNotification({
-      category: 'loading',
-      message: 'Retrieving files from folder...',
-    })
-
-    const files = await this.getAllItemsAlongFolder(folder)
-    this.ui.setNotification({
-      id: toastId,
-      category: 'loading',
-      message: `Downloading ${files.length} files...`,
-      description: STORAGE_PROGRESS_INFO_TEXT,
-      progress: 0,
-    })
-
-    const promises = files.map((file) => {
-      const fileMimeType = file.metadata?.mimetype ?? null
-      return () => {
-        return new Promise(async (resolve) => {
-          const res = await post(
-            `${this.endpoint}/buckets/${this.selectedBucket.id}/objects/download`,
-            { path: `${file.prefix}/${file.name}` }
-          )
-          progress = progress + 1 / files.length
-
-          if (!res.error) {
-            const blob = await res.blob()
-            resolve({
-              name: file.name,
-              prefix: file.prefix,
-              blob: new Blob([blob], { type: fileMimeType }),
-            })
-          } else {
-            resolve(false)
-          }
-        })
-      }
-    })
-
-    const batchedPromises = chunk(promises, 10)
-    const downloadedFiles = await batchedPromises.reduce(async (previousPromise, nextBatch) => {
-      const previousResults = await previousPromise
-      const batchResults = await Promise.allSettled(nextBatch.map((batch) => batch()))
-      this.ui.setNotification({
-        id: toastId,
-        category: 'loading',
-        message: `Downloading ${files.length} file${files.length > 1 ? 's' : ''}...`,
-        description: STORAGE_PROGRESS_INFO_TEXT,
-        progress: progress * 100,
-      })
-      return (previousResults ?? []).concat(batchResults.map((x) => x.value).filter(Boolean))
-    }, Promise.resolve())
-
-    const zipFileWriter = new BlobWriter('application/zip')
-    const zipWriter = new ZipWriter(zipFileWriter, { bufferedWrite: true })
-    downloadedFiles.forEach((file) => {
-      zipWriter.add(`${file.prefix}/${file.name}`, new BlobReader(file.blob))
-    })
-
-    const blobURL = URL.createObjectURL(await zipWriter.close())
-    const link = document.createElement('a')
-    link.href = blobURL
-    link.setAttribute('download', `${folder.name}.zip`)
-    document.body.appendChild(link)
-    link.click()
-    link.parentNode.removeChild(link)
-
-    this.ui.setNotification({
-      id: toastId,
-      category: 'success',
-      message: `Successfully downloaded folder "${folder.name}"`,
-    })
-  }
-
-  downloadSelectedFiles = async (files) => {
-    const lowestColumnIndex = Math.min(...files.map((file) => file.columnIndex))
-
-    const formattedFilesWithPrefix = files.map((file) => {
-      const { name, columnIndex } = file
-      const pathToFile = this.openedFolders
-        .slice(lowestColumnIndex, columnIndex)
-        .map((folder) => folder.name)
-        .join('/')
-      const formattedPathToFile = pathToFile.length > 0 ? `${pathToFile}/${name}` : name
-      return { ...file, formattedPathToFile }
-    })
-
-    let progress = 0
-    const returnBlob = true
+  downloadSelectedFiles = async () => {
     const showIndividualToast = false
-    const toastId = this.ui.setNotification({
-      category: 'loading',
-      message: `Downloading ${files.length} files...`,
+    const toastId = toast(`Retrieving ${this.selectedItems.length} files...`, {
+      autoClose: false,
+      hideProgressBar: true,
     })
 
-    const promises = formattedFilesWithPrefix.map((file) => {
-      return () => {
-        return new Promise(async (resolve) => {
-          const data = await this.downloadFile(file, showIndividualToast, returnBlob)
-          progress = progress + 1 / formattedFilesWithPrefix.length
-          resolve({ ...data, name: file.formattedPathToFile })
-        })
-      }
-    })
+    const res = await Promise.all(
+      this.selectedItems.map(async (item) => await this.downloadFile(item, showIndividualToast))
+    )
 
-    const batchedPromises = chunk(promises, 10)
-    const downloadedFiles = await batchedPromises.reduce(async (previousPromise, nextBatch) => {
-      const previousResults = await previousPromise
-      const batchResults = await Promise.allSettled(nextBatch.map((batch) => batch()))
-      this.ui.setNotification({
-        id: toastId,
-        category: 'loading',
-        message: `Downloading ${files.length} file${files.length > 1 ? 's' : ''}...`,
-        description: STORAGE_PROGRESS_INFO_TEXT,
-        progress: progress * 100,
-      })
-      return (previousResults ?? []).concat(batchResults.map((x) => x.value).filter(Boolean))
-    }, Promise.resolve())
-
-    const zipFileWriter = new BlobWriter('application/zip')
-    const zipWriter = new ZipWriter(zipFileWriter, { bufferedWrite: true })
-    downloadedFiles.forEach((file) => {
-      zipWriter.add(file.name, new BlobReader(file.blob))
-    })
-
-    const blobURL = URL.createObjectURL(await zipWriter.close())
-    const link = document.createElement('a')
-    link.href = blobURL
-    link.setAttribute('download', `supabase-files.zip`)
-    document.body.appendChild(link)
-    link.click()
-    link.parentNode.removeChild(link)
-
-    this.ui.setNotification({
+    const numberOfSuccessfullyDownloadedFiles = res.filter((x) => x === true).length
+    toast.success(`Downloaded ${numberOfSuccessfullyDownloadedFiles} files`, {
       id: toastId,
-      category: 'success',
-      message: `Successfully downloaded ${downloadedFiles.length} files`,
     })
   }
 
-  downloadFile = async (file, showToast = true, returnBlob = false) => {
+  downloadFile = async (file, showToast = true) => {
+    let toastId
     const fileName = file.name
-    const fileMimeType = file?.metadata?.mimetype ?? null
+    const fileMimeType = get(file, ['metadata', 'mimetype'], null)
 
-    const toastId = showToast
-      ? this.ui.setNotification({ category: 'loading', message: `Retrieving ${fileName}...` })
-      : undefined
+    if (showToast) {
+      toastId = toast.loading(`Retrieving ${fileName}...`, {
+        autoClose: false,
+      })
+    }
 
     const pathToFile = this.openedFolders
       .slice(0, file.columnIndex)
       .map((folder) => folder.name)
       .join('/')
     const formattedPathToFile = pathToFile.length > 0 ? `${pathToFile}/${fileName}` : fileName
-    const res = await post(`${this.endpoint}/buckets/${this.selectedBucket.id}/objects/download`, {
-      path: formattedPathToFile,
-    })
 
-    if (!res.error) {
-      const blob = await res.blob()
+    const { data, error } = await this.supabaseClient.storage
+      .from(this.selectedBucket.name)
+      .download(formattedPathToFile)
+
+    if (!error) {
+      const blob = data
       const newBlob = new Blob([blob], { type: fileMimeType })
-
-      if (returnBlob) return { name: fileName, blob: newBlob }
-
       const blobUrl = window.URL.createObjectURL(newBlob)
+
       const link = document.createElement('a')
       link.href = blobUrl
       link.setAttribute('download', `${fileName}`)
@@ -1110,20 +871,16 @@ class StorageExplorerStore {
       link.parentNode.removeChild(link)
       window.URL.revokeObjectURL(blob)
       if (toastId) {
-        this.ui.setNotification({
+        toast.success(`Downloading ${fileName}`, {
           id: toastId,
-          category: 'success',
-          message: `Downloading ${fileName}`,
         })
       }
       return true
     } else {
+      console.error('Failed to download:', fileName)
       if (toastId) {
-        this.ui.setNotification({
-          error: error,
+        toast.error(`Failed to download ${fileName}`, {
           id: toastId,
-          category: 'error',
-          message: `Failed to download ${fileName}`,
         })
       }
       return false
@@ -1141,14 +898,12 @@ class StorageExplorerStore {
 
       const fromPath = pathToFile.length > 0 ? `${pathToFile}/${originalName}` : originalName
       const toPath = pathToFile.length > 0 ? `${pathToFile}/${newName}` : newName
+      const { error } = await this.supabaseClient.storage
+        .from(this.selectedBucket.name)
+        .move(fromPath, toPath)
 
-      const res = await post(`${this.endpoint}/buckets/${this.selectedBucket.id}/objects/move`, {
-        from: fromPath,
-        to: toPath,
-      })
-
-      if (res.error) {
-        this.ui.setNotification({ category: 'error', message: res.error.message })
+      if (error) {
+        toast.error(error.message)
       }
       await this.refetchAllOpenedFolders()
 
@@ -1162,76 +917,35 @@ class StorageExplorerStore {
 
   /* Folders CRUD */
 
-  fetchFolderContents = async (folderId, folderName, index, searchString = '') => {
+  fetchFolderContents = async (folderId, folderName, index, showLoading = true) => {
     this.abortApiCalls()
 
-    this.updateRowStatus(folderName, STORAGE_ROW_STATUS.LOADING, index)
-    this.pushColumnAtIndex(
-      { id: folderId, name: folderName, status: STORAGE_ROW_STATUS.LOADING, items: [] },
-      index
-    )
-
-    const prefix = this.openedFolders.map((folder) => folder.name).join('/')
-    const options = {
-      limit: LIMIT,
-      offset: OFFSET,
-      search: searchString,
-      sortBy: { column: this.sortBy, order: this.sortByOrder },
-    }
-    const res = await post(
-      `${this.endpoint}/buckets/${this.selectedBucket.id}/objects/list`,
-      { path: prefix, options },
-      { abortSignal: this.abortController.signal }
-    )
-
-    this.updateRowStatus(folderName, STORAGE_ROW_STATUS.READY, index)
-
-    if (!res.error) {
-      const formattedItems = this.formatFolderItems(res)
+    if (showLoading) {
+      this.updateRowStatus(folderName, STORAGE_ROW_STATUS.LOADING, index)
       this.pushColumnAtIndex(
-        {
-          id: folderId || folderName,
-          name: folderName,
-          items: formattedItems,
-          hasMoreItems: formattedItems.length === LIMIT,
-          isLoadingMoreItems: false,
-        },
+        { id: folderId, name: folderName, status: STORAGE_ROW_STATUS.LOADING, items: [] },
         index
       )
     }
-  }
-
-  fetchMoreFolderContents = async (index, column, searchString = '') => {
-    this.setColumnIsLoadingMore(index)
 
     const prefix = this.openedFolders.map((folder) => folder.name).join('/')
-    const options = {
-      limit: LIMIT,
-      offset: column.items.length,
-      search: searchString,
-      sortBy: { column: this.sortBy, order: this.sortByOrder },
+    const options = { limit: LIMIT, offset: OFFSET, sortBy: { column: this.sortBy, order: 'asc' } }
+    const parameters = { signal: this.abortController.signal }
+
+    const { data: items, error } = await this.supabaseClient.storage
+      .from(this.selectedBucket.name)
+      .list(prefix, options, parameters)
+
+    if (showLoading) {
+      this.updateRowStatus(folderName, STORAGE_ROW_STATUS.READY, index)
     }
 
-    const res = await post(
-      `${this.endpoint}/buckets/${this.selectedBucket.id}/objects/list`,
-      { path: prefix, options },
-      { abortSignal: this.abortController.signal }
-    )
-
-    if (!res.error) {
-      // Add items to column
-      const formattedItems = this.formatFolderItems(res)
-      this.columns = this.columns.map((col, idx) => {
-        if (idx === index) {
-          return {
-            ...col,
-            items: col.items.concat(formattedItems),
-            isLoadingMoreItems: false,
-            hasMoreItems: res.length === LIMIT,
-          }
-        }
-        return col
-      })
+    if (!error) {
+      const formattedItems = this.formatFolderItems(items)
+      this.pushColumnAtIndex(
+        { id: folderId || folderName, name: folderName, items: formattedItems },
+        index
+      )
     }
   }
 
@@ -1249,15 +963,18 @@ class StorageExplorerStore {
         const options = {
           limit: LIMIT,
           offset: OFFSET,
-          sortBy: { column: this.sortBy, order: this.sortByOrder },
+          sortBy: { column: this.sortBy, order: 'asc' },
         }
 
-        const res = await post(`${this.endpoint}/buckets/${this.selectedBucket.id}/objects/list`, {
-          path: prefix,
-          options,
-        })
-        if (res.error) console.error('Error at fetchFoldersByPath:', error)
-        return res
+        const { data: items, error } = await this.supabaseClient.storage
+          .from(this.selectedBucket.name)
+          .list(prefix, options)
+
+        if (error) {
+          console.error('Error at fetchFoldersByPath:', error)
+        }
+
+        return items
       })
     )
 
@@ -1267,8 +984,6 @@ class StorageExplorerStore {
         id: null,
         name: idx === 0 ? this.selectedBucket.name : pathsWithEmptyPrefix[idx],
         items: formattedItems,
-        hasMoreItems: formattedItems.length === LIMIT,
-        isLoadingMoreItems: false,
       }
     })
 
@@ -1295,11 +1010,10 @@ class StorageExplorerStore {
   // Check parent folder if its empty, if yes, reinstate .emptyFolderPlaceholder
   // Used when deleting folder or deleting files
   validateParentFolderEmpty = async (parentFolderPrefix) => {
-    const res = await post(`${this.endpoint}/buckets/${this.selectedBucket.id}/objects/list`, {
-      path: parentFolderPrefix,
-      options: this.DEFAULT_OPTIONS,
-    })
-    if (!res.error && res.length === 0) {
+    const { data: items, error } = await this.supabaseClient.storage
+      .from(this.selectedBucket.name)
+      .list(parentFolderPrefix, this.DEFAULT_OPTIONS)
+    if (!error && items.length === 0) {
       const prefixToPlaceholder = `${parentFolderPrefix}/${EMPTY_FOLDER_PLACEHOLDER_FILE_NAME}`
       await this.supabaseClient.storage
         .from(this.selectedBucket.name)
@@ -1312,12 +1026,6 @@ class StorageExplorerStore {
     const files = await this.getAllItemsAlongFolder(folder)
     await this.deleteFiles(files, isDeleteFolder)
 
-    const isFolderOpen = this.openedFolders[this.openedFolders.length - 1]?.name === folder.name
-    if (isFolderOpen) {
-      this.popColumnAtIndex(folder.columnIndex)
-      this.popOpenedFoldersAtIndex(folder.columnIndex - 1)
-    }
-
     const parentFolderPrefix = this.openedFolders.map((folder) => folder.name).join('/')
     if (parentFolderPrefix.length > 0) {
       await this.validateParentFolderEmpty(parentFolderPrefix)
@@ -1325,125 +1033,61 @@ class StorageExplorerStore {
 
     await this.refetchAllOpenedFolders()
     this.clearSelectedItemsToDelete()
-
-    this.ui.setNotification({
-      category: 'success',
-      message: `Successfully deleted ${folder.name}`,
-    })
+    toast.success(`Successfully deleted ${folder.name}`)
   }
 
   renameFolder = async (folder, newName, columnIndex) => {
     const originalName = folder.name
     if (originalName === newName) {
-      return this.updateRowStatus(originalName, STORAGE_ROW_STATUS.READY, columnIndex)
-    }
-
-    const toastId = this.ui.setNotification({
-      category: 'loading',
-      message: `Renaming folder to ${newName}`,
-      description: STORAGE_PROGRESS_INFO_TEXT,
-      progress: 0,
-    })
-
-    /**
-     * Catch any folder names that contain slash or backslash
-     *
-     * this is because slashes are used to denote
-     * children/parent relationships in bucket
-     *
-     * todo: move this to a util file, as createFolder() uses same logic
-     */
-    if (newName.includes('/') || newName.includes('\\')) {
-      return this.ui.setNotification({
-        message: `Folder name cannot contain forward or back slashes.`,
-        type: 'error',
+      this.updateRowStatus(originalName, STORAGE_ROW_STATUS.READY, columnIndex)
+    } else {
+      this.updateRowStatus(originalName, STORAGE_ROW_STATUS.LOADING, columnIndex, newName)
+      const files = await this.getAllItemsAlongFolder(folder)
+      // Make this batched promises into a reusable function for storage, i think this will be super helpful
+      const promises = files.map((file) => {
+        const fromPath = `${file.prefix}/${file.name}`
+        const pathSegments = fromPath.split('/')
+        const toPath = pathSegments
+          .slice(0, columnIndex)
+          .concat(newName)
+          .concat(pathSegments.slice(columnIndex + 1))
+          .join('/')
+        return () => {
+          return new Promise(async (resolve, reject) => {
+            const { error } = await this.supabaseClient.storage
+              .from(this.selectedBucket.name)
+              .move(fromPath, toPath)
+            if (error) reject()
+            resolve()
+          })
+        }
       })
-    }
 
-    this.updateRowStatus(originalName, STORAGE_ROW_STATUS.LOADING, columnIndex, newName)
-    const files = await this.getAllItemsAlongFolder(folder)
+      const batchedPromises = chunk(promises, BATCH_SIZE)
+      // [Joshen] I realised this can be simplified with just a vanilla for loop, no need for reduce
+      // Just take note, but if it's working fine, then it's okay
+      try {
+        await batchedPromises.reduce(async (previousPromise, nextBatch) => {
+          await previousPromise
+          await Promise.all(nextBatch.map((batch) => batch()))
+        }, Promise.resolve())
 
-    let progress = 0
-    let hasErrors = false
+        toast.success(`Successfully renamed folder to ${newName}`)
+        await this.refetchAllOpenedFolders()
 
-    // Make this batched promises into a reusable function for storage, i think this will be super helpful
-    const promises = files.map((file) => {
-      const fromPath = `${file.prefix}/${file.name}`
-      const pathSegments = fromPath.split('/')
-      const toPath = pathSegments
-        .slice(0, columnIndex)
-        .concat(newName)
-        .concat(pathSegments.slice(columnIndex + 1))
-        .join('/')
-      return () => {
-        return new Promise(async (resolve) => {
-          progress = progress + 1 / files.length
-          const res = await post(
-            `${this.endpoint}/buckets/${this.selectedBucket.name}/objects/move`,
-            {
-              from: fromPath,
-              to: toPath,
-            }
-          )
-          if (res.error) {
-            hasErrors = true
-            this.ui.setNotification({
-              category: 'error',
-              message: `Failed to move ${fromPath} to the new folder`,
-            })
-          }
-          resolve()
-        })
+        // Clear file preview cache if the moved file exists in the cache
+        const fileIds = files.map((file) => file.id)
+        const updatedFilePreviewCache = this.filePreviewCache.filter(
+          (fileCache) => !fileIds.includes(fileCache.id)
+        )
+        this.filePreviewCache = updatedFilePreviewCache
+      } catch (e) {
+        toast.error(`Failed to rename folder to ${newName}`)
       }
-    })
-
-    const batchedPromises = chunk(promises, BATCH_SIZE)
-    // [Joshen] I realised this can be simplified with just a vanilla for loop, no need for reduce
-    // Just take note, but if it's working fine, then it's okay
-    try {
-      await batchedPromises.reduce(async (previousPromise, nextBatch) => {
-        await previousPromise
-        await Promise.all(nextBatch.map((batch) => batch()))
-        this.ui.setNotification({
-          id: toastId,
-          category: 'loading',
-          message: `Renaming folder to ${newName}`,
-          description: STORAGE_PROGRESS_INFO_TEXT,
-          progress: progress * 100,
-        })
-      }, Promise.resolve())
-
-      if (!hasErrors) {
-        this.ui.setNotification({
-          id: toastId,
-          message: `Successfully renamed folder to ${newName}`,
-          category: 'success',
-        })
-      } else {
-        this.ui.setNotification({
-          id: toastId,
-          message: `Renamed folder to ${newName} with some errors`,
-          category: 'error',
-        })
-      }
-      await this.refetchAllOpenedFolders()
-
-      // Clear file preview cache if the moved file exists in the cache
-      const fileIds = files.map((file) => file.id)
-      const updatedFilePreviewCache = this.filePreviewCache.filter(
-        (fileCache) => !fileIds.includes(fileCache.id)
-      )
-      this.filePreviewCache = updatedFilePreviewCache
-    } catch (e) {
-      this.ui.setNotification({
-        id: toastId,
-        message: `Failed to rename folder to ${newName}`,
-        category: 'error',
-      })
     }
   }
 
-  /*
+  /* 
     Recursively returns a list of items along every directory within the specified base folder
     Each item has an extra property 'prefix' which has the prefix that leads to the item
     Used specifically for any operation that deals with every file along the folder
@@ -1455,7 +1099,7 @@ class StorageExplorerStore {
     let formattedPathToFolder = ''
     const { name, columnIndex, prefix } = folder
 
-    if (prefix === undefined) {
+    if (isUndefined(prefix)) {
       const pathToFolder = this.openedFolders
         .slice(0, columnIndex)
         .map((folder) => folder.name)
@@ -1465,27 +1109,13 @@ class StorageExplorerStore {
       formattedPathToFolder = `${prefix}/${name}`
     }
 
-    const options = {
-      limit: LIMIT,
-      offset: OFFSET,
-      sortBy: { column: this.sortBy, order: this.sortByOrder },
-    }
-    let folderContents = []
+    const options = { limit: LIMIT, offset: OFFSET, sortBy: { column: this.sortBy, order: 'asc' } }
+    const { data: folderContents } = await this.supabaseClient.storage
+      .from(this.selectedBucket.name)
+      .list(formattedPathToFolder, options)
 
-    for (;;) {
-      const res = await post(`${this.endpoint}/buckets/${this.selectedBucket.name}/objects/list`, {
-        path: formattedPathToFolder,
-        options,
-      })
-      folderContents = folderContents.concat(res)
-      options.offset += options.limit
-      if ((res || []).length < options.limit) {
-        break
-      }
-    }
-
-    const subfolders = folderContents?.filter((item) => item.id === null) ?? []
-    const folderItems = folderContents?.filter((item) => item.id !== null) ?? []
+    const subfolders = folderContents?.filter((item) => isNull(item.id)) ?? []
+    const folderItems = folderContents?.filter((item) => !isNull(item.id)) ?? []
 
     folderItems.forEach((item) => items.push({ ...item, prefix: formattedPathToFolder }))
 
@@ -1527,11 +1157,9 @@ class StorageExplorerStore {
         const updatedFileName = fileName + ` (${itemsWithSameNameInColumn.length + 1})`
         return fileExt ? `${updatedFileName}.${fileExt}` : updatedFileName
       } else {
-        this.ui.setNotification({
-          message: `The name ${name} already exists in the current directory. Please use a different name.`,
-          category: 'error',
-          duration: 4000,
-        })
+        toast(
+          `The name ${name} already exists in the current directory. Please use a different name.`
+        )
         return null
       }
     }
@@ -1544,34 +1172,21 @@ class StorageExplorerStore {
       items
         ?.filter((item) => item.name !== EMPTY_FOLDER_PLACEHOLDER_FILE_NAME)
         .map((item) => {
-          const type = item.id ? STORAGE_ROW_TYPES.FILE : STORAGE_ROW_TYPES.FOLDER
-
-          const durationSinceCreated = Number(new Date()) - Number(new Date(item.created_at))
-          const isCorrupted =
-            type === STORAGE_ROW_TYPES.FILE &&
-            !item.metadata &&
-            durationSinceCreated >= CORRUPTED_THRESHOLD_MS
-
-          const status =
-            type === STORAGE_ROW_TYPES.FILE &&
-            !item.metadata &&
-            durationSinceCreated <= CORRUPTED_THRESHOLD_MS
-              ? STORAGE_ROW_STATUS.LOADING
-              : STORAGE_ROW_STATUS.READY
-
-          const itemObj = { ...item, type, status, isCorrupted }
+          const itemObj = {
+            ...item,
+            type: item.id ? STORAGE_ROW_TYPES.FILE : STORAGE_ROW_TYPES.FOLDER,
+            status: STORAGE_ROW_STATUS.READY,
+          }
           return itemObj
         }) ?? []
     return formattedItems
   }
 
-  addTempRow = (type, name, status, columnIndex, metadata = {}, isPrepend = false) => {
+  addTempRow = (type, name, status, columnIndex, metadata = {}) => {
     const updatedColumns = this.columns.map((column, idx) => {
       if (idx === columnIndex) {
         const tempRow = { type, name, status, metadata }
-        const updatedItems = isPrepend
-          ? [tempRow].concat(column.items)
-          : column.items.concat([tempRow])
+        const updatedItems = column.items.concat([tempRow])
         return { ...column, items: updatedItems }
       }
       return column
@@ -1656,7 +1271,6 @@ class StorageExplorerStore {
     const preferences = {
       view: this.view,
       sortBy: this.sortBy,
-      sortByOrder: this.sortByOrder,
     }
     localStorage.setItem(localStorageKey, JSON.stringify(preferences))
     return preferences
@@ -1666,49 +1280,13 @@ class StorageExplorerStore {
     const localStorageKey = this.getLocalStorageKey()
     const preferences = localStorage.getItem(localStorageKey)
     if (preferences) {
-      const { view, sortBy, sortByOrder } = JSON.parse(preferences)
+      const { view, sortBy } = JSON.parse(preferences)
       this.view = view
       this.sortBy = sortBy
-      this.sortByOrder = sortByOrder
     } else {
-      const { view, sortBy, sortByOrder } = this.updateExplorerPreferences()
+      const { view, sortBy } = this.updateExplorerPreferences()
       this.view = view
       this.sortBy = sortBy
-      this.sortByOrder = sortByOrder
-    }
-  }
-
-  selectRangeItems = (columnIndex, toItemIndex) => {
-    const columnItems = this.columns[columnIndex].items
-    const toItem = columnItems[toItemIndex]
-    const selectedItemIds = this.selectedItems.map((item) => item.id)
-    const lastSelectedItemId = selectedItemIds[selectedItemIds.length - 1]
-    const lastSelectedItemIndex = findIndex(columnItems, { id: lastSelectedItemId })
-
-    // Get the start and end index of the range to select
-    const start = Math.min(toItemIndex, lastSelectedItemIndex)
-    const end = Math.max(toItemIndex, lastSelectedItemIndex)
-
-    // Get the range to select and reverse the order if necessary
-    const rangeToSelect = columnItems
-      .slice(start, end + 1)
-      // we need `columnIndex` in all item of `selectedItems`
-      .map((item) => ({ ...item, columnIndex }))
-    if (toItemIndex < lastSelectedItemIndex) {
-      rangeToSelect.reverse()
-    }
-
-    if (selectedItemIds.includes(toItem.id)) {
-      const rangeToDeselectIds = rangeToSelect.map((item) => item.id)
-      // Deselect all items within the selection range
-      this.setSelectedItems(
-        this.selectedItems.filter(
-          (item) => item.id === toItem.id || !rangeToDeselectIds.includes(item.id)
-        )
-      )
-    } else {
-      // Select items within the range
-      this.setSelectedItems(uniqBy(this.selectedItems.concat(rangeToSelect), 'id'))
     }
   }
 }

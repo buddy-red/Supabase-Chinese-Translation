@@ -18,20 +18,17 @@ export const REGIONS = {
   // SOUTH_AFRICA: 'South Africa (Cape Town)',
 }
 
-export const REGIONS_DEFAULT =
-  process.env.NEXT_PUBLIC_ENVIRONMENT !== 'prod' ? REGIONS.SOUTHEAST_ASIA : REGIONS.EAST_US
+export const REGIONS_DEFAULT = REGIONS.EAST_US
 
 export const PRICING_TIER_LABELS = {
-  FREE: 'Free',
-  PRO: 'Pro',
+  FREE: 'Free tier',
+  PRO: 'Pro tier',
 }
 
 export const PRICING_TIER_PRODUCT_IDS = {
   FREE: 'tier_free',
   PRO: 'tier_pro',
   PAYG: 'tier_payg',
-  TEAM: 'tier_team',
-  ENTERPRISE: 'tier_enterprise',
 }
 
 export const PRICING_TIER_FREE_KEY = 'FREE'
@@ -106,15 +103,12 @@ export const PROJECT_STATUS = {
   INIT_FAILED: 'INIT_FAILED',
   REMOVED: 'REMOVED',
   RESTORING: 'RESTORING',
-  RESTORATION_FAILED: 'RESTORATION_FAILED',
-  UPGRADING: 'UPGRADING',
 }
 
-export const STRIPE_PRODUCT_IDS: { [x: string]: string } = {
-  FREE: process?.env?.NEXT_PUBLIC_STRIPE_FREE_TIER_ID || 'prod_Ip4vqwv3EJ7Mi0',
-  PRO: process?.env?.NEXT_PUBLIC_STRIPE_PRO_TIER_ID || 'prod_IsRLOp58Z7V4XN',
-  PAYG: process?.env?.NEXT_PUBLIC_STRIPE_PAYG_TIER_ID || 'prod_JlTbw91xcM6NY4',
-  TEAM: process?.env?.NEXT_PUBLIC_STRIPE_TEAM_TIER_ID || 'prod_MeUrsWN6pj0oXM',
+export const STRIPE_PRODUCT_IDS = {
+  FREE: process?.env?.NEXT_PUBLIC_STRIPE_FREE_TIER_ID,
+  PRO: process?.env?.NEXT_PUBLIC_STRIPE_PRO_TIER_ID,
+  PAYG: process?.env?.NEXT_PUBLIC_STRIPE_PAYG_TIER_ID,
 }
 
 export const DEFAULT_MINIMUM_PASSWORD_STRENGTH = 4
@@ -145,4 +139,4 @@ export const PASSWORD_STRENGTH_PERCENTAGE = {
 
 export const DEFAULT_FREE_PROJECTS_LIMIT = 2
 
-export const DEFAULT_PROJECT_API_SERVICE_ID = 1
+export const STORAGE_FILE_SIZE_LIMIT_MAX_BYTES = 5 * 1024 * 1024 * 1024 // 5 GB

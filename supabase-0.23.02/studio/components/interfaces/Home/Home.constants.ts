@@ -1,6 +1,6 @@
 export const CLIENT_LIBRARIES = [
   {
-    language: 'JavaScript',
+    language: 'Javascript',
     officialSupport: true,
     releaseState: undefined,
     docsUrl: 'https://supabase.com/docs/reference/javascript/installing',
@@ -10,15 +10,15 @@ export const CLIENT_LIBRARIES = [
     language: 'Python',
     officialSupport: false,
     releaseState: 'Alpha',
-    docsUrl: 'https://supabase.com/docs/reference/python/introduction',
+    docsUrl: undefined,
     gitUrl: 'https://github.com/supabase/supabase-py',
   },
   {
-    language: 'Flutter',
-    officialSupport: true,
-    releaseState: undefined,
+    language: 'Dart',
+    officialSupport: false,
+    releaseState: 'Beta',
     docsUrl: 'https://supabase.com/docs/reference/dart/installing',
-    gitUrl: 'https://github.com/supabase/supabase-flutter',
+    gitUrl: 'https://github.com/supabase/supabase-dart',
   },
 ]
 
@@ -33,7 +33,7 @@ export const EXAMPLE_PROJECTS = [
     framework: 'NextJS',
     title: 'Next.js Realtime chat app',
     description: 'Next.js Slack clone app using Supabase realtime subscriptions',
-    url: 'https://github.com/supabase/supabase/tree/master/examples/slack-clone/nextjs-slack-clone',
+    url: 'https://github.com/supabase/supabase/tree/master/examples/nextjs-slack-clone',
   },
   {
     framework: 'NextJS',
@@ -55,7 +55,7 @@ export const EXAMPLE_PROJECTS = [
   },
   {
     framework: 'React',
-    title: 'React realtime chat app',
+    title: 'React.js realtime chat app',
     description: 'Example app of real-time chat using supabase realtime api',
     url: 'https://github.com/shwosner/realtime-chat-supabase-react',
   },
@@ -63,36 +63,36 @@ export const EXAMPLE_PROJECTS = [
     framework: 'JavaScript',
     title: 'Vanilla-js Auth app',
     description: 'Example app of real-time chat using supabase realtime api',
-    url: 'https://github.com/supabase/examples/tree/main/supabase-js-v1/auth/javascript-auth',
+    url: 'https://github.com/supabase/supabase/tree/master/examples/javascript-auth',
   },
   {
     framework: 'React',
     title: 'React Native todo list app',
     description: 'React Native Todo List example with Expo',
-    url: 'https://github.com/supabase/examples/tree/main/supabase-js-v1/todo-list/expo-todo-list',
+    url: 'https://github.com/supabase/supabase/tree/master/examples/expo-todo-list',
   },
   {
     framework: 'NextJS',
-    title: 'Next.js todo list app',
+    title: 'NextJS todo list app',
     description: 'NextJS todo list example',
-    url: 'https://github.com/supabase/supabase/tree/master/examples/todo-list/nextjs-todo-list',
+    url: 'https://github.com/supabase/supabase/tree/master/examples/nextjs-todo-list',
   },
   {
     framework: 'React',
     title: 'React todo List app',
     description: 'React todo List example',
-    url: 'https://github.com/supabase/examples/tree/main/supabase-js-v1/todo-list/react-todo-list',
+    url: 'https://github.com/supabase/supabase/tree/master/examples/react-todo-list',
   },
   {
     framework: 'Svelte',
     title: 'Svelte todo list app',
     description: 'Sveltejs todo with TailwindCSS and Snowpack',
-    url: 'https://github.com/supabase/supabase/tree/master/examples/todo-list/sveltejs-todo-list',
+    url: 'https://github.com/supabase/supabase/tree/master/examples/sveltejs-todo-list',
   },
   {
     framework: 'VueJS',
     title: 'Vue.js todo list app',
     description: 'Vue.js todo app using TypeScript',
-    url: 'https://github.com/supabase/examples/tree/main/supabase-js-v1/todo-list/vue3-ts-todo-list',
+    url: 'https://github.com/supabase/supabase/tree/master/examples/vue3-ts-todo-list',
   },
 ]

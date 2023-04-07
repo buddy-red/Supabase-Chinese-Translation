@@ -1,5 +1,5 @@
 import { FC, useState } from 'react'
-import { IconChevronRight, IconLoader } from 'ui'
+import { Typography, IconChevronRight, IconLoader } from '@supabase/ui'
 import { SQLTemplate } from '../SQLEditor.types'
 
 interface Props {
@@ -12,25 +12,27 @@ const SQLCard: FC<Props> = ({ template }) => {
 
   return (
     <div
-      className="w-full cursor-pointer rounded border 
-      border-panel-border-light bg-panel-header-light transition-colors 
-      hover:border-panel-border-hover-light dark:border-panel-border-dark 
-      dark:bg-panel-header-dark dark:hover:border-panel-border-hover-dark"
+      className="rounded bg-panel-header-light dark:bg-panel-header-dark transition-colors 
+      border border-panel-border-light dark:border-panel-border-dark 
+      hover:border-panel-border-hover-light dark:hover:border-panel-border-hover-dark 
+      cursor-pointer w-full"
     >
-      <div className="flex items-center justify-between border-b px-6 py-3 dark:border-dark">
-        <h5 className="m-0">{title}</h5>
+      <div className="px-6 py-3 border-b dark:border-dark flex items-center justify-between">
+        <Typography.Title level={5} className="m-0">
+          {title}
+        </Typography.Title>
         {loading ? (
           <div className="animate-spin">
             <IconLoader size={16} />
           </div>
         ) : (
-          <p className="text-scale-1000">
+          <Typography.Text type="secondary">
             <IconChevronRight />
-          </p>
+          </Typography.Text>
         )}
       </div>
-      <p className="capitalize-first px-6 py-4">
-        <p className="text-scale-1000">{description}</p>
+      <p className="px-6 py-4 capitalize-first">
+        <Typography.Text type="secondary">{description}</Typography.Text>
       </p>
     </div>
   )

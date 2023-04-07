@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
-import { toJS } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import { Button, Dropdown, IconPlus } from 'ui'
+import { Button, Dropdown, Divider, IconPlus } from '@supabase/ui'
 
 import { useStore } from 'hooks'
 import { IS_PLATFORM } from 'lib/constants'
@@ -21,36 +20,12 @@ const OrgDropdown = () => {
         <>
           {sortedOrganizations
             .sort((a, b) => a.name.localeCompare(b.name))
-            .map((x) => {
-              const slug = toJS(x.slug)
-
-              return (
-                <Dropdown.Item
-                  key={slug}
-                  onClick={() => {
-                    if (!slug) {
-                      // The user should not see this error as the page should
-                      // be rerendered with the value of slug before they can click.
-                      // It is just here in case they are the flash.
-                      return ui.setNotification({
-                        category: 'error',
-                        message:
-                          'Could not navigate to organization settings, please try again or contact support',
-                      })
-                    }
-
-                    router.push({
-                      pathname: `/org/[slug]/general`,
-                      query: { slug },
-                      hash: router.asPath.split('#')[1]?.toLowerCase(),
-                    })
-                  }}
-                >
-                  {x.name}
-                </Dropdown.Item>
-              )
-            })}
-          <Dropdown.Separator />
+            .map((x) => (
+              <Dropdown.Item key={x.slug} onClick={() => router.push(`/org/${x.slug}/settings`)}>
+                {x.name}
+              </Dropdown.Item>
+            ))}
+          <Dropdown.Seperator />
           <Dropdown.Item icon={<IconPlus size="tiny" />} onClick={() => router.push(`/new`)}>
             New organization
           </Dropdown.Item>

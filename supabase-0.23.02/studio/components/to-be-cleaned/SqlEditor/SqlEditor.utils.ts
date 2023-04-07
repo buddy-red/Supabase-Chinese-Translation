@@ -1,23 +1,53 @@
-import { SqlSnippets, UserContent } from 'types'
+import { UserContent } from 'types'
+import { useProjectContentStore } from 'stores/projectContentStore'
 import { NEW_SQL_SNIPPET_SKELETON } from './SqlEditor.constants'
 
-export const createSqlSnippetSkeleton = ({
-  name,
+/* Creates a new SQL snippet with a basic skeleton */
+export const createSqlSnippet = async ({
+  router,
   sql,
-  owner_id,
+  name,
 }: {
-  name?: string
-  sql?: string
-  owner_id?: number
-} = {}): UserContent<SqlSnippets.Content> => {
-  return {
+  router: any
+  sql: any
+  name: any
+}) => {
+  const { ref } = router.query
+  const contentStore = useProjectContentStore(ref)
+  const skeleton: UserContent = {
     ...NEW_SQL_SNIPPET_SKELETON,
     ...(name && { name }),
-    ...(owner_id && { owner_id }),
     content: {
       ...NEW_SQL_SNIPPET_SKELETON.content,
       content_id: '',
-      sql: sql ?? '',
+      sql: sql,
     },
   }
+
+  const { data: sqlSnippet, error } = await contentStore.create(skeleton)
+
+  if (error) throw error
+
+  // reload store data
+  await contentStore.load()
+  return sqlSnippet[0]
+}
+
+/*
+ * deleteSqlSnippet()
+ *
+ * Deletes a SQL snippet
+ *
+ */
+export const deleteSqlSnippet = async ({ router, id }: { router: any; id: any }) => {
+  const { ref } = router.query
+  const contentStore = useProjectContentStore(ref)
+
+  const { data: delReport, error } = await contentStore.del(id)
+  if (error) throw error
+
+  // reload store data
+  await contentStore.load()
+
+  return delReport
 }

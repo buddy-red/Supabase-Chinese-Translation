@@ -33,28 +33,6 @@ const supabaseUrl = '${endpoint}'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)`,
     },
-    python: {
-      language: 'python',
-      code: `
-import os
-from supabase import create_client, Client
-
-url: str = '${endpoint}'
-key: str = os.environ.get("SUPABASE_KEY")
-supabase: Client = create_client(url, key)
-`,
-    },
-    dart: {
-      language: 'dart',
-      code: `
-final supabaseUrl = '${endpoint}'
-final supabaseKey = String.fromEnvironment('SUPABASE_KEY')
-
-Future<void> main() async {
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
-  runApp(MyApp());
-}`,
-    },
   }),
   authKey: (title, varName, apikey) => ({
     title: `${title}`,
@@ -140,14 +118,11 @@ else console.log(data)
     js: {
       language: 'js',
       code: `
-const ${listenerName} = supabase.channel('custom-all-channel')
-  .on(
-    'postgres_changes',
-    { event: '*', schema: 'public', table: '${resourceId}' },
-    (payload) => {
-      console.log('Change received!', payload)
-    }
-  )
+const ${listenerName} = supabase
+  .from('${resourceId}')
+  .on('*', payload => {
+    console.log('Change received!', payload)
+  })
   .subscribe()`,
     },
   }),
@@ -160,14 +135,11 @@ const ${listenerName} = supabase.channel('custom-all-channel')
     js: {
       language: 'js',
       code: `
-const ${listenerName} = supabase.channel('custom-insert-channel')
-  .on(
-    'postgres_changes', 
-    { event: 'INSERT', schema: 'public', table: '${resourceId}' },
-    (payload) => {
-      console.log('Change received!', payload)
-    }
-  )
+const ${listenerName} = supabase
+  .from('${resourceId}')
+  .on('INSERT', payload => {
+    console.log('Change received!', payload)
+  })
   .subscribe()`,
     },
   }),
@@ -180,14 +152,11 @@ const ${listenerName} = supabase.channel('custom-insert-channel')
     js: {
       language: 'js',
       code: `
-const ${listenerName} = supabase.channel('custom-update-channel')
-  .on(
-    'postgres_changes',
-    { event: 'UPDATE', schema: 'public', table: '${resourceId}' },
-    (payload) => {
-      console.log('Change received!', payload)
-    }
-  )
+const ${listenerName} = supabase
+  .from('${resourceId}')
+  .on('UPDATE', payload => {
+    console.log('Change received!', payload)
+  })
   .subscribe()`,
     },
   }),
@@ -200,14 +169,11 @@ const ${listenerName} = supabase.channel('custom-update-channel')
     js: {
       language: 'js',
       code: `
-const ${listenerName} = supabase.channel('custom-delete-channel')
-  .on(
-    'postgres_changes',
-    { event: 'DELETE', schema: 'public', table: '${resourceId}' },
-    (payload) => {
-      console.log('Change received!', payload)
-    }
-  )
+const ${listenerName} = supabase
+  .from('${resourceId}')
+  .on('DELETE', payload => {
+    console.log('Change received!', payload)
+  })
   .subscribe()`,
     },
   }),
@@ -220,14 +186,11 @@ const ${listenerName} = supabase.channel('custom-delete-channel')
     js: {
       language: 'js',
       code: `
-const ${listenerName} = supabase.channel('custom-filter-channel')
-  .on(
-    'postgres_changes',
-    { event: '*', schema: 'public', table: '${resourceId}', filter: '${columnName}=eq.${value}' },
-    (payload) => {
-      console.log('Change received!', payload)
-    }
-  )
+const ${listenerName} = supabase
+  .from('${resourceId}:${columnName}=eq.${value}')
+  .on('*', payload => {
+    console.log('Change received!', payload)
+  })
   .subscribe()`,
     },
   }),
@@ -366,7 +329,7 @@ curl -X POST '${endpoint}/rest/v1/${resourceId}' \\
 -H "apikey: ${apiKey}" \\
 -H "Authorization: Bearer ${apiKey}" \\
 -H "Content-Type: application/json" \\
--H "Prefer: return=minimal" \\
+-H "Prefer: return=representation" \\
 -d '{ "some_column": "someValue", "other_column": "otherValue" }'
 `,
     },
@@ -436,7 +399,7 @@ curl -X PATCH '${endpoint}/rest/v1/${resourceId}?some_column=eq.someValue' \\
 -H "apikey: ${apiKey}" \\
 -H "Authorization: Bearer ${apiKey}" \\
 -H "Content-Type: application/json" \\
--H "Prefer: return=minimal" \\
+-H "Prefer: return=representation" \\
 -d '{ "other_column": "otherValue" }'
 `,
     },
@@ -487,7 +450,7 @@ curl -X POST '${endpoint}/auth/v1/signup' \\
     js: {
       language: 'js',
       code: `
-let { data, error } = await supabase.auth.signUp({
+let { user, error } = await supabase.auth.signUp({
   email: 'someone@email.com',
   password: '${randomPassword}'
 })
@@ -511,7 +474,7 @@ curl -X POST '${endpoint}/auth/v1/token?grant_type=password' \\
     js: {
       language: 'js',
       code: `
-let { data, error } = await supabase.auth.signInWithPassword({
+let { user, error } = await supabase.auth.signIn({
   email: 'someone@email.com',
   password: '${randomPassword}'
 })
@@ -534,7 +497,7 @@ curl -X POST '${endpoint}/auth/v1/magiclink' \\
     js: {
       language: 'js',
       code: `
-let { data, error } = await supabase.auth.signInWithOtp({
+let { user, error } = await supabase.auth.signIn({
   email: 'someone@email.com'
 })
 `,
@@ -557,7 +520,7 @@ curl -X POST '${endpoint}/auth/v1/signup' \\
     js: {
       language: 'js',
       code: `
-let { data, error } = await supabase.auth.signUp({
+let { user, error } = await supabase.auth.signUp({
   phone: '+13334445555',
   password: 'some-password'
 })
@@ -580,7 +543,7 @@ curl -X POST '${endpoint}/auth/v1/otp' \\
     js: {
       language: 'js',
       code: `
-let { data, error } = await supabase.auth.signInWithOtp({
+let { user, error } = await supabase.auth.signIn({
   phone: '+13334445555'
 })
 `,
@@ -604,10 +567,9 @@ curl -X POST '${endpoint}/auth/v1/verify' \\
     js: {
       language: 'js',
       code: `
-let { data, error } = await supabase.auth.verifyOtp({
+let { session, error } = await supabase.auth.verifyOTP({
   phone: '+13334445555',
-  token: '123456',
-  type: 'sms'
+  token: '123456'
 })
 `,
     },
@@ -634,7 +596,7 @@ let { data, error } = await supabase.auth.api.inviteUserByEmail('someone@email.c
     },
   }),
   authThirdPartyLogin: (endpoint, apiKey) => ({
-    title: 'Third Party Login',
+    title: '',
     bash: {
       language: 'bash',
       code: ``,
@@ -642,7 +604,7 @@ let { data, error } = await supabase.auth.api.inviteUserByEmail('someone@email.c
     js: {
       language: 'js',
       code: `
-let { data, error } = await supabase.auth.signInWithOAuth({
+let { user, error } = await supabase.auth.signIn({
   provider: 'github'
 })
 `,
@@ -661,7 +623,7 @@ curl -X GET '${endpoint}/auth/v1/user' \\
     js: {
       language: 'js',
       code: `
-const { data: { user } } = await supabase.auth.getUser()
+const user = supabase.auth.user()
 `,
     },
   }),
@@ -681,7 +643,7 @@ const { data: { user } } = await supabase.auth.getUser()
     js: {
       language: 'js',
       code: `
-let { data, error } = await supabase.auth.resetPasswordForEmail(email)
+let { data, error } = await supabase.auth.api.resetPasswordForEmail(email)
 `,
     },
   }),
@@ -706,7 +668,7 @@ let { data, error } = await supabase.auth.resetPasswordForEmail(email)
     js: {
       language: 'js',
       code: `
-const { data, error } = await supabase.auth.updateUser({
+const { user, error } = await supabase.auth.update({
   email: "new@email.com",
   password: "new-password",
   data: { hello: 'world' }
@@ -722,7 +684,7 @@ const { data, error } = await supabase.auth.updateUser({
 curl -X POST '${endpoint}/auth/v1/logout' \\
 -H "apikey: ${apiKey}" \\
 -H "Content-Type: application/json" \\
--H "Authorization: Bearer USER_TOKEN"
+-H "Authorization: Bearer USER_TOKEN"'
 `,
     },
     js: {

@@ -1,43 +1,33 @@
 import { FC, useState } from 'react'
-import { Input, Button, Modal, Form, Alert } from 'ui'
+import { Input, Button, Modal, Form, Alert } from '@supabase/ui'
 import { useStore } from 'hooks'
-import {
-  NewAccessToken,
-  useAccessTokenCreateMutation,
-} from 'data/access-tokens/access-tokens-create-mutation'
+import { post } from 'lib/common/fetch'
+import { API_URL } from 'lib/constants'
+import { NewAccessToken, useAccessTokens } from 'hooks/queries/useAccessTokens'
 import { observer } from 'mobx-react-lite'
 
 const NewAccessTokenButton = observer(() => {
   const { ui } = useStore()
+  const { mutateNewToken } = useAccessTokens()
   const [isOpen, setIsOpen] = useState(false)
+  const [name, setName] = useState('')
   const [newToken, setNewToken] = useState<NewAccessToken | undefined>(undefined)
-
-  const validate = (values: any) => {
-    const errors: any = {}
-    if (!values.tokenName) {
-      errors.tokenName = 'Please enter a name for the token'
-    }
-    return errors
-  }
-
-  const { mutateAsync: createAccessToken } = useAccessTokenCreateMutation()
 
   async function onFormSubmit(values: any, { setSubmitting }: any) {
     setSubmitting(true)
-
-    try {
-      const response = await createAccessToken({ name: values.tokenName })
+    const response = await post(`${API_URL}/profile/access-tokens`, { name })
+    if (response.error) {
+      ui.setNotification({
+        category: 'error',
+        message: `Failed to create token: ${response.error.message}`,
+      })
+      setSubmitting(false)
+    } else {
+      mutateNewToken(response)
       setNewToken(response)
 
       setSubmitting(false)
       setIsOpen(false)
-    } catch (error: any) {
-      ui.setNotification({
-        category: 'error',
-        message: `Failed to create token: ${error.message}`,
-      })
-
-      setSubmitting(false)
     }
   }
 
@@ -45,6 +35,7 @@ const NewAccessTokenButton = observer(() => {
     <>
       <Button
         onClick={() => {
+          setName('')
           setNewToken(undefined)
           setIsOpen(!isOpen)
         }}
@@ -53,34 +44,42 @@ const NewAccessTokenButton = observer(() => {
       </Button>
       {newToken && <NewTokenItem data={newToken} />}
       <Modal
-        closable
-        hideFooter
-        size="small"
         visible={isOpen}
         onCancel={() => setIsOpen(!isOpen)}
         header={
-          <div className="flex items-baseline gap-2">
+          <div className="flex gap-2 items-baseline">
             <h5 className="text-sm text-scale-1200">Generate New Token</h5>
           </div>
         }
+        size="small"
+        hideFooter
+        closable
       >
         <Form
-          validateOnBlur
           initialValues={{ tokenName: '' }}
+          validateOnBlur
           onSubmit={onFormSubmit}
-          validate={validate}
+          validate={(values: any) => {
+            const errors: any = {}
+            if (!values.tokenName) {
+              errors.tokenName = 'Enter the name of the token.'
+            }
+            return errors
+          }}
         >
           {({ isSubmitting }: { isSubmitting: boolean }) => (
-            <div className="py-3 space-y-4">
+            <div className="space-y-4 py-3">
               <Modal.Content>
                 <Input
                   id="tokenName"
                   label="Name"
+                  onChange={(e) => setName(e.target.value)}
+                  value={name}
                   placeholder="Type in the token name"
                   className="w-full"
                 />
               </Modal.Content>
-              <Modal.Separator />
+              <Modal.Seperator />
               <Modal.Content>
                 <Button htmlType="submit" loading={isSubmitting} size="small" block danger>
                   Generate Token
@@ -109,10 +108,10 @@ const NewTokenItem: FC<NewTokenItemProps> = observer(({ data }) => {
           again.
         </p>
         <Input
-          copy
           readOnly
           size="small"
-          className="max-w-xl input-mono"
+          copy={true}
+          className="input-mono max-w-xl"
           value={data.token}
           onChange={() => {}}
         />

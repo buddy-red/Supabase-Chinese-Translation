@@ -1,33 +1,27 @@
 import { FC } from 'react'
-import { Badge } from 'ui'
+import { Typography } from '@supabase/ui'
 
 interface Props {
   item: string
   amount: number | string
   unitPrice: number | string
   price: number | string
-  note?: string
 }
 
-const CostBreakdownRow: FC<Props> = ({ item, amount, unitPrice, price, note }) => {
+const CostBreakdownRow: FC<Props> = ({ item, amount, unitPrice, price }) => {
   return (
-    <div className="relative flex items-center border-t border-panel-border-light px-6 py-3 dark:border-panel-border-dark">
-      <div className="flex w-[40%] items-center gap-3">
-        <span className="text-sm">{item}</span>
-        {note && (
-          <Badge color="scale">
-            <span className="text-xs text-scale-900">{note}</span>
-          </Badge>
-        )}
+    <div className="px-6 py-3 relative border-t border-panel-border-light dark:border-panel-border-dark flex items-center">
+      <div className="w-[40%]">
+        <Typography.Text>{item}</Typography.Text>
       </div>
-      <div className="flex w-[20%] justify-end">
-        <span className="text-sm">{amount}</span>
+      <div className="w-[20%] flex justify-end">
+        <Typography.Text>{amount}</Typography.Text>
       </div>
-      <div className="flex w-[20%] justify-end">
-        <span className="text-sm">${unitPrice}</span>
+      <div className="w-[20%] flex justify-end">
+        <Typography.Text>${unitPrice}</Typography.Text>
       </div>
-      <div className="flex w-[20%] justify-end">
-        <span className="text-sm">${price}</span>
+      <div className="w-[20%] flex justify-end">
+        <Typography.Text>${price}</Typography.Text>
       </div>
     </div>
   )

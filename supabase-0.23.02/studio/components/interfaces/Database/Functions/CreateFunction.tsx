@@ -1,17 +1,25 @@
-import { FC, useEffect, useContext, createContext, FormEvent, useState } from 'react'
+import { FC, useEffect, useContext, createContext, FormEvent } from 'react'
 import { isEmpty, mapValues, has, filter, keyBy, isUndefined, partition, isNull } from 'lodash'
 import { observer, useLocalObservable } from 'mobx-react-lite'
-import { Button, Input, SidePanel, IconTrash, Radio, IconPlus, Toggle, Modal, Listbox } from 'ui'
-import { Dictionary } from 'components/grid'
+import {
+  Button,
+  Input,
+  Select,
+  SidePanel,
+  Typography,
+  IconTrash,
+  Divider,
+  Radio,
+  IconPlus,
+  Toggle,
+} from '@supabase/ui'
+import { Dictionary } from '@supabase/grid'
 import { makeAutoObservable } from 'mobx'
 
 import { useStore } from 'hooks'
-import Panel from 'components/ui/Panel'
-import SqlEditor from 'components/ui/SqlEditor'
+import Panel from 'components/to-be-cleaned/Panel'
+import SqlEditor from 'components/to-be-cleaned/SqlEditor'
 import { POSTGRES_DATA_TYPES } from 'components/interfaces/TableGridEditor/SidePanelEditor/SidePanelEditor.constants'
-import ConfirmationModal from 'components/ui/ConfirmationModal'
-
-// [Refactor] Remove local state, just use the Form component
 
 class CreateFunctionFormState {
   id: number | undefined
@@ -137,7 +145,6 @@ class CreateFunctionStore implements ICreateFunctionStore {
   meta = null
   schemas = []
   advancedVisible = false
-  isDirty = false
 
   constructor() {
     makeAutoObservable(this)
@@ -165,12 +172,7 @@ class CreateFunctionStore implements ICreateFunctionStore {
     this.loading = value
   }
 
-  setIsDirty = (value: boolean) => {
-    this.isDirty = value
-  }
-
   onFormChange = ({ key, value }: { key: string; value: any }) => {
-    this.isDirty = true
     if (has(this.formState, key)) {
       const temp = (this.formState as any)[key] as any
       ;(this.formState as any)[key] = { ...temp, value, error: undefined }
@@ -294,8 +296,6 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
   const _localState = useLocalObservable(() => new CreateFunctionStore())
   _localState.meta = meta as any
 
-  const [isClosingPanel, setIsClosingPanel] = useState<boolean>(false)
-
   useEffect(() => {
     const fetchSchemas = async () => {
       await (_localState!.meta as any).schemas.load()
@@ -308,7 +308,6 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
 
   useEffect(() => {
     _localState.formState.reset(func)
-    _localState.setIsDirty(false)
   }, [visible, func])
 
   async function handleSubmit() {
@@ -349,23 +348,19 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
     }
   }
 
-  function isClosingSidePanel() {
-    _localState.isDirty ? setIsClosingPanel(true) : setVisible(!visible)
-  }
-
   return (
     <>
       <SidePanel
         size="large"
         visible={visible}
-        onCancel={isClosingSidePanel}
+        onCancel={() => setVisible(!visible)}
         header={_localState.title}
-        className="hooks-sidepanel mr-0 transform transition-all duration-300 ease-in-out"
+        className="hooks-sidepanel transform transition-all duration-300 ease-in-out mr-0"
         loading={_localState.loading}
         onConfirm={handleSubmit}
       >
         <CreateFunctionContext.Provider value={_localState}>
-          <div className="mt-4 space-y-10">
+          <div className="space-y-10 mt-4">
             {_localState.isEditing ? (
               <>
                 <SidePanel.Content>
@@ -374,11 +369,11 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
                     <SelectSchema />
                   </div>
                 </SidePanel.Content>
-                <SidePanel.Separator />
+                <SidePanel.Seperator />
                 <SidePanel.Content>
                   <InputMultiArguments readonly={true} />
                 </SidePanel.Content>
-                <SidePanel.Separator />
+                <SidePanel.Seperator />
                 <SidePanel.Content>
                   <InputDefinition />
                 </SidePanel.Content>
@@ -388,25 +383,25 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
                 <SidePanel.Content>
                   <InputName />
                 </SidePanel.Content>
-                <SidePanel.Separator />
+                <SidePanel.Seperator />
                 <SidePanel.Content>
                   <div className="space-y-4">
                     <SelectSchema />
                     <SelectReturnType />
                   </div>
                 </SidePanel.Content>
-                <SidePanel.Separator />
+                <SidePanel.Seperator />
                 <SidePanel.Content>
                   <InputMultiArguments />
                 </SidePanel.Content>
-                <SidePanel.Separator />
+                <SidePanel.Seperator />
                 <SidePanel.Content>
                   <InputDefinition />
                 </SidePanel.Content>
-                <SidePanel.Separator />
+                <SidePanel.Seperator />
                 <SidePanel.Content>
                   <Panel>
-                    <div className={`space-y-8 rounded bg-bg-alt-light py-4 dark:bg-bg-alt-dark`}>
+                    <div className={`space-y-8 py-4 bg-bg-alt-light dark:bg-bg-alt-dark rounded`}>
                       <div className={`px-6`}>
                         <Toggle
                           onChange={() => _localState.toggleAdvancedVisible()}
@@ -427,11 +422,11 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
                         <SelectBehavior />
                       </div>
                     </SidePanel.Content>
-                    <SidePanel.Separator />
+                    <SidePanel.Seperator />
                     <SidePanel.Content>
                       <InputMultiConfigParams />
                     </SidePanel.Content>
-                    <SidePanel.Separator />
+                    <SidePanel.Seperator />
                     <SidePanel.Content>
                       <RadioSecurity />
                     </SidePanel.Content>
@@ -441,24 +436,6 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
             )}
           </div>
         </CreateFunctionContext.Provider>
-        <ConfirmationModal
-          visible={isClosingPanel}
-          header="Confirm to close"
-          buttonLabel="Confirm"
-          onSelectCancel={() => setIsClosingPanel(false)}
-          onSelectConfirm={() => {
-            setIsClosingPanel(false)
-            setVisible(!visible)
-          }}
-          children={
-            <Modal.Content>
-              <p className="py-4 text-sm text-scale-1100">
-                There are unsaved changes. Are you sure you want to close the panel? Your changes
-                will be lost.
-              </p>
-            </Modal.Content>
-          }
-        />
       </SidePanel>
     </>
   )
@@ -511,7 +488,7 @@ const InputMultiArguments: FC<InputMultiArgumentsProps> = observer(({ readonly }
           Arguments can be referenced in the function body using either names or numbers.
         </p>
       </div>
-      <div className="space-y-2 pt-4">
+      <div className="pt-4 space-y-2">
         {readonly && isEmpty(_localState!.formState.args.value) && (
           <span className="text-scale-900">No argument for this function</span>
         )}
@@ -559,7 +536,8 @@ const InputArgument: FC<InputArgumentProps> = observer(({ idx, name, type, error
     })
   }
 
-  function onTypeChange(_value: string) {
+  function onTypeChange(e: FormEvent<HTMLSelectElement>) {
+    const _value = e.currentTarget.value
     _localState!.onFormArrayChange({
       key: 'args',
       value: { name, type: _value },
@@ -577,7 +555,7 @@ const InputArgument: FC<InputArgumentProps> = observer(({ idx, name, type, error
   }
 
   return (
-    <div className="flex flex-row space-x-1 items-center">
+    <div className="flex flex-row space-x-1">
       <Input
         id={`name-${idx}`}
         className="flex-1 flex-grow"
@@ -588,23 +566,21 @@ const InputArgument: FC<InputArgumentProps> = observer(({ idx, name, type, error
         error={error}
         disabled={readonly}
       />
-      <Listbox
+      <Select
         id={`type-${idx}`}
         className="flex-1"
         value={type}
-        size="small"
         onChange={onTypeChange}
+        size="small"
         disabled={readonly}
       >
-        <Listbox.Option value="integer" label="integer">
-          integer
-        </Listbox.Option>
+        <Select.Option value="integer">integer</Select.Option>
         {POSTGRES_DATA_TYPES.map((x: string) => (
-          <Listbox.Option key={x} value={x} label={x}>
+          <Select.Option key={x} value={x}>
             {x}
-          </Listbox.Option>
+          </Select.Option>
         ))}
-      </Listbox>
+      </Select>
       {!readonly && (
         <div>
           <Button
@@ -633,10 +609,10 @@ const InputMultiConfigParams: FC = observer(({}) => {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <h5 className="text-base text-scale-1200">Config Params</h5>
       </div>
-      <div className="space-y-2 pt-4">
+      <div className="pt-4 space-y-2">
         {_localState!.formState.configParams.value.map(
           (
             x: { name: string; value: string; error?: { name?: string; value?: string } },
@@ -699,7 +675,7 @@ const InputConfigParam: FC<InputConfigParamProps> = observer(({ idx, name, value
   }
 
   return (
-    <div className="flex space-x-1 items-center">
+    <div className="flex space-x-1">
       <Input
         id={`name-${idx}`}
         className="flex-1"
@@ -745,8 +721,10 @@ const InputDefinition: FC = observer(({}) => {
         </p>
       </div>
       <div className="h-40 border dark:border-dark">
+        {/* @ts-ignore */}
         <SqlEditor
           defaultValue={_localState!.formState.definition.value}
+          // @ts-ignore
           onInputChange={(value: string | undefined) => {
             _localState!.onFormChange({
               key: 'definition',
@@ -764,22 +742,27 @@ const SelectSchema: FC = observer(({}) => {
   const _localState = useContext(CreateFunctionContext)
 
   return (
-    <Listbox
+    <Select
       id="schema"
       label="Schema"
-      size="small"
       layout="horizontal"
-      placeholder="Pick a schema"
       value={_localState!.formState.schema.value}
+      onChange={(e) =>
+        _localState!.onFormChange({
+          key: 'schema',
+          value: e.target.value,
+        })
+      }
+      placeholder="Pick a schema"
+      size="small"
       descriptionText="Tables made in the table editor will be in 'public'"
-      onChange={(value) => _localState!.onFormChange({ key: 'schema', value })}
     >
       {_localState!.schemas.map((x) => (
-        <Listbox.Option key={x.name} label={x.name} value={x.name}>
+        <Select.Option key={x.name} value={x.name}>
           {x.name}
-        </Listbox.Option>
+        </Select.Option>
       ))}
-    </Listbox>
+    </Select>
   )
 })
 
@@ -793,31 +776,36 @@ const SelectLanguage: FC = observer(({}) => {
   )
 
   return (
-    <Listbox
-      id="language"
-      size="small"
-      label="Language"
-      layout="horizontal"
-      value={_localState!.formState.language.value}
-      placeholder="Pick a language"
-      onChange={(value) => _localState!.onFormChange({ key: 'language', value })}
-    >
-      <Listbox.Option value="sql" label="sql">
-        sql
-      </Listbox.Option>
-      {
-        //map through all selected extensions that start with pl
-        enabledExtensions
-          .filter((ex: any) => {
-            return ex.name.startsWith('pl')
+    <div className="space-y-4">
+      <Select
+        id="language"
+        label="Language"
+        layout="horizontal"
+        value={_localState!.formState.language.value}
+        onChange={(e) =>
+          _localState!.onFormChange({
+            key: 'language',
+            value: e.target.value,
           })
-          .map((ex) => (
-            <Listbox.Option key={ex.name} value={ex.name} label={ex.name}>
-              {ex.name}
-            </Listbox.Option>
-          ))
-      }
-    </Listbox>
+        }
+        placeholder="Pick a language"
+        size="small"
+      >
+        <Select.Option value="sql">sql</Select.Option>
+        {
+          //map through all selected extensions that start with pl
+          enabledExtensions
+            .filter((ex: any) => {
+              return ex.name.startsWith('pl')
+            })
+            .map((ex) => (
+              <Select.Option key={ex.name} value={ex.name}>
+                {ex.name}
+              </Select.Option>
+            ))
+        }
+      </Select>
+    </div>
   )
 })
 
@@ -825,32 +813,31 @@ const SelectReturnType: FC = observer(({}) => {
   const _localState = useContext(CreateFunctionContext)
 
   return (
-    <Listbox
-      id="returnType"
-      size="small"
-      label="Return type"
-      layout="horizontal"
-      value={_localState!.formState.returnType.value}
-      onChange={(value) => _localState!.onFormChange({ key: 'returnType', value })}
-    >
-      <Listbox.Option value="void" label="void">
-        void
-      </Listbox.Option>
-      <Listbox.Option value="record" label="record">
-        record
-      </Listbox.Option>
-      <Listbox.Option value="trigger" label="trigger">
-        trigger
-      </Listbox.Option>
-      <Listbox.Option value="integer" label="integer">
-        integer
-      </Listbox.Option>
-      {POSTGRES_DATA_TYPES.map((x: string) => (
-        <Listbox.Option key={x} value={x} label={x}>
-          {x}
-        </Listbox.Option>
-      ))}
-    </Listbox>
+    <div className="space-y-4">
+      <Select
+        id="returnType"
+        label="Return type"
+        layout="horizontal"
+        value={_localState!.formState.returnType.value}
+        onChange={(e) =>
+          _localState!.onFormChange({
+            key: 'returnType',
+            value: e.target.value,
+          })
+        }
+        size="small"
+      >
+        <Select.Option value="void">void</Select.Option>
+        <Select.Option value="record">record</Select.Option>
+        <Select.Option value="trigger">trigger</Select.Option>
+        <Select.Option value="integer">integer</Select.Option>
+        {POSTGRES_DATA_TYPES.map((x: string) => (
+          <Select.Option key={x} value={x}>
+            {x}
+          </Select.Option>
+        ))}
+      </Select>
+    </div>
   )
 })
 
@@ -858,24 +845,25 @@ const SelectBehavior: FC = observer(({}) => {
   const _localState = useContext(CreateFunctionContext)
 
   return (
-    <Listbox
-      id="behavior"
-      size="small"
-      label="Behavior"
-      layout="horizontal"
-      value={_localState!.formState.behavior.value}
-      onChange={(value) => _localState!.onFormChange({ key: 'behavior', value })}
-    >
-      <Listbox.Option value="IMMUTABLE" label="immutable">
-        immutable
-      </Listbox.Option>
-      <Listbox.Option value="STABLE" label="stable">
-        stable
-      </Listbox.Option>
-      <Listbox.Option value="VOLATILE" label="volatile">
-        volatile
-      </Listbox.Option>
-    </Listbox>
+    <div className="space-y-4">
+      <Select
+        id="behavior"
+        label="Behavior"
+        layout="horizontal"
+        value={_localState!.formState.behavior.value}
+        onChange={(e) =>
+          _localState!.onFormChange({
+            key: 'behavior',
+            value: e.target.value,
+          })
+        }
+        size="small"
+      >
+        <Select.Option value="IMMUTABLE">immutable</Select.Option>
+        <Select.Option value="STABLE">stable</Select.Option>
+        <Select.Option value="VOLATILE">volatile</Select.Option>
+      </Select>
+    </div>
   )
 })
 

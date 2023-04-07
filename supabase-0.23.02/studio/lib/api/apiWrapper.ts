@@ -29,8 +29,7 @@ export default async function apiWrapper(
       }
     }
 
-    const func = withSentry(handler as any)
-    // @ts-ignore
+    const func = withSentry(handler)
     return await func(req, res)
   } catch (error) {
     return res.status(500).json({ error })

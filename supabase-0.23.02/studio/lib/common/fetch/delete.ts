@@ -10,10 +10,11 @@ export async function delete_<T = any>(
   const requestId = uuidv4()
   try {
     const { headers: optionHeaders, ...otherOptions } = options ?? {}
-    const headers = await constructHeaders(requestId, optionHeaders)
+    const headers = constructHeaders(requestId, optionHeaders)
     const response = await fetch(url, {
       method: 'DELETE',
       body: JSON.stringify(data),
+      credentials: 'include',
       referrerPolicy: 'no-referrer-when-downgrade',
       headers,
       ...otherOptions,

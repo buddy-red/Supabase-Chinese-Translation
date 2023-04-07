@@ -1,25 +1,22 @@
 import {
-  IconArchive,
-  IconBarChart,
-  IconCode,
-  IconDatabase,
-  IconFileText,
-  IconList,
-  IconSettings,
   IconUsers,
-} from 'ui'
+  IconFileText,
+  IconArchive,
+  IconSettings,
+  IconDatabase,
+  IconBarChart,
+  IconList,
+  IconCode,
+} from '@supabase/ui'
 import SVG from 'react-inlinesvg'
 
-import { ProjectBase } from 'types'
+import { IS_PLATFORM } from 'lib/constants'
 import { Route } from 'components/ui/ui.types'
-import { IS_PLATFORM, PROJECT_STATUS } from 'lib/constants'
 
-export const generateToolRoutes = (ref?: string, project?: ProjectBase): Route[] => {
-  const isProjectBuilding = project?.status === PROJECT_STATUS.COMING_UP
-  const isProjectPaused = project?.status === PROJECT_STATUS.INACTIVE
+import { useFlag } from 'hooks'
 
-  const homeUrl = `/project/${ref}`
-  const buildingUrl = `/project/${ref}/building`
+export const generateProductRoutes = (ref: string): Route[] => {
+  const functionsUi = useFlag('functionsUi')
 
   return [
     {
@@ -32,10 +29,24 @@ export const generateToolRoutes = (ref?: string, project?: ProjectBase): Route[]
           preProcessor={(code) => code.replace(/svg/, 'svg class="m-auto text-color-inherit"')}
         />
       ),
-      link:
-        ref &&
-        (isProjectPaused ? homeUrl : isProjectBuilding ? buildingUrl : `/project/${ref}/editor`),
+      link: `/project/${ref}/editor`,
     },
+    {
+      key: 'auth',
+      label: 'Authentication',
+      icon: <IconUsers size={18} strokeWidth={2} />,
+      link: `/project/${ref}/auth/users`,
+    },
+    ...(IS_PLATFORM
+      ? [
+          {
+            key: 'storage',
+            label: 'Storage',
+            icon: <IconArchive size={18} strokeWidth={2} />,
+            link: `/project/${ref}/storage/buckets`,
+          },
+        ]
+      : []),
     {
       key: 'sql',
       label: 'SQL Editor',
@@ -46,130 +57,63 @@ export const generateToolRoutes = (ref?: string, project?: ProjectBase): Route[]
           preProcessor={(code) => code.replace(/svg/, 'svg class="m-auto text-color-inherit"')}
         />
       ),
-      link:
-        ref &&
-        (isProjectPaused ? homeUrl : isProjectBuilding ? buildingUrl : `/project/${ref}/sql`),
+      link: `/project/${ref}/sql`,
     },
-  ]
-}
-export const generateProductRoutes = (ref?: string, project?: ProjectBase): Route[] => {
-  const isProjectBuilding = project?.status !== PROJECT_STATUS.ACTIVE_HEALTHY
-  const isProjectPaused = project?.status === PROJECT_STATUS.INACTIVE
-
-  const homeUrl = `/project/${ref}`
-  const buildingUrl = `/project/${ref}/building`
-
-  return [
     {
       key: 'database',
       label: 'Database',
       icon: <IconDatabase size={18} strokeWidth={2} />,
-      link:
-        ref &&
-        (isProjectPaused
-          ? homeUrl
-          : isProjectBuilding
-          ? buildingUrl
-          : `/project/${ref}/database/tables`),
+      link: `/project/${ref}/database/tables`,
     },
-    {
-      key: 'auth',
-      label: 'Authentication',
-      icon: <IconUsers size={18} strokeWidth={2} />,
-      link:
-        ref &&
-        (isProjectPaused
-          ? homeUrl
-          : isProjectBuilding
-          ? buildingUrl
-          : `/project/${ref}/auth/users`),
-    },
-    {
-      key: 'storage',
-      label: 'Storage',
-      icon: <IconArchive size={18} strokeWidth={2} />,
-      link:
-        ref &&
-        (isProjectPaused
-          ? homeUrl
-          : isProjectBuilding
-          ? buildingUrl
-          : `/project/${ref}/storage/buckets`),
-    },
-    ...(IS_PLATFORM
+    ...(IS_PLATFORM && functionsUi
       ? [
           {
             key: 'functions',
-            label: 'Edge Functions',
+            label: 'Functions',
             icon: <IconCode size={18} strokeWidth={2} />,
-            link:
-              ref &&
-              (isProjectPaused
-                ? homeUrl
-                : isProjectBuilding
-                ? buildingUrl
-                : `/project/${ref}/functions`),
+            link: `/project/${ref}/functions`,
           },
         ]
       : []),
   ]
 }
 
-export const generateOtherRoutes = (ref?: string, project?: ProjectBase): Route[] => {
-  const isProjectBuilding = project?.status === PROJECT_STATUS.COMING_UP
-  const isProjectPaused = project?.status === PROJECT_STATUS.INACTIVE
-
-  const homeUrl = `/project/${ref}`
-  const buildingUrl = `/project/${ref}/building`
-
+export const generateOtherRoutes = (ref: string) => {
+  const logsExplorer = useFlag('logsExplorer')
   return [
+    ...(IS_PLATFORM && logsExplorer
+      ? [
+          {
+            key: 'logsExplorer',
+            label: 'Logs Explorer',
+            icon: <IconList size={18} strokeWidth={2} />,
+            link: `/project/${ref}/logs-explorer`,
+          },
+        ]
+      : []),
     ...(IS_PLATFORM
       ? [
           {
             key: 'reports',
             label: 'Reports',
             icon: <IconBarChart size={18} strokeWidth={2} />,
-            link:
-              ref &&
-              (isProjectPaused
-                ? homeUrl
-                : isProjectBuilding
-                ? buildingUrl
-                : `/project/${ref}/reports`),
-          },
-        ]
-      : []),
-    ...(IS_PLATFORM
-      ? [
-          {
-            key: 'logs',
-            label: 'Logs',
-            icon: <IconList size={18} strokeWidth={2} />,
-            link:
-              ref &&
-              (isProjectPaused
-                ? homeUrl
-                : isProjectBuilding
-                ? buildingUrl
-                : `/project/${ref}/logs/explorer`),
+            link: `/project/${ref}/reports`,
           },
         ]
       : []),
     {
       key: 'api',
-      label: 'API Docs',
+      label: 'API',
       icon: <IconFileText size={18} strokeWidth={2} />,
-      link:
-        ref &&
-        (isProjectPaused ? homeUrl : isProjectBuilding ? buildingUrl : `/project/${ref}/api`),
+      link: `/project/${ref}/api`,
     },
     ...(IS_PLATFORM
       ? [
           {
             key: 'settings',
-            label: 'Project Settings',
+            label: 'Settings',
             icon: <IconSettings size={18} strokeWidth={2} />,
-            link: ref && `/project/${ref}/settings/general`,
+            link: `/project/${ref}/settings/general`,
           },
         ]
       : []),

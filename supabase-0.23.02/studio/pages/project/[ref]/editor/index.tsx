@@ -1,17 +1,17 @@
 import { useState } from 'react'
-import router from 'next/router'
+import { NextPage } from 'next'
 import { observer } from 'mobx-react-lite'
 import { isUndefined } from 'lodash'
-import type { PostgresTable } from '@supabase/postgres-meta'
+import { PostgresTable } from '@supabase/postgres-meta'
 
-import { NextPageWithLayout } from 'types'
 import { useStore, withAuth } from 'hooks'
 import { TableEditorLayout } from 'components/layouts'
 import { EmptyState, SidePanelEditor } from 'components/interfaces/TableGridEditor'
 import ConfirmationModal from 'components/ui/ConfirmationModal'
-import { ProjectContextFromParamsProvider } from 'components/layouts/ProjectLayout/ProjectContext'
+import router from 'next/router'
+import { SidePanel } from '@supabase/ui'
 
-const TableEditorPage: NextPageWithLayout = () => {
+const Editor: NextPage = () => {
   const { meta, ui } = useStore()
   const projectRef = ui.selectedProject?.ref
   const [sidePanelKey, setSidePanelKey] = useState<'row' | 'column' | 'table'>()
@@ -56,7 +56,6 @@ const TableEditorPage: NextPageWithLayout = () => {
         category: 'success',
         message: `Successfully deleted ${selectedTableToDelete!.name}`,
       })
-      await meta.views.loadBySchema(selectedSchema)
     } catch (error: any) {
       ui.setNotification({
         category: 'error',
@@ -79,9 +78,7 @@ const TableEditorPage: NextPageWithLayout = () => {
       <ConfirmationModal
         danger
         visible={isDeleting && !isUndefined(selectedTableToDelete)}
-        header={
-          <span className="break-words">{`Confirm deletion of table "${selectedTableToDelete?.name}"`}</span>
-        }
+        header={`Confirm deletion of table "${selectedTableToDelete?.name}"`}
         description={`Are you sure you want to delete the selected table? This action cannot be undone`}
         buttonLabel="Delete"
         buttonLoadingLabel="Deleting"
@@ -100,8 +97,4 @@ const TableEditorPage: NextPageWithLayout = () => {
   )
 }
 
-TableEditorPage.getLayout = (page) => (
-  <ProjectContextFromParamsProvider>{page}</ProjectContextFromParamsProvider>
-)
-
-export default withAuth(observer(TableEditorPage))
+export default withAuth(observer(Editor))

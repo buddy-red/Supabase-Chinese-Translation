@@ -1,25 +1,22 @@
 import { FC } from 'react'
-import * as Tooltip from '@radix-ui/react-tooltip'
+import { isUndefined } from 'lodash'
 import {
   Checkbox,
   Input,
+  Typography,
   IconX,
   IconMenu,
   Popover,
   IconLink,
   IconSettings,
   Button,
-  IconArrowRight,
-} from 'ui'
-import type { PostgresType } from '@supabase/postgres-meta'
+} from '@supabase/ui'
 
-import { ColumnField } from '../SidePanelEditor.types'
+import { ColumnField, EnumType } from '../SidePanelEditor.types'
 import ColumnType from '../ColumnEditor/ColumnType'
 import InputWithSuggestions from '../ColumnEditor/InputWithSuggestions'
 import { Suggestion } from '../ColumnEditor/ColumnEditor.types'
 import { typeExpressionSuggestions } from '../ColumnEditor/ColumnEditor.constants'
-import { FOREIGN_KEY_DELETION_ACTION } from 'data/database/database-query-constants'
-import { getForeignKeyDeletionAction } from '../ColumnEditor/ColumnEditor.utils'
 
 /**
  * [Joshen] For context:
@@ -41,7 +38,7 @@ import { getForeignKeyDeletionAction } from '../ColumnEditor/ColumnEditor.utils'
 
 interface Props {
   column: ColumnField
-  enumTypes: PostgresType[]
+  enumTypes: EnumType[]
   isNewRecord: boolean
   hasImportContent: boolean
   dragHandleProps?: any
@@ -52,7 +49,7 @@ interface Props {
 
 const Column: FC<Props> = ({
   column = {} as ColumnField,
-  enumTypes = [] as PostgresType[],
+  enumTypes = [] as EnumType[],
   isNewRecord = false,
   hasImportContent = false,
   dragHandleProps = {},
@@ -62,80 +59,42 @@ const Column: FC<Props> = ({
 }) => {
   const suggestions: Suggestion[] = typeExpressionSuggestions?.[column.format] ?? []
 
-  const settingsCount = [
-    column.isNullable ? 1 : 0,
-    column.isIdentity ? 1 : 0,
-    column.isUnique ? 1 : 0,
-    column.isArray ? 1 : 0,
-  ].reduce((a, b) => a + b, 0)
+  let settingsCount = 0
+
+  column.isNullable ? (settingsCount += 1) : null
+  column.isIdentity ? (settingsCount += 1) : null
+  column.isUnique ? (settingsCount += 1) : null
+  column.isArray ? (settingsCount += 1) : null
 
   return (
-    <div className="flex w-full items-center">
+    <div className="w-full flex items-center">
       <div className={`w-[5%] ${!isNewRecord ? 'hidden' : ''}`}>
         <div className="cursor-drag" {...dragHandleProps}>
-          <IconMenu strokeWidth={1} size={15} />
+          <Typography>
+            <IconMenu strokeWidth={1} size={15} />
+          </Typography>
         </div>
       </div>
-      <div className="w-[20%]">
-        <div className="flex w-[95%] items-center justify-between">
+      <div className="w-[25%]">
+        <div className="flex items-center justify-between w-[95%]">
           <Input
             value={column.name}
             size="small"
-            title={column.name}
             disabled={hasImportContent}
-            placeholder="column_name"
             className={`table-editor-columns-input bg-white dark:bg-transparent lg:gap-0 ${
               hasImportContent ? 'opacity-50' : ''
             } rounded-md`}
+            actions={
+              <Button
+                type={!isUndefined(column.foreignKey) ? 'secondary' : 'default'}
+                onClick={() => onEditRelation(column)}
+              >
+                <IconLink size={14} strokeWidth={!isUndefined(column.foreignKey) ? 2 : 1} />
+              </Button>
+            }
             onChange={(event: any) => onUpdateColumn({ name: event.target.value })}
           />
         </div>
-      </div>
-      <div className="w-[5%]  pl-0.5">
-        <Tooltip.Root delayDuration={0}>
-          <Tooltip.Trigger>
-            <Button
-              type={column.foreignKey !== undefined ? 'secondary' : 'default'}
-              onClick={() => onEditRelation(column)}
-              className="px-1 py-2"
-            >
-              <IconLink size={14} strokeWidth={column.foreignKey !== undefined ? 2 : 1} />
-            </Button>
-          </Tooltip.Trigger>
-          <Tooltip.Content side="bottom">
-            <Tooltip.Arrow className="radix-tooltip-arrow" />
-            <div
-              className={[
-                'rounded bg-scale-100 py-1 px-2 leading-none shadow', // background
-                'border border-scale-200 ', //border
-              ].join(' ')}
-            >
-              {column.foreignKey === undefined ? (
-                <span className="text-xs text-scale-1200">Edit foreign key relation</span>
-              ) : (
-                <div>
-                  <p className="text-xs text-scale-1100">Foreign key relation:</p>
-                  <div className="flex items-center space-x-1">
-                    <p className="text-xs text-scale-1200">
-                      {column.foreignKey.source_schema}.{column.foreignKey.source_table_name}.
-                      {column.foreignKey.source_column_name}
-                    </p>
-                    <IconArrowRight size="tiny" strokeWidth={1.5} />
-                    <p className="text-xs text-scale-1200">
-                      {column.foreignKey.target_table_schema}.{column.foreignKey.target_table_name}.
-                      {column.foreignKey.target_column_name}
-                    </p>
-                  </div>
-                  {column.foreignKey.deletion_action !== FOREIGN_KEY_DELETION_ACTION.NO_ACTION && (
-                    <p className="text-xs text-scale-1200 mt-1">
-                      On delete: {getForeignKeyDeletionAction(column.foreignKey.deletion_action)}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          </Tooltip.Content>
-        </Tooltip.Root>
       </div>
       <div className="w-[25%]">
         <div className="w-[95%]">
@@ -145,9 +104,9 @@ const Column: FC<Props> = ({
             size="small"
             showLabel={false}
             className="table-editor-column-type lg:gap-0 "
-            disabled={column.foreignKey !== undefined}
+            disabled={!isUndefined(column.foreignKey)}
             onOptionSelect={(format: string) => {
-              onUpdateColumn({ format, defaultValue: null })
+              onUpdateColumn({ format, defaultValue: '' })
             }}
           />
         </div>
@@ -155,23 +114,19 @@ const Column: FC<Props> = ({
       <div className={`${isNewRecord ? 'w-[25%]' : 'w-[30%]'}`}>
         <div className="w-[90%]">
           <InputWithSuggestions
-            placeholder={
-              typeof column.defaultValue === 'string' && column.defaultValue.length === 0
-                ? 'Empty string'
-                : 'NULL'
-            }
+            placeholder="NULL"
             size="small"
-            value={column.defaultValue ?? ''}
+            value={column.defaultValue}
             disabled={column.format.includes('int') && column.isIdentity}
-            className={`rounded bg-white dark:bg-transparent lg:gap-0 ${
+            className={`bg-white dark:bg-transparent rounded lg:gap-0 ${
               column.format.includes('int') && column.isIdentity ? 'opacity-50' : ''
             }`}
             suggestions={suggestions}
             suggestionsHeader="Suggested expressions"
-            suggestionsTooltip="Suggested expressions"
+            suggestionsWidth={410}
             onChange={(event: any) => onUpdateColumn({ defaultValue: event.target.value })}
             onSelectSuggestion={(suggestion: Suggestion) =>
-              onUpdateColumn({ defaultValue: suggestion.value })
+              onUpdateColumn({ defaultValue: suggestion.name })
             }
           />
         </div>
@@ -184,7 +139,7 @@ const Column: FC<Props> = ({
         />
       </div>
       <div className={`${hasImportContent ? 'w-[10%]' : 'w-[0%]'}`} />
-      <div className="flex w-[5%] justify-end">
+      <div className="w-[5%] flex justify-end">
         {(!column.isPrimaryKey || column.format.includes('int')) && (
           <>
             <Popover
@@ -206,7 +161,7 @@ const Column: FC<Props> = ({
                         className="p-4"
                         onChange={() => onUpdateColumn({ isNullable: !column.isNullable })}
                       />
-                      <Popover.Separator />
+                      <Popover.Seperator />
                     </>
                   )}
 
@@ -219,7 +174,7 @@ const Column: FC<Props> = ({
                         className="p-4"
                         onChange={() => onUpdateColumn({ isUnique: !column.isUnique })}
                       />
-                      <Popover.Separator />
+                      <Popover.Seperator />
                     </>
                   )}
                   {column.format.includes('int') && (
@@ -235,7 +190,7 @@ const Column: FC<Props> = ({
                           onUpdateColumn({ isIdentity, isArray })
                         }}
                       />
-                      <Popover.Separator />
+                      <Popover.Seperator />
                     </>
                   )}
 
@@ -255,9 +210,9 @@ const Column: FC<Props> = ({
                 </div>,
               ]}
             >
-              <div className="group flex items-center -space-x-1">
+              <div className="group flex -space-x-1 items-center">
                 {settingsCount > 0 && (
-                  <div className="rounded-full bg-scale-1200 py-0.5 px-2 text-xs text-scale-100 dark:bg-scale-100 dark:text-scale-1100">
+                  <div className="py-0.5 px-2 text-xs rounded-full bg-scale-1200 dark:bg-scale-100 text-scale-100 dark:text-scale-1100">
                     {settingsCount}
                   </div>
                 )}
@@ -270,10 +225,12 @@ const Column: FC<Props> = ({
         )}
       </div>
       {!hasImportContent && (
-        <div className="flex w-[5%] justify-end">
-          <button className="cursor-pointer" onClick={() => onRemoveColumn()}>
-            <IconX strokeWidth={1} />
-          </button>
+        <div className="w-[5%] flex justify-end">
+          <div className="cursor-pointer" onClick={() => onRemoveColumn()}>
+            <Typography>
+              <IconX strokeWidth={1} />
+            </Typography>
+          </div>
         </div>
       )}
     </div>

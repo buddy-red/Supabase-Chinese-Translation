@@ -1,15 +1,36 @@
-import { Badge, Button, Checkbox, Input, Modal } from 'ui'
+import { Badge, Button, Checkbox, Input, Radio, Modal } from '@supabase/ui'
 import { get } from 'lodash'
 
 import { STORAGE_CLIENT_LIBRARY_MAPPINGS } from '../Storage.constants'
 import { deriveAllowedClientLibraryMethods } from '../Storage.utils'
-import SqlEditor from 'components/ui/SqlEditor'
-import { PolicyName, PolicyRoles } from 'components/interfaces/Auth/Policies/PolicyEditor'
+import SqlEditor from 'components/to-be-cleaned/SqlEditor'
+
+const PolicyName = ({ name = '', onUpdatePolicyName = () => {} }) => {
+  return (
+    <div className="flex space-x-12">
+      <div className="w-1/3 flex flex-col space-y-2">
+        <label className="text-base text-scale-1100" htmlFor="policy-name">
+          Policy name
+        </label>
+        <p className="text-sm text-scale-900">A descriptive name for your policy</p>
+      </div>
+      <div className="w-2/3 relative">
+        <Input
+          value={name}
+          rows={1}
+          limit={50}
+          onChange={(e) => onUpdatePolicyName(e.target.value)}
+          actions={<span className="text-sm text-scale-900 mr-3">{name.length}/50</span>}
+        />
+      </div>
+    </div>
+  )
+}
 
 const PolicyDefinition = ({ definition = '', onUpdatePolicyDefinition = () => {} }) => {
   return (
     <div className="flex space-x-12">
-      <div className="flex w-1/3 flex-col space-y-2">
+      <div className="w-1/3 flex flex-col space-y-2">
         <label className="text-base text-scale-1100" htmlFor="policy-name">
           Policy definition
         </label>
@@ -17,7 +38,7 @@ const PolicyDefinition = ({ definition = '', onUpdatePolicyDefinition = () => {}
           Provide a SQL conditional expression that returns a boolean.
         </p>
       </div>
-      <div className="h-56 w-2/3">
+      <div className="w-2/3 h-56">
         <SqlEditor defaultValue={definition} onInputChange={onUpdatePolicyDefinition} />
       </div>
     </div>
@@ -28,20 +49,13 @@ const PolicyAllowedOperations = ({ allowedOperations = [], onToggleOperation = (
   const allowedClientLibraryMethods = deriveAllowedClientLibraryMethods(allowedOperations)
   return (
     <div className="flex justify-between space-x-12">
-      <div className="flex w-1/3 flex-col space-y-2">
+      <div className="w-1/3 flex flex-col space-y-2">
         <label className="text-base text-scale-1100" htmlFor="allowed-operation">
           Allowed operation
         </label>
         <p className="text-sm text-scale-900">
-          Based on the operations you have selected, you can use the highlighted functions in the{' '}
-          <a
-            href="https://supabase.com/docs/reference/javascript/storage-from-list"
-            target="_blank"
-            className="underline"
-          >
-            client library
-          </a>
-          .
+          Based on the operations you have selected, you can use any of the highlighted functions in
+          the supabase-js Javascript library
         </p>
       </div>
       <div className="w-2/3">
@@ -67,9 +81,9 @@ const PolicyAllowedOperations = ({ allowedOperations = [], onToggleOperation = (
             checked={allowedOperations.includes('DELETE')}
           />
         </div>
-        <div className="flex w-5/6 flex-wrap">
+        <div className="flex flex-wrap w-5/6">
           {Object.keys(STORAGE_CLIENT_LIBRARY_MAPPINGS).map((method) => (
-            <div key={method} className="mr-2 mt-2 font-mono">
+            <div key={method} className="font-mono mr-2 mt-2">
               <Badge color={allowedClientLibraryMethods.includes(method) ? 'green' : 'gray'}>
                 {method}
               </Badge>
@@ -82,7 +96,7 @@ const PolicyAllowedOperations = ({ allowedOperations = [], onToggleOperation = (
 }
 
 const PolicyEditorFooter = ({ onViewTemplates = () => {}, onReviewPolicy = () => {} }) => (
-  <div className="flex w-full items-center justify-end space-x-4 border-t px-6 py-3 dark:border-dark">
+  <div className="px-6 py-3 w-full flex justify-end items-center space-x-4 border-t dark:border-dark">
     <Button type="default" onClick={onViewTemplates}>
       View templates
     </Button>
@@ -92,47 +106,30 @@ const PolicyEditorFooter = ({ onViewTemplates = () => {}, onReviewPolicy = () =>
   </div>
 )
 
-// [Refactor] All these update methods could be summarised into one single function probably
-
 const StoragePoliciesEditor = ({
   policyFormFields = {},
-  roles = [],
   onViewTemplates = () => {},
   onUpdatePolicyName = () => {},
   onUpdatePolicyDefinition = () => {},
   onToggleOperation = () => {},
-  onUpdatePolicyRoles = () => {},
   onReviewPolicy = () => {},
 }) => {
-  const definition = policyFormFields.definition
-  const selectedRoles = policyFormFields.roles
+  const definition = get(policyFormFields, ['definition'])
 
   return (
     <div className="">
-      <div className="mb-8 space-y-8 py-6">
+      <div className="py-6 space-y-8 mb-8">
         <Modal.Content>
-          <PolicyName
-            name={policyFormFields.name}
-            limit={50}
-            onUpdatePolicyName={onUpdatePolicyName}
-          />
+          <PolicyName name={policyFormFields.name} onUpdatePolicyName={onUpdatePolicyName} />
         </Modal.Content>
-        <Modal.Separator />
+        <Modal.Seperator />
         <Modal.Content>
           <PolicyAllowedOperations
             allowedOperations={policyFormFields.allowedOperations}
             onToggleOperation={onToggleOperation}
           />
         </Modal.Content>
-        <Modal.Separator />
-        <Modal.Content>
-          <PolicyRoles
-            roles={roles}
-            selectedRoles={selectedRoles}
-            onUpdateSelectedRoles={onUpdatePolicyRoles}
-          />
-        </Modal.Content>
-        <Modal.Separator />
+        <Modal.Seperator />
         <Modal.Content>
           <PolicyDefinition
             definition={definition}

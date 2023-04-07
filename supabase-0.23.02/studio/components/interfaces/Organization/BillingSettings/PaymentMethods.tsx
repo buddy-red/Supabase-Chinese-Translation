@@ -5,22 +5,21 @@ import {
   IconCreditCard,
   Button,
   Input,
+  IconLoader,
   Badge,
   Modal,
   Alert,
   IconMoreHorizontal,
   IconX,
-} from 'ui'
+} from '@supabase/ui'
 import * as Tooltip from '@radix-ui/react-tooltip'
-import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { checkPermissions, useStore } from 'hooks'
+import { useStore } from 'hooks'
 import { delete_, patch } from 'lib/common/fetch'
 import { getURL } from 'lib/helpers'
 import { API_URL } from 'lib/constants'
-import Panel from 'components/ui/Panel'
+import Panel from 'components/to-be-cleaned/Panel'
 import { AddNewPaymentMethodModal } from 'components/interfaces/Billing'
-import NoPermission from 'components/ui/NoPermission'
 
 interface Props {
   loading: boolean
@@ -43,16 +42,8 @@ const PaymentMethods: FC<Props> = ({
   const [selectedMethodForDefault, setSelectedMethodForDefault] = useState<any>()
   const [selectedMethodToDelete, setSelectedMethodToDelete] = useState<any>()
   const [showAddPaymentMethodModal, setShowAddPaymentMethodModal] = useState(false)
-  const [isUpdatingPaymentMethod, setIsUpdatingPaymentMethod] = useState(false)
 
-  const canReadPaymentMethods = checkPermissions(
-    PermissionAction.BILLING_READ,
-    'stripe.payment_methods'
-  )
-  const canUpdatePaymentMethods = checkPermissions(
-    PermissionAction.BILLING_WRITE,
-    'stripe.payment_methods'
-  )
+  const [isUpdatingPaymentMethod, setIsUpdatingPaymentMethod] = useState(false)
 
   const onConfirmMakeDefaultPaymentMethod = async () => {
     try {
@@ -104,151 +95,122 @@ const PaymentMethods: FC<Props> = ({
       <div className="space-y-2">
         <div>
           <h4>Payment methods</h4>
-          <p className="text-sm opacity-50">
-            When adding a new payment method, either remove the old one or go to your projects'
-            subscription to explicitly update the payment method. Marking a payment method as
-            "default" is only relevant for new projects or if there are no other payment methods on
-            your account.
-          </p>
+          <p className="text-sm opacity-50">Charges will be deducted from the default card</p>
         </div>
-        {!canReadPaymentMethods ? (
-          <Panel>
-            <NoPermission resourceText="view this organization's payment methods" />
-          </Panel>
-        ) : (
-          <Panel
-            loading={loading}
-            footer={
-              !loading && (
-                <div className="flex w-full justify-between">
-                  {!canUpdatePaymentMethods ? (
-                    <p className="text-sm text-scale-1000">
-                      You need additional permissions to manage this organization's payment methods
-                    </p>
-                  ) : (
-                    <div />
-                  )}
-                  <div>
-                    <Button
-                      key="panel-footer"
-                      type="default"
-                      icon={<IconPlus />}
-                      disabled={!canUpdatePaymentMethods}
-                      onClick={() => setShowAddPaymentMethodModal(true)}
-                    >
-                      Add new card
-                    </Button>
-                  </div>
-                </div>
-              )
-            }
-          >
-            {loading && paymentMethods.length === 0 ? (
-              <div className="flex flex-col justify-between space-y-2 py-4 px-4">
-                <div className="shimmering-loader mx-1 w-2/3 rounded py-3" />
-                <div className="shimmering-loader mx-1 w-1/2 rounded py-3" />
-                <div className="shimmering-loader mx-1 w-1/3 rounded py-3" />
+        <Panel
+          loading={loading}
+          footer={
+            !loading && (
+              <div>
+                <Button
+                  key="panel-footer"
+                  type="default"
+                  icon={<IconPlus />}
+                  onClick={() => setShowAddPaymentMethodModal(true)}
+                >
+                  Add new card
+                </Button>
               </div>
-            ) : paymentMethods.length >= 1 ? (
-              <Panel.Content>
-                <div className="space-y-2">
-                  {paymentMethods.map((paymentMethod: any) => {
-                    const isDefault = paymentMethod.id === defaultPaymentMethod
-                    return (
-                      <div key={paymentMethod.id} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-8">
-                          <img
-                            src={`/img/payment-methods/${paymentMethod.card.brand
-                              .replace(' ', '-')
-                              .toLowerCase()}.png`}
-                            width="32"
-                          />
-                          <Input
-                            readOnly
-                            className="w-64"
-                            size="small"
-                            value={`•••• •••• •••• ${paymentMethod.card.last4}`}
-                          />
-                          {isDefault ? (
+            )
+          }
+        >
+          {loading && paymentMethods.length === 0 ? (
+            <div className="flex flex-col justify-between space-y-2 py-4 px-4">
+              <div className="shimmering-loader rounded py-3 mx-1 w-2/3" />
+              <div className="shimmering-loader rounded py-3 mx-1 w-1/2" />
+              <div className="shimmering-loader rounded py-3 mx-1 w-1/3" />
+            </div>
+          ) : paymentMethods.length >= 1 ? (
+            <Panel.Content>
+              <div className="space-y-2">
+                {paymentMethods.map((paymentMethod: any) => {
+                  const isDefault = paymentMethod.id === defaultPaymentMethod
+                  return (
+                    <div key={paymentMethod.id} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-8">
+                        <img
+                          src={`/img/payment-methods/${paymentMethod.card.brand
+                            .replace(' ', '-')
+                            .toLowerCase()}.png`}
+                          width="32"
+                        />
+                        <Input
+                          readOnly
+                          className="w-64"
+                          size="small"
+                          value={`•••• •••• •••• ${paymentMethod.card.last4}`}
+                        />
+                        {isDefault ? (
+                          <Badge color="gray">Default</Badge>
+                        ) : (
+                          <div className="opacity-0">
                             <Badge color="gray">Default</Badge>
-                          ) : (
-                            <div className="opacity-0">
-                              <Badge color="gray">Default</Badge>
-                            </div>
-                          )}
-                          <p className="text-sm tabular-nums">
-                            Expires: {paymentMethod.card.exp_month}/{paymentMethod.card.exp_year}
-                          </p>
-                        </div>
-                        {canUpdatePaymentMethods && (
-                          <>
-                            {isDefault ? (
-                              <Tooltip.Root delayDuration={0}>
-                                <Tooltip.Trigger>
-                                  <Button disabled as="span" type="outline" icon={<IconX />} />
-                                </Tooltip.Trigger>
-                                <Tooltip.Content side="bottom">
-                                  <Tooltip.Arrow className="radix-tooltip-arrow" />
-                                  <div
-                                    className={[
-                                      'rounded bg-scale-100 py-1 px-2 leading-none shadow', // background
-                                      'w-48 border border-scale-200 text-center', //border
-                                    ].join(' ')}
-                                  >
-                                    <span className="text-xs text-scale-1200">
-                                      Your default payment method cannot be deleted
-                                    </span>
-                                  </div>
-                                </Tooltip.Content>
-                              </Tooltip.Root>
-                            ) : (
-                              <Dropdown
-                                size="tiny"
-                                overlay={[
-                                  <Dropdown.Item
-                                    key="make-default"
-                                    onClick={() => setSelectedMethodForDefault(paymentMethod)}
-                                  >
-                                    Make default
-                                  </Dropdown.Item>,
-                                  <Dropdown.Item
-                                    key="delete-method"
-                                    onClick={() => setSelectedMethodToDelete(paymentMethod)}
-                                  >
-                                    Delete
-                                  </Dropdown.Item>,
-                                ]}
-                              >
-                                <Button
-                                  type="outline"
-                                  icon={<IconMoreHorizontal />}
-                                  loading={loading}
-                                  className="hover:border-gray-500"
-                                />
-                              </Dropdown>
-                            )}
-                          </>
+                          </div>
                         )}
+                        <p className="tabular-nums text-sm">
+                          Expires: {paymentMethod.card.exp_month}/{paymentMethod.card.exp_year}
+                        </p>
                       </div>
-                    )
-                  })}
-                </div>
-              </Panel.Content>
-            ) : (
-              <Panel.Content>
-                <div className="flex items-center space-x-2 opacity-50">
-                  <IconCreditCard />
-                  <p className="text-sm">No payment methods</p>
-                </div>
-              </Panel.Content>
-            )}
-          </Panel>
-        )}
+                      {isDefault ? (
+                        <Tooltip.Root delayDuration={0}>
+                          <Tooltip.Trigger>
+                            <Button disabled type="outline" icon={<IconX />} />
+                          </Tooltip.Trigger>
+                          <Tooltip.Content side="bottom">
+                            <Tooltip.Arrow className="radix-tooltip-arrow" />
+                            <div
+                              className={[
+                                'bg-scale-100 shadow py-1 px-2 rounded leading-none', // background
+                                'border border-scale-200 w-48 text-center', //border
+                              ].join(' ')}
+                            >
+                              <span className="text-scale-1200 text-xs">
+                                Your default payment method cannot be deleted
+                              </span>
+                            </div>
+                          </Tooltip.Content>
+                        </Tooltip.Root>
+                      ) : (
+                        <Dropdown
+                          size="tiny"
+                          overlay={[
+                            <Dropdown.Item
+                              onClick={() => setSelectedMethodForDefault(paymentMethod)}
+                            >
+                              Make default
+                            </Dropdown.Item>,
+                            <Dropdown.Item onClick={() => setSelectedMethodToDelete(paymentMethod)}>
+                              Delete
+                            </Dropdown.Item>,
+                          ]}
+                        >
+                          <Button
+                            type="outline"
+                            icon={<IconMoreHorizontal />}
+                            loading={loading}
+                            className="hover:border-gray-500"
+                          />
+                        </Dropdown>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </Panel.Content>
+          ) : (
+            <Panel.Content>
+              <div className="flex items-center space-x-2 opacity-50">
+                <IconCreditCard />
+                <p className="text-sm">No payment methods</p>
+              </div>
+            </Panel.Content>
+          )}
+        </Panel>
       </div>
 
       <AddNewPaymentMethodModal
         visible={showAddPaymentMethodModal}
-        returnUrl={`${getURL()}/org/${orgSlug}/billing`}
+        returnUrl={`${getURL()}/org/${orgSlug}/settings`}
         onCancel={() => setShowAddPaymentMethodModal(false)}
       />
 

@@ -1,24 +1,23 @@
-import dayjs from 'dayjs'
 import { FC } from 'react'
+import dayjs from 'dayjs'
+import { sum } from 'lodash'
 import { useRouter } from 'next/router'
-import { Button, Loading } from 'ui'
-import * as Tooltip from '@radix-ui/react-tooltip'
-import { PermissionAction } from '@supabase/shared-types/out/constants'
+import { Loading, Button } from '@supabase/ui'
+import { Dictionary } from '@supabase/grid'
 
-import { checkPermissions, useFlag, useParams } from 'hooks'
-import { STRIPE_PRODUCT_IDS } from 'lib/constants'
 import { formatBytes } from 'lib/helpers'
-
-import { PRICING_TIER_PRODUCT_IDS } from 'lib/constants'
+import { STRIPE_PRODUCT_IDS } from 'lib/constants'
+import { useStore, useFlag, useSubscriptionStats } from 'hooks'
 import CostBreakdownRow from './CostBreakdownRow'
 import { StripeSubscription } from './Subscription.types'
-import NoPermission from 'components/ui/NoPermission'
-import { USAGE_BASED_PRODUCTS } from 'components/interfaces/Billing/Billing.constants'
-import { ProjectUsageResponseUsageKeys, useProjectUsageQuery } from 'data/usage/project-usage-query'
+import { deriveFeatureCost, deriveProductCost } from '../PAYGUsage/PAYGUsage.utils'
+import { chargeableProducts } from '../PAYGUsage/PAYGUsage.constants'
+import UpgradeButton from './UpgradeButton'
 
 interface Props {
   project: any
   subscription: StripeSubscription
+  paygStats?: Dictionary<number>
   loading?: boolean
   showProjectName?: boolean
   currentPeriodStart: number
@@ -28,103 +27,66 @@ interface Props {
 const Subscription: FC<Props> = ({
   project,
   subscription,
+  paygStats,
   loading = false,
   showProjectName = false,
   currentPeriodStart,
   currentPeriodEnd,
 }) => {
   const router = useRouter()
+  const { ui } = useStore()
+  const isOrgOwner = ui.selectedOrganization?.is_owner
 
-  const { ref: projectRef } = useParams()
-  const projectUpdateDisabled = useFlag('disableProjectCreationAndUpdate')
-
-  const canReadSubscription = checkPermissions(PermissionAction.READ, 'subscriptions')
-  const canUpdateSubscription = checkPermissions(
-    PermissionAction.BILLING_WRITE,
-    'stripe.subscriptions'
-  )
-
-  const { data: usage, isLoading: loadingUsage } = useProjectUsageQuery({ projectRef })
+  const nativeBilling = useFlag('nativeBilling')
+  const subscriptionStats = useSubscriptionStats()
 
   const isPayg = subscription?.tier.prod_id === STRIPE_PRODUCT_IDS.PAYG
-  const isEnterprise = subscription.tier.supabase_prod_id === PRICING_TIER_PRODUCT_IDS.ENTERPRISE
-
   const addOns = subscription?.addons ?? []
   const paid = subscription && subscription.tier.unit_amount > 0
+
   const basePlanCost = subscription?.tier.unit_amount / 100
 
   const deriveTotalCost = (): number => {
-    const totalAddOnCost = addOns
-      .map((addOn) => addOn.unit_amount / 100)
-      .reduce((prev, current) => prev + current, 0)
-    const totalUsageCost =
-      usage === undefined
-        ? 0
-        : Object.keys(usage)
-            .map((productKey) => {
-              return usage[productKey as ProjectUsageResponseUsageKeys].cost ?? 0
-            })
-            .reduce((prev, current) => prev + current, 0)
-
+    const totalAddOnCost = sum(addOns.map((addOn) => addOn.unit_amount / 100))
+    const totalUsageCost = isPayg
+      ? Number(sum(chargeableProducts.map((product) => deriveProductCost(paygStats, product))))
+      : 0
     return basePlanCost + totalAddOnCost + totalUsageCost
   }
 
   return (
-    <Loading active={loading || loadingUsage}>
-      <div className="w-full mb-8 overflow-hidden border rounded border-panel-border-light dark:border-panel-border-dark">
+    <Loading active={loading}>
+      <div className="w-full rounded overflow-hidden border border-panel-border-light dark:border-panel-border-dark mb-8">
         <div className="bg-panel-body-light dark:bg-panel-body-dark">
-          <div className="flex items-center justify-between px-6 pt-4">
+          <div className="px-6 pt-4 flex items-center justify-between">
             <div className="flex flex-col">
-              <p className="text-sm text-scale-1100">
+              <p className="text-scale-1100 text-sm">
                 {showProjectName ? project.name : 'Current subscription'}
               </p>
-              <h3 className="mb-0 text-xl">{subscription?.tier.name ?? '-'}</h3>
+              <h3 className="text-xl mb-0">{subscription?.tier.name ?? '-'}</h3>
             </div>
-            <div className="flex flex-col items-end space-y-2">
-              <Tooltip.Root delayDuration={0}>
-                <Tooltip.Trigger>
-                  <Button
-                    disabled={!canUpdateSubscription || projectUpdateDisabled}
-                    onClick={() => {
-                      const url = isEnterprise
-                        ? `/project/${project.ref}/settings/billing/update/enterprise`
-                        : `/project/${project.ref}/settings/billing/update`
-                      router.push(url)
-                    }}
-                    type="primary"
-                  >
-                    {isEnterprise ? 'Change add-ons' : 'Change subscription'}
-                  </Button>
-                </Tooltip.Trigger>
-                {!canUpdateSubscription || projectUpdateDisabled ? (
-                  <Tooltip.Content side="bottom">
-                    <Tooltip.Arrow className="radix-tooltip-arrow" />
-                    <div
-                      className={[
-                        'border border-scale-200 text-center', //border
-                        'rounded bg-scale-100 py-1 px-2 leading-none shadow', // background
-                      ].join(' ')}
-                    >
-                      <span className="text-xs text-scale-1200">
-                        {projectUpdateDisabled ? (
-                          <>
-                            Subscription changes are currently disabled.
-                            <br />
-                            Our engineers are working on a fix.
-                          </>
-                        ) : !canUpdateSubscription ? (
-                          'You need additional permissions to amend subscriptions'
-                        ) : (
-                          ''
-                        )}
-                      </span>
-                    </div>
-                  </Tooltip.Content>
-                ) : (
-                  <></>
+            {nativeBilling ? (
+              <div className="flex flex-col items-end space-y-2">
+                <Button
+                  disabled={!isOrgOwner}
+                  onClick={() => router.push(`/project/${project.ref}/settings/billing/update`)}
+                  type="primary"
+                >
+                  Change subscription
+                </Button>
+                {!isOrgOwner && (
+                  <p className="text-sm text-scale-1100">
+                    Only the organization owner can amend subscriptions
+                  </p>
                 )}
-              </Tooltip.Root>
-            </div>
+              </div>
+            ) : (
+              <UpgradeButton
+                paid={paid}
+                projectRef={project.ref}
+                subscriptionStats={subscriptionStats}
+              />
+            )}
           </div>
           {paid && (
             <div className="px-6 pt-4">
@@ -134,7 +96,7 @@ const Subscription: FC<Props> = ({
               </p>
             </div>
           )}
-          <div className="px-6 pb-4 mt-2">
+          <div className="mt-2 px-6 pb-4">
             <p className="text-sm text-scale-1100">
               See our{' '}
               <a href="https://supabase.com/pricing" target="_blank" className="underline">
@@ -144,32 +106,28 @@ const Subscription: FC<Props> = ({
             </p>
           </div>
 
-          {!canReadSubscription ? (
-            <div className="px-6 pb-4">
-              <NoPermission resourceText="view this project's subscription" />
-            </div>
-          ) : !loading && subscription ? (
-            // Cost breakdown
+          {/* Cost Breakdown */}
+          {!loading && subscription && (
             <>
-              <div className="relative flex items-center px-6 py-3 border-t border-panel-border-light dark:border-panel-border-dark">
+              <div className="px-6 py-3 relative border-t border-panel-border-light dark:border-panel-border-dark flex items-center">
                 <div className="w-[40%]">
-                  <p className="text-xs uppercase text-scale-900">Item</p>
+                  <p className="text-sm">Item</p>
                 </div>
-                <div className="flex w-[20%] justify-end">
-                  <p className="text-xs uppercase text-scale-900">Amount</p>
+                <div className="w-[20%] flex justify-end">
+                  <p className="text-sm">Amount</p>
                 </div>
-                <div className="flex w-[20%] justify-end">
-                  <p className="text-xs uppercase text-scale-900">Unit Price</p>
+                <div className="w-[20%] flex justify-end">
+                  <p className="text-sm">Unit Price</p>
                 </div>
-                <div className="flex w-[20%] justify-end">
-                  <p className="text-xs uppercase text-scale-900">Price</p>
+                <div className="w-[20%] flex justify-end">
+                  <p className="text-sm">Price</p>
                 </div>
               </div>
               <CostBreakdownRow
                 item="Base Plan"
                 amount={1}
-                unitPrice={basePlanCost.toFixed(2)}
-                price={basePlanCost.toFixed(2)}
+                unitPrice={basePlanCost}
+                price={basePlanCost}
               />
               {addOns.map((addOn) => (
                 <CostBreakdownRow
@@ -181,56 +139,33 @@ const Subscription: FC<Props> = ({
                 />
               ))}
               {isPayg &&
-                USAGE_BASED_PRODUCTS.map((product) => {
-                  return product.features.map((feature) => {
-                    const amount = usage?.[feature.key as ProjectUsageResponseUsageKeys]?.usage ?? 0
-                    const limit = usage?.[feature.key as ProjectUsageResponseUsageKeys]?.limit ?? 0
-                    const cost = (
-                      usage?.[feature.key as ProjectUsageResponseUsageKeys]?.cost ?? 0
-                    ).toFixed(2)
-
+                chargeableProducts.map((product) =>
+                  product.features.map((feature) => {
+                    const cost = deriveFeatureCost(paygStats, feature).toFixed(3)
                     return (
                       <CostBreakdownRow
-                        key={feature.key}
+                        key={feature.attribute}
                         item={feature.title}
-                        amount={
-                          feature.units === 'bytes' ? formatBytes(amount) : amount.toLocaleString()
-                        }
-                        unitPrice={
-                          feature.units === 'bytes'
-                            ? `${feature.costPerUnit}/GB`
-                            : feature.costPerUnit
-                        }
+                        amount={formatBytes(paygStats?.[feature.attribute] ?? 0)}
+                        unitPrice={`${feature.costPerUnit}/GB`}
                         price={cost}
-                        note={
-                          feature.units === 'bytes'
-                            ? `${formatBytes(limit)} included`
-                            : `${limit.toLocaleString()} included`
-                        }
                       />
                     )
                   })
-                })}
-              <div
-                className={[
-                  'relative flex items-center border-t px-6 py-3',
-                  'border-panel-border-light dark:border-panel-border-dark',
-                ].join(' ')}
-              >
+                )}
+              <div className="px-6 py-3 relative border-t border-panel-border-light dark:border-panel-border-dark flex items-center">
                 <div className="w-[80%]">
-                  <p className="text-sm text-scale-1100">
+                  <p className="text-sm">
                     Estimated cost for {dayjs.unix(currentPeriodStart).utc().format('MMM D, YYYY')}{' '}
                     - {dayjs.unix(currentPeriodEnd).utc().format('MMM D, YYYY')} so far
                   </p>
                 </div>
-                <div className="flex w-[20%] items-center justify-end space-x-1">
+                <div className="w-[20%] flex justify-end items-center space-x-1">
                   <p className="text-scale-1100">$</p>
-                  <h3 className="m-0 text-xl">{deriveTotalCost().toFixed(2)}</h3>
+                  <h3 className="text-xl m-0">{deriveTotalCost().toFixed(2)}</h3>
                 </div>
               </div>
             </>
-          ) : (
-            <></>
           )}
         </div>
       </div>

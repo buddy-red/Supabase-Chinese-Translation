@@ -1,7 +1,8 @@
-import { Tabs } from 'ui'
+import { Tabs } from '@supabase/ui'
 import { useRouter } from 'next/router'
 
-const FunctionsNav = ({ item }: any) => {
+// @ts-ignore
+const FunctionsNav = ({ item }) => {
   const router = useRouter()
   const activeRoute = router.pathname.split('/')[5]
   const { ref } = router.query
@@ -13,11 +14,12 @@ const FunctionsNav = ({ item }: any) => {
       size="medium"
       activeId={!activeRoute ? 'metrics' : activeRoute}
       onChange={(e: string) =>
-        router.push(`/project/${ref}/functions/${item.slug}/${e === 'metrics' ? '' : e}`)
+        router.push(`/project/${ref}/functions/${item.id}/${e === 'metrics' ? '' : e}`)
       }
     >
-      <Tabs.Panel id="details" label="Details" />
       <Tabs.Panel id="metrics" label="Metrics" />
+      <Tabs.Panel id="details" label="Details" />
+      {/* <Tabs.Panel id="triggers" label="Triggers" /> */}
       <Tabs.Panel id="invocations" label="Invocations" />
       <Tabs.Panel id="logs" label="Logs" />
     </Tabs>

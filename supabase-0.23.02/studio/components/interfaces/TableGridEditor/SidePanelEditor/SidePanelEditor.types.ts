@@ -1,4 +1,4 @@
-import type { PostgresRelationship } from '@supabase/postgres-meta'
+import { PostgresRelationship } from '@supabase/postgres-meta'
 
 export interface CreateColumnPayload {
   tableId: number
@@ -25,7 +25,6 @@ export interface UpdateColumnPayload {
   isIdentity?: boolean
   isNullable?: boolean
   isUnique?: boolean
-  isPrimaryKey?: boolean
   identityGeneration?: 'BY DEFAULT' | 'ALWAYS'
 }
 
@@ -56,27 +55,30 @@ export interface Field {
   foreignKey?: { table: string; column: string }
 }
 
-export interface ExtendedPostgresRelationship extends PostgresRelationship {
-  deletion_action: string
-}
-
 export interface ColumnField {
   id: string
   name: string
   comment?: string
   format: string
-  defaultValue: string | null
-  foreignKey: ExtendedPostgresRelationship | undefined
+  defaultValue: string
+  foreignKey: PostgresRelationship | undefined
   isNullable: boolean
   isUnique: boolean
   isArray: boolean
   isIdentity: boolean
   isPrimaryKey: boolean
   isNewColumn: boolean
+}
 
-  isEncrypted: boolean
-  keyId?: string
-  keyName?: string
+// export interface ForeignKey {
+//   table: PostgresTable
+//   column: PostgresColumn
+// }
+
+export interface EnumType {
+  id: number
+  name: string
+  values: any[]
 }
 
 export interface PostgresDataTypeOption {
@@ -84,6 +86,11 @@ export interface PostgresDataTypeOption {
   description: string
   type: 'number' | 'text' | 'time' | 'json' | 'bool' | 'others'
 }
+
+// export interface FormattedPostgresColumn extends PostgresColumn {
+//   isPrimaryKey: boolean
+//   foreignKey: ForeignKey
+// }
 
 // Probably belongs to a higher level
 export interface Dictionary<T> {

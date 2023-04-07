@@ -1,36 +1,28 @@
-import { useState, useEffect } from 'react'
+import { NextPage } from 'next'
+import { useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { isUndefined } from 'lodash'
-import type { PostgresColumn, PostgresTable } from '@supabase/postgres-meta'
-import { Modal } from 'ui'
+import { PostgresColumn, PostgresTable } from '@supabase/postgres-meta'
+import { Modal } from '@supabase/ui'
 
-import { useStore } from 'hooks'
+import { withAuth, useStore } from 'hooks'
 
 import { DatabaseLayout } from 'components/layouts'
 import ConfirmationModal from 'components/ui/ConfirmationModal'
 import { TableList, ColumnList } from 'components/interfaces/Database'
 import { SidePanelEditor } from 'components/interfaces/TableGridEditor'
-import { NextPageWithLayout } from 'types'
 
-const DatabaseTables: NextPageWithLayout = () => {
+const DatabaseTables: NextPage = () => {
   const { meta, ui } = useStore()
 
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
-  const [selectedSchema, setSelectedSchema] = useState('public')
   const [selectedTable, setSelectedTable] = useState<any>()
   const [sidePanelKey, setSidePanelKey] = useState<'column' | 'table'>()
-
   const [selectedColumnToEdit, setSelectedColumnToEdit] = useState<PostgresColumn>()
   const [selectedTableToEdit, setSelectedTableToEdit] = useState<PostgresTable>()
 
   const [selectedColumnToDelete, setSelectedColumnToDelete] = useState<PostgresColumn>()
   const [selectedTableToDelete, setSelectedTableToDelete] = useState<PostgresTable>()
-
-  useEffect(() => {
-    if (ui.selectedProject?.ref) {
-      meta.types.load()
-    }
-  }, [ui.selectedProject?.ref])
 
   const onAddTable = () => {
     setSidePanelKey('table')
@@ -63,8 +55,6 @@ const DatabaseTables: NextPageWithLayout = () => {
   }
 
   const onColumnUpdated = async () => {
-    if (selectedTable === undefined) return
-
     const updatedTable = await meta.tables.loadById(selectedTable.id)
     setSelectedTable(updatedTable)
   }
@@ -121,12 +111,10 @@ const DatabaseTables: NextPageWithLayout = () => {
   }
 
   return (
-    <>
+    <DatabaseLayout title="Database">
       <div className="p-4">
         {isUndefined(selectedTable) ? (
           <TableList
-            selectedSchema={selectedSchema}
-            onSelectSchema={setSelectedSchema}
             onAddTable={onAddTable}
             onEditTable={onEditTable}
             onDeleteTable={onDeleteTable}
@@ -145,9 +133,7 @@ const DatabaseTables: NextPageWithLayout = () => {
       <ConfirmationModal
         danger
         visible={isDeleting && !isUndefined(selectedTableToDelete)}
-        header={
-          <span className="break-words">{`Confirm deletion of table "${selectedTableToDelete?.name}"`}</span>
-        }
+        header={`Confirm deletion of table "${selectedTableToDelete?.name}"`}
         children={
           <Modal.Content>
             <p className="py-4 text-sm text-scale-1100">
@@ -178,17 +164,15 @@ const DatabaseTables: NextPageWithLayout = () => {
       />
       <SidePanelEditor
         sidePanelKey={sidePanelKey}
-        selectedSchema={selectedSchema}
+        selectedSchema="public"
         selectedTable={selectedTable}
         onColumnSaved={onColumnUpdated}
         closePanel={onClosePanel}
         selectedColumnToEdit={selectedColumnToEdit}
         selectedTableToEdit={selectedTableToEdit}
       />
-    </>
+    </DatabaseLayout>
   )
 }
 
-DatabaseTables.getLayout = (page) => <DatabaseLayout title="Database">{page}</DatabaseLayout>
-
-export default observer(DatabaseTables)
+export default withAuth(observer(DatabaseTables))

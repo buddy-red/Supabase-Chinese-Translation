@@ -1,11 +1,15 @@
+import { NextPage } from 'next'
 import { observer } from 'mobx-react-lite'
-import { DatabaseLayout } from 'components/layouts'
-import { NextPageWithLayout } from 'types'
 
-const Database: NextPageWithLayout = () => {
-  return <>{/* <h1>Use this as a page template for database</h1> */}</>
+import { withAuth } from 'hooks'
+import { DatabaseLayout } from 'components/layouts'
+
+const Database: NextPage = () => {
+  return (
+    <DatabaseLayout title="Database">
+      <>{/* <h1>Use this as a page template for database</h1> */}</>
+    </DatabaseLayout>
+  )
 }
 
-Database.getLayout = (page) => <DatabaseLayout title="Database">{page}</DatabaseLayout>
-
-export default observer(Database)
+export default withAuth(observer(Database))

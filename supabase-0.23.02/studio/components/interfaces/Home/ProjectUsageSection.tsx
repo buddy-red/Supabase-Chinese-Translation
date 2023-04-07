@@ -1,42 +1,37 @@
+import useSWR from 'swr'
 import { FC } from 'react'
 import { observer } from 'mobx-react-lite'
-import { IconLoader, IconAlertCircle } from 'ui'
-
-import { useParams } from 'hooks'
+import { Typography, IconLoader } from '@supabase/ui'
+import { get } from 'lib/common/fetch'
+import { API_URL } from 'lib/constants'
+import { useStore } from 'hooks'
 import { ProjectUsage, NewProjectPanel } from 'components/interfaces/Home'
-import InformationBox from 'components/ui/InformationBox'
-import { ProjectUsageResponseUsageKeys, useProjectUsageQuery } from 'data/usage/project-usage-query'
 
 const ProjectUsageSection: FC = observer(({}) => {
-  const { ref: projectRef } = useParams()
-  const { data: usage, error: usageError, isLoading } = useProjectUsageQuery({ projectRef })
+  const { ui } = useStore()
+  const project = ui.selectedProject
+  const { data: usage, error: usageError }: any = useSWR(
+    `${API_URL}/projects/${project?.ref}/usage`,
+    get
+  )
+  const hasProjectData =
+    usage && (usage?.bucketSize || (usage?.authUsers ?? '0') !== '0' || usage?.dbTables)
+      ? true
+      : false
 
   if (usageError) {
-    return (
-      <InformationBox
-        hideCollapse
-        defaultVisibility
-        icon={<IconAlertCircle strokeWidth={2} />}
-        title="There was an issue loading the usage details of your project"
-      />
-    )
+    return <Typography.Text type="danger">Error loading data {usageError.message}</Typography.Text>
   }
-
-  const hasProjectData = usage
-    ? Object.keys(usage)
-        .map((key) => usage[key as ProjectUsageResponseUsageKeys].usage)
-        .some((usage) => (usage ?? 0) > 0)
-    : false
 
   return (
     <>
-      {isLoading ? (
-        <div className="flex w-full items-center justify-center space-x-2">
+      {usage === undefined ? (
+        <div className="w-full flex justify-center items-center space-x-2">
           <IconLoader className="animate-spin" size={14} />
           <p className="text-sm">Retrieving project usage statistics</p>
         </div>
-      ) : hasProjectData ? (
-        <ProjectUsage />
+      ) : !usage.error && hasProjectData ? (
+        <ProjectUsage project={project} />
       ) : (
         <NewProjectPanel />
       )}

@@ -1,14 +1,21 @@
 import React, { FC, ReactNode, useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { isUndefined } from 'lodash'
-import { Button, IconActivity, IconAlertCircle, IconBarChart, IconLoader } from 'ui'
-import { Dictionary } from 'components/grid'
+import {
+  Button,
+  IconActivity,
+  IconAlertCircle,
+  IconBarChart,
+  IconLoader,
+  Typography,
+} from '@supabase/ui'
+import { Dictionary } from '@supabase/grid'
 
 import { API_URL } from 'lib/constants'
 import { get } from 'lib/common/fetch'
-import { BarChart } from './ChartRenderer'
-import AreaChart from 'components/ui/Charts/AreaChart'
+import { BarChart, AreaChart } from './ChartRenderer'
 import { ChartData } from './ChartHandler.types'
+import { TooltipProps } from 'recharts'
 
 interface Props {
   label: string
@@ -19,6 +26,7 @@ interface Props {
   interval: string
   customDateFormat?: string
   children?: ReactNode
+  highlight?: 'total' | 'average' | 'maximum'
   defaultChartStyle?: 'bar' | 'line'
   hideChartType?: boolean
   data?: ChartData
@@ -46,6 +54,7 @@ const ChartHandler: FC<Props> = ({
   interval,
   customDateFormat,
   children = null,
+  highlight,
   defaultChartStyle = 'bar',
   hideChartType = false,
   data,
@@ -111,17 +120,15 @@ const ChartHandler: FC<Props> = ({
 
   highlightedValue = highlightedValue
     ? highlightedValue
-    : provider === 'daily-stats' && !attribute.includes('ingress') && !attribute.includes('egress')
-    ? chartData?.maximum
     : provider === 'daily-stats'
     ? chartData?.total
     : provider === 'log-stats'
     ? chartData?.totalGrouped?.[attribute]
-    : chartData?.data[chartData?.data.length - 1]?.[attribute]
+    : chartData?.totalAverage
 
   if (loading) {
     return (
-      <div className="flex h-52 w-full flex-col items-center justify-center space-y-4">
+      <div className="w-full h-52 flex flex-col space-y-4 items-center justify-center">
         <IconLoader className="animate-spin text-scale-700" />
         <p className="text-xs text-scale-900">Loading data for {label}</p>
       </div>
@@ -129,21 +136,22 @@ const ChartHandler: FC<Props> = ({
   }
 
   if (isUndefined(chartData)) {
+    console.log('i am undefined chart data')
     return (
-      <div className="flex h-52 w-full flex-col items-center justify-center space-y-4">
+      <div className="w-full h-52 flex flex-col space-y-4 items-center justify-center">
         <IconAlertCircle className="text-scale-700" />
-        <p className="text-xs text-scale-900">Unable to load data for {label}</p>
+        <p className="text-scale-900 text-xs">Unable to load data for {label}</p>
       </div>
     )
   }
 
   return (
-    <div className="h-full w-full">
-      <div className="absolute right-6 z-50 flex justify-between">
+    <div className="w-full h-full">
+      <div className="flex justify-between absolute right-6 z-50">
         <div className="space-y-3">{children}</div>
         {!hideChartType && (
           <div>
-            <div className="flex w-full space-x-3">
+            <div className="flex space-x-3 w-full">
               <Button
                 type="default"
                 icon={chartStyle === 'bar' ? <IconActivity /> : <IconBarChart />}
@@ -168,10 +176,10 @@ const ChartHandler: FC<Props> = ({
         <AreaChart
           data={chartData?.data ?? []}
           format={format || chartData?.format}
-          xAxisKey="period_start"
-          yAxisKey={attribute}
+          attribute={attribute}
+          yAxisLimit={chartData?.yAxisLimit}
           highlightedValue={highlightedValue}
-          title={label}
+          label={label}
           customDateFormat={customDateFormat}
         />
       )}

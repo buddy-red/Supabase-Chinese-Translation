@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
 import { FC, useEffect } from 'react'
-import { IconChevronRight, IconLoader } from 'ui'
+import { IconChevronRight, IconLoader } from '@supabase/ui'
 
-import { useStore } from 'hooks'
-import { useProjectSubscriptionQuery } from 'data/subscriptions/project-subscription-query'
-import Panel from 'components/ui/Panel'
+import { useProjectSubscription, useStore } from 'hooks'
+import Panel from 'components/to-be-cleaned/Panel'
+
+dayjs.extend(utc)
 
 interface ProjectSummaryProps {
   project: any
@@ -13,11 +15,7 @@ interface ProjectSummaryProps {
 
 const ProjectSummary: FC<ProjectSummaryProps> = ({ project }) => {
   const { ui } = useStore()
-  const {
-    data: subscription,
-    isLoading: loading,
-    error,
-  } = useProjectSubscriptionQuery({ projectRef: project.ref })
+  const { subscription, isLoading: loading, error } = useProjectSubscription(project.ref)
 
   const currentPeriodStart = subscription?.billing?.current_period_start ?? 0
   const currentPeriodEnd = subscription?.billing?.current_period_end ?? 0
@@ -26,18 +24,18 @@ const ProjectSummary: FC<ProjectSummaryProps> = ({ project }) => {
     if (error) {
       ui.setNotification({
         category: 'error',
-        message: `Failed to get project subscription: ${(error as any)?.message ?? 'unknown'}`,
+        message: `Failed to get project subscription: ${error?.message ?? 'unknown'}`,
       })
     }
   }, [error])
 
   return (
-    <div className="flex items-center w-full px-6 py-3">
+    <div className="w-full px-6 py-3 flex items-center">
       <div className="w-[25%]">
         <p className="text-sm">{project.name}</p>
       </div>
       {loading ? (
-        <div className="flex w-[75%] items-center justify-center">
+        <div className="w-[75%] flex items-center justify-center">
           <IconLoader size={14} className="animate-spin" />
         </div>
       ) : (
@@ -45,16 +43,16 @@ const ProjectSummary: FC<ProjectSummaryProps> = ({ project }) => {
           <div className="w-[20%]">
             <p className="text-sm">{subscription?.tier.name ?? ''}</p>
           </div>
-          <div className="flex w-[40%] items-center space-x-2">
+          <div className="w-[40%] space-x-2 flex items-center">
             <p className="text-sm">{dayjs.unix(currentPeriodStart).utc().format('MMM D, YYYY')}</p>
             <p className="text-sm">-</p>
             <p className="text-sm">{dayjs.unix(currentPeriodEnd).utc().format('MMM D, YYYY')}</p>
           </div>
-          <div className="flex w-[15%] items-center justify-end">
-            <Link href={`/project/${project.ref}/settings/billing/subscription`}>
+          <div className="flex items-center justify-end w-[15%]">
+            <Link href={`/project/${project.ref}/settings/billing`}>
               <a className="flex items-center space-x-2 group">
-                <p className="text-xs transition opacity-0 group-hover:opacity-100">View details</p>
-                <IconChevronRight strokeWidth={1.5} />
+                <p className="transition group-hover:opacity-100 opacity-0 text-sm">View details</p>
+                <IconChevronRight />
               </a>
             </Link>
           </div>
@@ -74,7 +72,7 @@ const ProjectsSummary: FC<ProjectsSummaryProps> = ({ projects }) => {
       <h4>Projects at a glance</h4>
       <Panel
         title={
-          <div className="flex items-center w-full">
+          <div className="w-full flex items-center">
             <div className="w-[25%]">
               <p className="text-sm opacity-50">Name</p>
             </div>

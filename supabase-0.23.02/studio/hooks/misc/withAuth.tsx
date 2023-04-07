@@ -1,130 +1,101 @@
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { ComponentType, useEffect } from 'react'
-
-import { usePermissionsQuery } from 'data/permissions/permissions-query'
-import { useParams, useStore } from 'hooks'
-import { useAuth } from 'lib/auth'
+import { useProfile, useStore } from 'hooks'
+import { ComponentType, useEffect, useState } from 'react'
+import { flatten, isUndefined } from 'lodash'
+import { NextRouter, useRouter } from 'next/router'
 import { IS_PLATFORM } from 'lib/constants'
-import { getReturnToPath, STORAGE_KEY } from 'lib/gotrue'
-import { isNextPageWithLayout, NextPageWithLayout } from 'types'
-import Error500 from '../../pages/500'
+import Connecting from 'components/ui/Loading'
+import { Project } from 'types'
 
-const PLATFORM_ONLY_PAGES = [
-  'reports',
-  'settings',
-  'auth/providers',
-  'auth/templates',
-  'auth/url-configuration',
-]
+const PLATFORM_ONLY_PAGES = ['storage', 'reports', 'settings']
 
-export function withAuth<T>(
-  WrappedComponent: ComponentType<T> | NextPageWithLayout<T, T>,
+export function withAuth(
+  WrappedComponent: ComponentType,
   options?: {
     redirectTo: string
-    /* run the redirect if the user is logged in */
     redirectIfFound?: boolean
   }
 ) {
-  const WithAuthHOC: ComponentType<T> = (props: any) => {
+  return (props: any) => {
     const router = useRouter()
-    const { ref, slug } = useParams()
     const rootStore = useStore()
-    const { isLoading, session } = useAuth()
+    const [isConnecting, setConnecting] = useState(true)
 
+    const { ref, slug } = router.query
     const { app, ui } = rootStore
-    const page = router.pathname.split('/').slice(3).join('/')
+    const page = router.pathname.split('/')[3]
 
     const redirectTo = options?.redirectTo ?? defaultRedirectTo(ref)
     const redirectIfFound = options?.redirectIfFound
 
-    useEffect(() => {
-      if (!app.organizations.isInitialized) app.organizations.load()
-      if (!app.projects.isInitialized) app.projects.load()
-    }, [app.organizations.isInitialized, app.projects.isInitialized])
+    const returning =
+      app.projects.isInitialized && app.organizations.isInitialized ? 'minimal' : undefined
+    const { profile, isLoading } = useProfile(returning)
 
-    usePermissionsQuery({
-      enabled: IS_PLATFORM,
-      onSuccess(permissions) {
-        ui.setPermissions(permissions)
-      },
-    })
-
-    const isLoggedIn = Boolean(session)
-
-    const isAccessingBlockedPage =
-      !IS_PLATFORM &&
-      PLATFORM_ONLY_PAGES.some((platformOnlyPage) => page.startsWith(platformOnlyPage))
+    const isAccessingBlockedPage = !IS_PLATFORM && PLATFORM_ONLY_PAGES.includes(page)
     const isRedirecting =
       isAccessingBlockedPage ||
-      checkRedirectTo(isLoading, router.pathname, isLoggedIn, redirectTo, redirectIfFound)
+      checkRedirectTo(isLoading, router, profile, redirectTo, redirectIfFound)
 
     useEffect(() => {
-      // This should run after setting store data
+      // this should run before redirecting
+      if (!isLoading) {
+        if (!profile) {
+          ui.setProfile(undefined)
+        } else if (returning !== 'minimal') {
+          ui.setProfile(profile)
+
+          if (!app.organizations.isInitialized) {
+            app.organizations.load()
+          }
+          if (!app.projects.isInitialized) {
+            app.projects.load()
+          }
+        }
+      }
+
+      // this should run after setting store data
       if (isRedirecting) {
         router.push(redirectTo)
       }
-    }, [isRedirecting, redirectTo])
+    }, [isLoading, isRedirecting, profile])
 
     useEffect(() => {
-      if (router.isReady) {
-        if (ref) {
-          rootStore.setProjectRef(ref)
-        }
-        rootStore.setOrganizationSlug(slug)
+      if (!isLoading && router.isReady) {
+        rootStore.setProjectRef(ref ? String(ref) : undefined)
+        rootStore.setOrganizationSlug(slug ? String(slug) : undefined)
       }
     }, [isLoading, router.isReady, ref, slug])
 
-    if (!isLoading && !isRedirecting && !isLoggedIn) {
-      return <Error500 />
-    }
+    useEffect(() => {
+      if (!isLoading && !isRedirecting && router.isReady) {
+        setConnecting(false)
+      }
+    }, [isLoading, isRedirecting, router.isReady])
 
-    return (
-      <>
-        <Head>
-          {/* This script will quickly (before the main JS loads) redirect the user
-          to the login page if they are guaranteed (no token at all) to not be logged in. */}
-          {IS_PLATFORM && (
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window._getReturnToPath = ${getReturnToPath.toString()};if (!localStorage.getItem('${STORAGE_KEY}') && !location.hash) {const searchParams = new URLSearchParams(location.search);searchParams.set('returnTo', location.pathname);location.replace('/sign-in' + '?' + searchParams.toString())}`,
-              }}
-            />
-          )}
-        </Head>
-        <WrappedComponent {...props} />
-      </>
-    )
+    if (isConnecting) return <Connecting />
+
+    return <WrappedComponent {...props} />
   }
-
-  WithAuthHOC.displayName = `withAuth(${WrappedComponent.displayName})`
-
-  if (isNextPageWithLayout(WrappedComponent)) {
-    ;(WithAuthHOC as NextPageWithLayout<T, T>).getLayout = WrappedComponent.getLayout
-  }
-
-  return WithAuthHOC
 }
 
 function defaultRedirectTo(ref: string | string[] | undefined) {
-  return IS_PLATFORM ? '/sign-in' : ref !== undefined ? `/project/${ref}` : '/projects'
+  return IS_PLATFORM ? '/' : !isUndefined(ref) ? `/project/${ref}` : '/'
 }
 
 function checkRedirectTo(
   loading: boolean,
-  pathname: string,
-  isLoggedIn: boolean,
+  router: NextRouter,
+  profile: any,
   redirectTo: string,
   redirectIfFound?: boolean
 ) {
   if (loading) return false
-  if (pathname === redirectTo) return false
+  if (router.pathname == redirectTo) return false
 
-  // If redirectTo is set, redirect if the user is not logged in.
-  if (redirectTo && !redirectIfFound && !isLoggedIn) return true
-
+  // If redirectTo is set, redirect if the user was not found.
+  if (redirectTo && !redirectIfFound && !profile) return true
   // If redirectIfFound is also set, redirect if the user was found
-  if (redirectIfFound && isLoggedIn) return true
+  if (redirectIfFound && profile) return true
 
   return false
 }
