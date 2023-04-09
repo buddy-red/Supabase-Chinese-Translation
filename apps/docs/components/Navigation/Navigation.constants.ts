@@ -168,15 +168,15 @@ export const menuItems: NavMenu = {
     {
       label: 'Database',
       items: [
-        { name: 'Overview', url: '/guides/database', items: [] },
-        { name: 'Database Connections', url: '/guides/database/connecting-to-postgres', items: [] },
-        { name: 'Tables and Data', url: '/guides/database/tables', items: [] },
-        { name: 'Database Functions', url: '/guides/database/functions', items: [] },
-        { name: 'Database Webhooks', url: '/guides/database/webhooks', items: [] },
-        { name: 'Full Text Search', url: '/guides/database/full-text-search', items: [] },
-        { name: 'Database Testing', url: '/guides/database/testing', items: [] },
+        { name: '总览', url: '/guides/database', items: [] },
+        { name: '数据库连接', url: '/guides/database/connecting-to-postgres', items: [] },
+        { name: '数据表与数据', url: '/guides/database/tables', items: [] },
+        { name: '数据库函数', url: '/guides/database/functions', items: [] },
+        { name: '数据库Webhook', url: '/guides/database/webhooks', items: [] },
+        { name: '全文搜索', url: '/guides/database/full-text-search', items: [] },
+        { name: '数据测试', url: '/guides/database/testing', items: [] },
         {
-          name: 'Extensions',
+          name: '扩展',
           url: undefined,
           items: [
             { name: 'Overview', url: '/guides/database/extensions', items: [] },

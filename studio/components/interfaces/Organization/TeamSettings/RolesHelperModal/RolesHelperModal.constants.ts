@@ -227,7 +227,7 @@ const BILLING_PERMISSIONS = {
 }
 
 const PROJECT_PERMISSIONS = {
-  title: 'Projects',
+  title: '项目',
   actions: [
     {
       description: 'Can view projects',

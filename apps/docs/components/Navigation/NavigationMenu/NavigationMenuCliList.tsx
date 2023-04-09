@@ -55,27 +55,27 @@ const NavigationMenuCliList = ({ currentLevel, setLevel, id }) => {
   const MenuSections = [
     {
       key: 'general',
-      label: 'General',
+      label: '基本设置',
     },
     {
       key: 'secrets',
-      label: 'Secrets',
+      label: '密钥',
     },
     {
       key: 'projects',
-      label: 'Projects',
+      label: '项目',
     },
     {
       key: 'organizations',
-      label: 'Organizations',
+      label: '组织',
     },
     {
       key: 'migration',
-      label: 'Migration',
+      label: '迁移',
     },
     {
       key: 'database',
-      label: 'Database',
+      label: '数据库',
     },
     {
       key: 'completion',

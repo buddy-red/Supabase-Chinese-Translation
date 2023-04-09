@@ -140,11 +140,11 @@ const NewProjectPanel: FC<Props> = ({}) => {
                     <div className="rounded bg-scale-600 p-1.5 text-scale-1000 shadow-sm">
                       <IconArchive strokeWidth={2} size={16} />
                     </div>
-                    <h5>存储/h5>
+                    <h5>存储</h5>
                   </div>
                   <div className="flex md:min-h-[50px] xl:min-h-[75px]">
                     <p className="text-sm text-scale-1000">
-                      Store, organize, and serve any file types of any size from multiple buckets.
+                      存储、组织和提供来自多个存储桶任何大小的任何文件类型。
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">

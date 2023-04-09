@@ -42,7 +42,7 @@ ProjectsPage.getLayout = (page) => (
     breadcrumbs={[
       {
         key: `supabase-projects`,
-        label: 'Projects',
+        label: '项目',
       },
     ]}
   >

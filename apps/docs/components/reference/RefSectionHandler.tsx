@@ -36,11 +36,11 @@ const RefSectionHandler = (props: RefSectionHandlerProps) => {
       case 'client-lib':
         return props.spec.info.title
       case 'cli':
-        return 'Supabase CLI reference'
+        return 'Supabase CLI 参考'
       case 'api':
-        return 'Supabase API reference'
+        return 'Supabase API 参考'
       default:
-        return 'Supabase Docs'
+        return 'Supabase 文档'
     }
   }
 

@@ -3,7 +3,7 @@
     "title": "Docs Updated",
     "shipped": true,
     "date": "12 Dec 2022",
-    "description": "Supabase Docs",
+    "description": "Supabase 文档",
     "d": 1,
     "dd": "Monday",
     "youtube_id": "OpPOaJI_Z28",
@@ -11,7 +11,7 @@
     "docs": "https://www.supabase.cc/docs",
     "steps": [
       {
-        "title": "Supabase Docs",
+        "title": "Supabase 文档",
         "blog": "/blog/new-supabase-docs-built-with-nextjs",
         "docs": "/docs",
         "isNew": true,
