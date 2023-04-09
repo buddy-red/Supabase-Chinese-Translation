@@ -47,12 +47,12 @@ const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
 
   const sectionsWithHeaders: SidebarSection[] = [
     {
-      heading: 'Projects',
+      heading: '项目',
       key: 'projects',
       links: [
         {
           isActive: router.pathname === '/projects',
-          label: 'All projects',
+          label: '所有项目',
           href: '/projects',
           key: 'all-projects-item',
         },
@@ -61,7 +61,7 @@ const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
     ...(IS_PLATFORM && organizationsLinks?.length > 0
       ? [
           {
-            heading: 'Organizations',
+            heading: '组织',
             key: 'organizations',
             links: organizationsLinks,
           },
@@ -70,20 +70,20 @@ const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
     ...(IS_PLATFORM
       ? [
           {
-            heading: 'Account',
+            heading: '帐户',
             key: 'account',
             links: [
               {
                 isActive: router.pathname === `/account/me`,
                 icon: `${router.basePath}/img/user.svg`,
-                label: 'Preferences',
+                label: '偏好设置',
                 href: `/account/me`,
                 key: `/account/me`,
               },
               {
                 isActive: router.pathname === `/account/tokens`,
                 icon: `${router.basePath}/img/user.svg`,
-                label: 'Access Tokens',
+                label: '访问令牌',
                 href: `/account/tokens`,
                 key: `/account/tokens`,
               },
@@ -92,20 +92,20 @@ const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
         ]
       : []),
     {
-      heading: 'Documentation',
+      heading: '文档',
       key: 'documentation',
       links: [
         {
           key: 'ext-guides',
           icon: `${router.basePath}/img/book.svg`,
-          label: 'Guides',
+          label: '指南',
           href: 'https://supabase.com/docs',
           isExternal: true,
         },
         {
           key: 'ext-guides',
           icon: `${router.basePath}/img/book-open.svg`,
-          label: 'API Reference',
+          label: 'API参考',
           href: 'https://supabase.com/docs/guides/api',
           isExternal: true,
         },
@@ -119,7 +119,7 @@ const AccountLayout: FC<Props> = ({ children, title, breadcrumbs }) => {
               {
                 key: `logout`,
                 icon: '/icons/feather/power.svg',
-                label: 'Logout',
+                label: '退出登陆',
                 href: undefined,
                 onClick: onClickLogout,
               },

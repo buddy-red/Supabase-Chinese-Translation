@@ -25,21 +25,21 @@ const ClientLibrary: FC<Props> = ({ language, releaseState, officialSupport, doc
           </h5>
           <p className="text-sm text-scale-1000">
             {officialSupport
-              ? 'This library is officially supported'
-              : 'This library is community supported'}
+              ? '官方支持'
+              : '社区支持'}
           </p>
         </div>
         <div className="space-x-1">
           {docsUrl && (
             <a href={docsUrl} target="_blank">
               <Button icon={<IconBookOpen />} type="default">
-                Docs
+                文档
               </Button>
             </a>
           )}
           <a href={gitUrl} target="_blank">
             <Button icon={<IconGitHub />} type="default">
-              See GitHub
+              查看 GitHub
             </Button>
           </a>
         </div>

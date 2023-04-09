@@ -25,7 +25,7 @@ export const generateToolRoutes = (ref?: string, project?: ProjectBase): Route[]
   return [
     {
       key: 'editor',
-      label: 'Table Editor',
+      label: '数据表编辑器',
       icon: (
         <SVG
           src={`${BASE_PATH}/img/table-editor.svg`}
@@ -39,7 +39,7 @@ export const generateToolRoutes = (ref?: string, project?: ProjectBase): Route[]
     },
     {
       key: 'sql',
-      label: 'SQL Editor',
+      label: 'SQL编辑器',
       icon: (
         <SVG
           src={`${BASE_PATH}/img/sql-editor.svg`}
@@ -63,7 +63,7 @@ export const generateProductRoutes = (ref?: string, project?: ProjectBase): Rout
   return [
     {
       key: 'database',
-      label: 'Database',
+      label: '数据库',
       icon: <IconDatabase size={18} strokeWidth={2} />,
       link:
         ref &&
@@ -75,7 +75,7 @@ export const generateProductRoutes = (ref?: string, project?: ProjectBase): Rout
     },
     {
       key: 'auth',
-      label: 'Authentication',
+      label: '身份验证',
       icon: <IconUsers size={18} strokeWidth={2} />,
       link:
         ref &&
@@ -87,7 +87,7 @@ export const generateProductRoutes = (ref?: string, project?: ProjectBase): Rout
     },
     {
       key: 'storage',
-      label: 'Storage',
+      label: '存储',
       icon: <IconArchive size={18} strokeWidth={2} />,
       link:
         ref &&
@@ -128,7 +128,7 @@ export const generateOtherRoutes = (ref?: string, project?: ProjectBase): Route[
       ? [
           {
             key: 'reports',
-            label: 'Reports',
+            label: '报告',
             icon: <IconBarChart size={18} strokeWidth={2} />,
             link:
               ref &&
@@ -144,7 +144,7 @@ export const generateOtherRoutes = (ref?: string, project?: ProjectBase): Route[
       ? [
           {
             key: 'logs',
-            label: 'Logs',
+            label: '日志',
             icon: <IconList size={18} strokeWidth={2} />,
             link:
               ref &&
@@ -158,7 +158,7 @@ export const generateOtherRoutes = (ref?: string, project?: ProjectBase): Route[
       : []),
     {
       key: 'api',
-      label: 'API Docs',
+      label: 'API文档',
       icon: <IconFileText size={18} strokeWidth={2} />,
       link:
         ref &&
@@ -168,7 +168,7 @@ export const generateOtherRoutes = (ref?: string, project?: ProjectBase): Route[
       ? [
           {
             key: 'settings',
-            label: 'Project Settings',
+            label: '项目设置',
             icon: <IconSettings size={18} strokeWidth={2} />,
             link: ref && `/project/${ref}/settings/general`,
           },

@@ -93,7 +93,7 @@ export default function Introduction({ autoApiService, selectedLang }: Props) {
         </article>
       </div>
 
-      <h2 className="doc-heading">Client Libraries</h2>
+      <h2 className="doc-heading">客户端库</h2>
       <div className="doc-section doc-section--client-libraries">
         <article className="text">
           <p>Your API consists of both a RESTful interface and a Realtime interface.</p>

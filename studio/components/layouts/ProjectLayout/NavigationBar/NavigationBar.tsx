@@ -52,7 +52,7 @@ const NavigationBar: FC<Props> = ({}) => {
           isActive={isUndefined(activeRoute) && !isUndefined(router.query.ref)}
           route={{
             key: 'HOME',
-            label: 'Home',
+            label: '首页',
             icon: <IconHome size={18} strokeWidth={2} />,
             link: `/project/${projectRef}`,
           }}
@@ -93,21 +93,21 @@ const NavigationBar: FC<Props> = ({}) => {
                 <>
                   <Link href="/account/me">
                     <Dropdown.Item key="header" icon={<IconSettings size={14} strokeWidth={1.5} />}>
-                      Account Preferences
+                      帐户偏好
                     </Dropdown.Item>
                   </Link>
                   <Dropdown.Separator />
                 </>
               )}
-              <Dropdown.Label>Theme</Dropdown.Label>
+              <Dropdown.Label>主题</Dropdown.Label>
               <Dropdown.RadioGroup
                 key="theme"
                 value={ui.themeOption}
                 onChange={(e: any) => ui.onThemeOptionChange(e)}
               >
-                <Dropdown.Radio value="system">System default</Dropdown.Radio>
-                <Dropdown.Radio value="dark">Dark</Dropdown.Radio>
-                <Dropdown.Radio value="light">Light</Dropdown.Radio>
+                <Dropdown.Radio value="system">系统默认</Dropdown.Radio>
+                <Dropdown.Radio value="dark">深色</Dropdown.Radio>
+                <Dropdown.Radio value="light">白色</Dropdown.Radio>
               </Dropdown.RadioGroup>
             </>
           }
