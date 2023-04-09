@@ -94,7 +94,7 @@ const ResourceContent = ({
                 To read rows in <code>{resourceId}</code>, use the <code>select</code> method.
               </p>
               <p>
-                <a href="https://supabase.com/docs/reference/javascript/select" target="_blank">
+                <a href="https://www.supabase.cc/docs/reference/javascript/select" target="_blank">
                   Learn more
                 </a>
               </p>
@@ -128,7 +128,7 @@ const ResourceContent = ({
               <p>Supabase provides a wide range of filters.</p>
               <p>
                 <a
-                  href="https://supabase.com/docs/reference/javascript/using-filters"
+                  href="https://www.supabase.cc/docs/reference/javascript/using-filters"
                   target="_blank"
                 >
                   Learn more
@@ -157,7 +157,7 @@ const ResourceContent = ({
                 <code>insert</code> will also return the replaced values for UPSERT.
               </p>
               <p>
-                <a href="https://supabase.com/docs/reference/javascript/insert" target="_blank">
+                <a href="https://www.supabase.cc/docs/reference/javascript/insert" target="_blank">
                   Learn more
                 </a>
               </p>
@@ -193,7 +193,7 @@ const ResourceContent = ({
                 <code>update</code> will also return the replaced values for UPDATE.
               </p>
               <p>
-                <a href="https://supabase.com/docs/reference/javascript/update" target="_blank">
+                <a href="https://www.supabase.cc/docs/reference/javascript/update" target="_blank">
                   Learn more
                 </a>
               </p>
@@ -217,7 +217,7 @@ const ResourceContent = ({
                 default, so remember to specify your filters!
               </p>
               <p>
-                <a href="https://supabase.com/docs/reference/javascript/delete" target="_blank">
+                <a href="https://www.supabase.cc/docs/reference/javascript/delete" target="_blank">
                   Learn more
                 </a>
               </p>
@@ -241,7 +241,7 @@ const ResourceContent = ({
                 authorized users depending on Row Level Security (RLS) policies.
               </p>
               <p>
-                <a href="https://supabase.com/docs/reference/javascript/subscribe" target="_blank">
+                <a href="https://www.supabase.cc/docs/reference/javascript/subscribe" target="_blank">
                   Learn more
                 </a>
               </p>

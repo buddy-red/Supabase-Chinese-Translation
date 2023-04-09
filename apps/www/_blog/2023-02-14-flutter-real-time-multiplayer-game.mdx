@@ -563,7 +563,7 @@ class Bullet extends PositionComponent with CollisionCallbacks, HasGameRef {
 
 ### Step 4. Add real-time communications between players
 
-At this point, we have a working shooting game except the opponent does not move, because we have not added any ways to communicate between clients. We will use Supabase’s [realtime features](https://supabase.com/docs/guides/realtime) for this, because it gives us an out of the box solution to handle low-latency real-time communication between players. If you do not have a Supabase project created yet, head over to [database.new](https://database.new/) to create one.
+At this point, we have a working shooting game except the opponent does not move, because we have not added any ways to communicate between clients. We will use Supabase’s [realtime features](https://www.supabase.cc/docs/guides/realtime) for this, because it gives us an out of the box solution to handle low-latency real-time communication between players. If you do not have a Supabase project created yet, head over to [database.new](https://database.new/) to create one.
 
 Before we get into any coding, let’s install the Supabase SDK into our app. We will also use the [uuid package](https://pub.dev/packages/uuid) to generate random unique ids for the users. Add the following to `pubspec.yaml` file.
 
@@ -594,9 +594,9 @@ With this, we are ready to get into adding the real-time features now.
 
 ### Handle the Lobby to wait for Other Players to show up
 
-We will start by rewriting the `_Lobby` class the first thing we have to do in the lobby is to wait and detect other online users also at the lobby. We can implement this using the [presence](https://supabase.com/docs/guides/realtime/presence) feature in Supabase.
+We will start by rewriting the `_Lobby` class the first thing we have to do in the lobby is to wait and detect other online users also at the lobby. We can implement this using the [presence](https://www.supabase.cc/docs/guides/realtime/presence) feature in Supabase.
 
-Add `initState` and inside it initialize a `RealtimeChannel` instance. We can call it `_lobbyChannel`. If we take a look at the `subscribe()` method, we can see that upon successful subscription to the lobby channel, we are tracking our the unique user ID that we create uplon initialization. We are listening to the `sync` event to get notified whenever anyone is “present”. Within the callback, we are extracting the userIds of all the users in the lobby and set it as the state.A game starts when someone taps on the `Start` button. If we take a look at the `onPressed` callback, we see that we are sending a [broadcast](https://supabase.com/docs/guides/realtime/broadcast) event to the lobby channel with two participant ids and a randomly generated game ID. [Broadcast](https://supabase.com/docs/guides/realtime/broadcast) is a feature of Supabase to send and receive lightweight low-latency data between clients, and when the two participants, one of them being the person tapping on the `start` button, is received on both ends, a game starts. We can observe within `initState` inside the callback for `game_start` event that upon receiving a broadcast event, it checks if the player is one of the participants, and if it is, it will call the `onGameStarted` call back and pop the navigator removing the dialog. The game has begun!
+Add `initState` and inside it initialize a `RealtimeChannel` instance. We can call it `_lobbyChannel`. If we take a look at the `subscribe()` method, we can see that upon successful subscription to the lobby channel, we are tracking our the unique user ID that we create uplon initialization. We are listening to the `sync` event to get notified whenever anyone is “present”. Within the callback, we are extracting the userIds of all the users in the lobby and set it as the state.A game starts when someone taps on the `Start` button. If we take a look at the `onPressed` callback, we see that we are sending a [broadcast](https://www.supabase.cc/docs/guides/realtime/broadcast) event to the lobby channel with two participant ids and a randomly generated game ID. [Broadcast](https://www.supabase.cc/docs/guides/realtime/broadcast) is a feature of Supabase to send and receive lightweight low-latency data between clients, and when the two participants, one of them being the person tapping on the `start` button, is received on both ends, a game starts. We can observe within `initState` inside the callback for `game_start` event that upon receiving a broadcast event, it checks if the player is one of the participants, and if it is, it will call the `onGameStarted` call back and pop the navigator removing the dialog. The game has begun!
 
 ```dart
 class _LobbyDialogState extends State<_LobbyDialog> {
@@ -695,7 +695,7 @@ class _LobbyDialogState extends State<_LobbyDialog> {
 
 ### Sharing Game States with the Opposing Player
 
-Once a game begins, we need to synchronize the game states between the two clients. In our case, we will sync only the player’s position and health points. Whenever a player moves, or the player’s health points change, the `onGameStateUpdate` callback on our `MyGame` instance that will fire notifying the update along with its position and health point. We will broadcast those information to the opponent’s client via Supabase [broadcast feature](https://supabase.com/docs/guides/realtime/broadcast).
+Once a game begins, we need to synchronize the game states between the two clients. In our case, we will sync only the player’s position and health points. Whenever a player moves, or the player’s health points change, the `onGameStateUpdate` callback on our `MyGame` instance that will fire notifying the update along with its position and health point. We will broadcast those information to the opponent’s client via Supabase [broadcast feature](https://www.supabase.cc/docs/guides/realtime/broadcast).
 
 Fill in the `_initialize` method like the following to initialize the game.
 
@@ -837,4 +837,4 @@ We learned how to create an interactive shooting game. We took advantage of Flut
 - [Flutter Tutorial: building a Flutter chat app](https://supabase.com/blog/flutter-tutorial-building-a-chat-app)
 - [Flutter Authentication and Authorization with RLS](https://supabase.com/blog/flutter-authentication-and-authorization-with-rls)
 - [Generate Flame template using Very Good CLI](https://verygood.ventures/blog/generate-a-game-with-our-new-template)
-- [Supabase Flutter SDK docs](https://supabase.com/docs/reference/dart/start)
+- [Supabase Flutter SDK docs](https://www.supabase.cc/docs/reference/dart/start)

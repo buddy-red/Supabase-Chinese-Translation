@@ -539,7 +539,7 @@ const DATABASE_PERMISSIONS = {
 }
 
 const SQL_EDITOR_PERMISSIONS = {
-  title: 'SQL Editor',
+  title: 'SQL编辑器',
   actions: [
     {
       description: 'Can run a SELECT-based query',
@@ -673,10 +673,10 @@ const EDGE_FUNCTIONS_PERMISSIONS = {
 }
 
 const LOGS_EXPLORER_PERMISSIONS = {
-  title: 'Logs Explorer',
+  title: '日志浏览器',
   actions: [
     {
-      description: 'Can view logs explorer',
+      description: '可浏览日志浏览器',
       permissions: {
         owner: true,
         admin: true,

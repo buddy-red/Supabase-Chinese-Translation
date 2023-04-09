@@ -131,7 +131,7 @@ const TerminalInstructions: FC<Props> = ({ closable = false, removeBorder = fals
             </p>
           </div>
           <div className="flex gap-2">
-            <Link passHref href="https://supabase.com/docs/guides/functions">
+            <Link passHref href="https://www.supabase.cc/docs/guides/functions">
               <a target="_blank" rel="noreferrer">
                 <Button type="default" iconRight={<IconBookOpen />}>
                   Documentation

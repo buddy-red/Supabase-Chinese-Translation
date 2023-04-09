@@ -3,7 +3,7 @@ import { IS_PLATFORM } from 'lib/constants'
 import { DatetimeHelper, FilterTableSet, LogTemplate } from '.'
 
 export const LOGS_EXPLORER_DOCS_URL =
-  'https://supabase.com/docs/guides/platform/logs#querying-with-the-logs-explorer'
+  'https://www.supabase.cc/docs/guides/platform/logs#querying-with-the-logs-explorer'
 
 export const LOGS_LARGE_DATE_RANGE_DAYS_THRESHOLD = 4
 

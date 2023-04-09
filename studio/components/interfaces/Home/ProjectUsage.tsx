@@ -142,7 +142,7 @@ const ProjectUsage: FC<Props> = ({}) => {
                         <IconArchive strokeWidth={2} size={16} />
                       </div>
                     }
-                    title="Storage"
+                    title="存储"
                     href={`/project/${projectRef}/storage/buckets`}
                   />
                   <ChartHandler

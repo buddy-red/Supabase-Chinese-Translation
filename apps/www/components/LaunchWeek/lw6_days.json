@@ -8,7 +8,7 @@
     "dd": "Monday",
     "youtube_id": "OpPOaJI_Z28",
     "blogpost": "https://supabase.com/blog/new-supabase-docs-built-with-nextjs",
-    "docs": "https://supabase.com/docs",
+    "docs": "https://www.supabase.cc/docs",
     "steps": [
       {
         "title": "Supabase Docs",
@@ -28,7 +28,7 @@
     "dd": "Tuesday",
     "youtube_id": "iqZlPtl_b-I",
     "blogpost": "https://supabase.com/blog",
-    "docs": "https://supabase.com/docs",
+    "docs": "https://www.supabase.cc/docs",
     "steps": [
       {
         "title": "Image Transformations",
@@ -55,7 +55,7 @@
     "dd": "Wednesday",
     "youtube_id": "CGZr5tybW18",
     "blogpost": "https://supabase.com/blog",
-    "docs": "https://supabase.com/docs",
+    "docs": "https://www.supabase.cc/docs",
     "steps": [
       {
         "title": "Multi-factor Authentication",
@@ -75,7 +75,7 @@
     "dd": "Thursday",
     "youtube_id": "QA2qC5F-4OU",
     "blogpost": "/blog/postgres-foreign-data-wrappers-rust",
-    "docs": "https://supabase.com/docs",
+    "docs": "https://www.supabase.cc/docs",
     "steps": [
       {
         "title": "Supabase Wrappers",
@@ -95,7 +95,7 @@
     "dd": "Friday",
     "youtube_id": "6bGQotxisoY",
     "blogpost": "https://supabase.com/blog",
-    "docs": "https://supabase.com/docs",
+    "docs": "https://www.supabase.cc/docs",
     "steps": [
       {
         "title": "Vault Release",

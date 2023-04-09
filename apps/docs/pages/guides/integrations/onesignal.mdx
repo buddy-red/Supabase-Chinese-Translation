@@ -42,7 +42,7 @@ Before we dive into the code, this guide assumes that you have the following rea
 
 - [Supabase](https://supabase.com/) project created
 - [OneSignal](https://onesignal.com/) app created
-- [Supabase CLI](https://supabase.com/docs/guides/cli) installed on your machine
+- [Supabase CLI](https://www.supabase.cc/docs/guides/cli) installed on your machine
 
 Let’s create a Next.js app with tailwind CSS pre-installed
 
@@ -194,7 +194,7 @@ const Home: NextPage = () => {
 export default Home
 ```
 
-There is quite a bit of stuff going on here, but basically, it’s creating a simple UI for the user to sign in using the [magic link](https://supabase.com/docs/guides/auth/auth-magic-link), and once the user is signed in, will initialize OneSignal to ask the user to receive notifications on the website.
+There is quite a bit of stuff going on here, but basically, it’s creating a simple UI for the user to sign in using the [magic link](https://www.supabase.cc/docs/guides/auth/auth-magic-link), and once the user is signed in, will initialize OneSignal to ask the user to receive notifications on the website.
 
 Notice that inside the `initializeOneSignal()` function, we are setting the Supabase user ID as an [external user ID of OneSignal](https://documentation.onesignal.com/docs/external-user-ids). This allows us to later send push notifications to the user using their Supabase user ID from the backend, which is very handy.
 
@@ -216,7 +216,7 @@ NEXT_PUBLIC_ONESIGNAL_APP_ID=YOUR_ONESIGNAL_APP_ID
 
 ## Step 3: Create the Edge Function
 
-Let’s create an edge function that will receive [database webhooks](https://supabase.com/docs/guides/database/webhooks) from the database and calls the OneSignal API to send the push notification.
+Let’s create an edge function that will receive [database webhooks](https://www.supabase.cc/docs/guides/database/webhooks) from the database and calls the OneSignal API to send the push notification.
 
 ```bash
 supabase functions new notify

@@ -24,14 +24,14 @@ const UserAccessTokens: NextPageWithLayout = () => {
         />
         <div className="flex items-center space-x-4 mb-6">
           <div className="flex items-center space-x-2">
-            <Link href="https://supabase.com/docs/reference/api/introduction">
+            <Link href="https://www.supabase.cc/docs/reference/api/introduction">
               <a target="_blank">
                 <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
                   API Docs
                 </Button>
               </a>
             </Link>
-            <Link href="https://supabase.com/docs/reference/cli/start">
+            <Link href="https://www.supabase.cc/docs/reference/cli/start">
               <a target="_blank">
                 <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
                   CLI docs

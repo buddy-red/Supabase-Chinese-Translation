@@ -197,7 +197,7 @@ const SideBarContent = observer(() => {
         {(sqlEditorStore?.tabs ?? []).length === 0 ? (
           <div className="my-4 flex items-center space-x-2 px-7">
             <IconLoader className="animate-spin" size={16} strokeWidth={2} />
-            <p className="text-sm">Loading SQL snippets</p>
+            <p className="text-sm">加载SQL代码片段</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -237,7 +237,7 @@ const SideBarContent = observer(() => {
               )}
               {queryTabs.length >= 1 && (
                 <div className="editor-product-menu">
-                  <Menu.Group title="SQL snippets" />
+                  <Menu.Group title="SQL代码片段" />
                   <div className="space-y-1">
                     {queryTabs.map((tabInfo: any) => {
                       const { id } = tabInfo || {}

@@ -7,6 +7,6 @@ const Storage: NextPageWithLayout = () => {
   return <>{/* <h1>Use this as a template for storage pages</h1> */}</>
 }
 
-Storage.getLayout = (page) => <StorageLayout title="Storage">{page}</StorageLayout>
+Storage.getLayout = (page) => <StorageLayout title="存储">{page}</StorageLayout>
 
 export default observer(Storage)

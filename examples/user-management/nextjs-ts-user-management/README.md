@@ -5,19 +5,19 @@ This example will set you up for a very common situation: users can sign up or s
 This demonstrates how to use:
 
 - User signups using Supabase [Auth](https://supabase.com/auth).
-  - Supabase [Auth Helpers for Next.js](https://supabase.com/docs/guides/auth/auth-helpers/nextjs).
-  - Supabase [pre-built Auth UI for React](https://supabase.com/docs/guides/auth/auth-helpers/auth-ui).
+  - Supabase [Auth Helpers for Next.js](https://www.supabase.cc/docs/guides/auth/auth-helpers/nextjs).
+  - Supabase [pre-built Auth UI for React](https://www.supabase.cc/docs/guides/auth/auth-helpers/auth-ui).
 - User avatar images using Supabase [Storage](https://supabase.com/storage)
-- Public profiles restricted with [Policies](https://supabase.com/docs/guides/auth#policies).
+- Public profiles restricted with [Policies](https://www.supabase.cc/docs/guides/auth#policies).
 - Frontend using [Next.js](<[nextjs.org/](https://nextjs.org/)>).
 
 ## Technologies used
 
 - Frontend:
   - [Next.js](https://github.com/vercel/next.js) - a React framework for production.
-  - [Supabase.js](https://supabase.com/docs/library/getting-started) for user management and realtime data syncing.
-  - Supabase [Auth Helpers for Next.js](https://supabase.com/docs/guides/auth/auth-helpers/nextjs).
-  - Supabase [pre-built Auth UI for React](https://supabase.com/docs/guides/auth/auth-helpers/auth-ui).
+  - [Supabase.js](https://www.supabase.cc/docs/library/getting-started) for user management and realtime data syncing.
+  - Supabase [Auth Helpers for Next.js](https://www.supabase.cc/docs/guides/auth/auth-helpers/nextjs).
+  - Supabase [pre-built Auth UI for React](https://www.supabase.cc/docs/guides/auth/auth-helpers/auth-ui).
 - Backend:
   - [app.supabase.com](https://app.supabase.com/): hosted Postgres database with restful API for usage with Supabase.js.
 
@@ -92,7 +92,7 @@ create table profiles (
   constraint username_length check (char_length(username) >= 3)
 );
 -- Set up Row Level Security (RLS)
--- See https://supabase.com/docs/guides/auth/row-level-security for more details.
+-- See https://www.supabase.cc/docs/guides/auth/row-level-security for more details.
 alter table profiles
   enable row level security;
 
@@ -106,7 +106,7 @@ create policy "Users can update own profile." on profiles
   for update using (auth.uid() = id);
 
 -- This trigger automatically creates a profile entry when a new user signs up via Supabase Auth.
--- See https://supabase.com/docs/guides/auth/managing-user-data#using-triggers for more details.
+-- See https://www.supabase.cc/docs/guides/auth/managing-user-data#using-triggers for more details.
 create function public.handle_new_user()
 returns trigger as $$
 begin
@@ -124,7 +124,7 @@ insert into storage.buckets (id, name)
   values ('avatars', 'avatars');
 
 -- Set up access controls for storage.
--- See https://supabase.com/docs/guides/storage#policy-examples for more details.
+-- See https://www.supabase.cc/docs/guides/storage#policy-examples for more details.
 create policy "Avatar images are publicly accessible." on storage.objects
   for select using (bucket_id = 'avatars');
 
@@ -148,7 +148,7 @@ These official examples are maintained by the Supabase team:
 
 ## Other resources
 
-- [[Docs] Next.js User Management Quickstart](https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs)
+- [[Docs] Next.js User Management Quickstart](https://www.supabase.cc/docs/guides/getting-started/tutorials/with-nextjs)
 - [[Egghead.io] Build a SaaS product with Next.js, Supabase and Stripe](https://egghead.io/courses/build-a-saas-product-with-next-js-supabase-and-stripe-61f2bc20)
 - [[Blog] Fetching and caching Supabase data in Next.js 13 Server Components](https://supabase.com/blog/fetching-and-caching-supabase-data-in-next-js-server-components)
 

@@ -44,17 +44,17 @@ const PageLayout: NextPageWithLayout = () => {
         !bucket ? (
           <div className="flex h-full w-full items-center justify-center">
             <ProductEmptyState
-              title="Storage"
-              ctaButtonLabel="Create a new bucket"
-              infoButtonLabel="About storage"
-              infoButtonUrl="https://supabase.com/docs/guides/storage"
+              title="存储"
+              ctaButtonLabel="新建存储桶"
+              infoButtonLabel="关于存储"
+              infoButtonUrl="https://www.supabase.cc/docs/guides/storage"
               onClickCta={openCreateBucketModal}
             >
               <p className="text-scale-1100 text-sm">
-                Create buckets to store and serve any type of digital content.
+                创建存储桶来存储和提供任何类型的数字内容
               </p>
               <p className="text-scale-1100 text-sm">
-                Make your buckets private or public depending on your security preference.
+                根据您的安全偏好，将您的存储桶设为私有或公开。
               </p>
             </ProductEmptyState>
           </div>

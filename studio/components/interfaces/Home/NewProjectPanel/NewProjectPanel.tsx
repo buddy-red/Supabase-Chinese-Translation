@@ -55,7 +55,7 @@ const NewProjectPanel: FC<Props> = ({}) => {
                         />
                       }
                     >
-                      Table editor
+                      数据表编辑器
                     </Button>
                   </a>
                 </Link>
@@ -73,14 +73,14 @@ const NewProjectPanel: FC<Props> = ({}) => {
                         />
                       }
                     >
-                      SQL editor
+                      SQL编辑器
                     </Button>
                   </a>
                 </Link>
-                <Link href="https://supabase.com/docs/guides/database">
+                <Link href="https://supabase.cc/docs/guides/database">
                   <a target="_blank" rel="noreferrer">
                     <Button type="default" icon={<IconExternalLink size={14} />}>
-                      About Database
+                      关于数据库
                     </Button>
                   </a>
                 </Link>
@@ -119,7 +119,7 @@ const NewProjectPanel: FC<Props> = ({}) => {
                         <Button type="default">Explore Auth</Button>
                       </a>
                     </Link>
-                    <Link href="https://supabase.com/docs/guides/auth">
+                    <Link href="https://www.supabase.cc/docs/guides/auth">
                       <a target="_blank" rel="noreferrer">
                         <Button
                           className="translate-y-[1px]"
@@ -140,7 +140,7 @@ const NewProjectPanel: FC<Props> = ({}) => {
                     <div className="rounded bg-scale-600 p-1.5 text-scale-1000 shadow-sm">
                       <IconArchive strokeWidth={2} size={16} />
                     </div>
-                    <h5>Storage</h5>
+                    <h5>存储/h5>
                   </div>
                   <div className="flex md:min-h-[50px] xl:min-h-[75px]">
                     <p className="text-sm text-scale-1000">
@@ -150,17 +150,17 @@ const NewProjectPanel: FC<Props> = ({}) => {
                   <div className="flex items-center space-x-2">
                     <Link href={`/project/${ref}/storage/buckets`}>
                       <a>
-                        <Button type="default">Explore Storage</Button>
+                        <Button type="default">浏览存储</Button>
                       </a>
                     </Link>
-                    <Link href="https://supabase.com/docs/guides/storage">
+                    <Link href="https://www.supabase.cc/docs/guides/storage">
                       <a target="_blank" rel="noreferrer">
                         <Button
                           className="translate-y-[1px]"
                           icon={<IconExternalLink size={14} />}
                           type="default"
                         >
-                          About Storage
+                          关于存储
                         </Button>
                       </a>
                     </Link>
@@ -188,7 +188,7 @@ const NewProjectPanel: FC<Props> = ({}) => {
                         <Button type="default">Explore Functions</Button>
                       </a>
                     </Link>
-                    <Link href="https://supabase.com/docs/guides/functions">
+                    <Link href="https://www.supabase.cc/docs/guides/functions">
                       <a target="_blank" rel="noreferrer">
                         <Button
                           className="translate-y-[1px]"
@@ -216,7 +216,7 @@ const NewProjectPanel: FC<Props> = ({}) => {
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Link href="https://supabase.com/docs/guides/realtime">
+                    <Link href="https://www.supabase.cc/docs/guides/realtime">
                       <a target="_blank" rel="noreferrer">
                         <Button
                           className="translate-y-[1px]"
@@ -241,7 +241,7 @@ const NewProjectPanel: FC<Props> = ({}) => {
             <h3 className="text-xl text-scale-1200">Connecting to your new project</h3>
             <p className="text-base text-scale-1100 lg:max-w-sm">
               Interact with your database through the{' '}
-              <Link href="https://supabase.com/docs/reference">
+              <Link href="https://www.supabase.cc/docs/reference">
                 <a className="text-brand-900">Supabase client libraries</a>
               </Link>{' '}
               with your API keys.
@@ -257,7 +257,7 @@ const NewProjectPanel: FC<Props> = ({}) => {
                 <Button type="default">View API settings</Button>
               </a>
             </Link>
-            <Link href="https://supabase.com/docs/guides/database/api">
+            <Link href="https://www.supabase.cc/docs/guides/database/api">
               <a target="_blank" rel="noreferrer">
                 <Button className="translate-y-[1px]" type="default" icon={<IconExternalLink />}>
                   About APIs

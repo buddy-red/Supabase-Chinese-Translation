@@ -80,7 +80,7 @@ const BuildingState: FC<Props> = ({ project }) => {
                   description={
                     <p className="text-sm text-scale-1100">
                       Browse the Supabase{' '}
-                      <Link href="https://supabase.com/docs">
+                      <Link href="https://www.supabase.cc/docs">
                         <a
                           className="mb-0 text-brand-900 transition-colors hover:text-brand-1200"
                           target="_blank"

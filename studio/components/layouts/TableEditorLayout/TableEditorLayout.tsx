@@ -134,7 +134,7 @@ const TableEditorLayout = ({
 
   return (
     <ProjectLayout
-      product="Table editor"
+      product="数据表编辑器"
       productMenu={
         <TableEditorMenu
           selectedSchema={selectedSchema}

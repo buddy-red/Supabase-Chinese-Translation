@@ -167,7 +167,7 @@ export default function UserManagement({ autoApiService, selectedLang, showApiKe
           </p>
           <p>
             View all the available{' '}
-            <a href="https://supabase.com/docs/guides/auth#providers" target="_blank">
+            <a href="https://www.supabase.cc/docs/guides/auth#providers" target="_blank">
               Third Party OAuth providers
             </a>
           </p>

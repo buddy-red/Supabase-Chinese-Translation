@@ -117,7 +117,7 @@ const StorageConfig = ({ config, projectRef }: any) => {
           return (
             <>
               <div className="mb-6">
-                <h3 className="mb-2 text-xl text-scale-1200">Storage settings</h3>
+                <h3 className="mb-2 text-xl text-scale-1200">存储设置</h3>
                 <div className="text-sm text-scale-900">
                   Configure your project's storage settings
                 </div>

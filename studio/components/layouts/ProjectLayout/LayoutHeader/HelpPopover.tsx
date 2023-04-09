@@ -43,7 +43,7 @@ const HelpPopover: FC<Props> = () => {
                   </Button>
                 </a>
               </Link>
-              <Link passHref href="https://supabase.com/docs/">
+              <Link passHref href="https://www.supabase.cc/docs/">
                 <a target="_blank" rel="noreferrer">
                   <Button type="text" size="tiny" icon={<IconBookOpen />}>
                     Docs

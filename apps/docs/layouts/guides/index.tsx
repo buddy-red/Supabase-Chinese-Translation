@@ -83,9 +83,9 @@ const Layout: FC<Props> = (props) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <NextSeo
-        canonical={props.meta?.canonical ?? `https://supabase.com/docs${asPath}`}
+        canonical={props.meta?.canonical ?? `https://www.supabase.cc/docs${asPath}`}
         openGraph={{
-          url: `https://supabase.com/docs${asPath}`,
+          url: `https://www.supabase.cc/docs${asPath}`,
           type: 'article',
           videos: props.meta?.video && [
             {

@@ -15,7 +15,7 @@ video: https://www.youtube.com/v/He7LI2mv9v0
 ---
 Today, we’re releasing Multi Factor Authentication for everyone.
 
-Additionally, in preparation for releasing SAML, we're "dogfooding" the feature with the introduction of Single Sign On (SSO) on our dashboard. Contact us at [growth@supabase.com](mailto:growth@supabase.com) if you want to [enable this on your Enterprise plan](https://supabase.com/docs/guides/platform/sso).
+Additionally, in preparation for releasing SAML, we're "dogfooding" the feature with the introduction of Single Sign On (SSO) on our dashboard. Contact us at [growth@supabase.com](mailto:growth@supabase.com) if you want to [enable this on your Enterprise plan](https://www.supabase.cc/docs/guides/platform/sso).
 
 <div className="video-container">
   <iframe 
@@ -122,7 +122,7 @@ create policy "Allow access on table only if user has gone through MFA"
 
 Note that both RLS policies are restrictive. By default, overlapping policies in PostgreSQL are permissive rather than restrictive. This means that RLS policies are combined with an `OR` clause and only one policy needs to pass in order for a row to be operated on. Therefore, we set RLS policies as restrictive to enforce the checks from multiple policies.
 
-Be mindful of your user’s preference, though. If a user has enabled MFA, they are expecting a higher level of security for their account. Consequently, we recommend that developers enforce MFA across all operations if a user has MFA enabled. You can check out [our MFA guide](https://supabase.com/docs/guides/auth/auth-mfa) for more details about MFA enforcement.
+Be mindful of your user’s preference, though. If a user has enabled MFA, they are expecting a higher level of security for their account. Consequently, we recommend that developers enforce MFA across all operations if a user has MFA enabled. You can check out [our MFA guide](https://www.supabase.cc/docs/guides/auth/auth-mfa) for more details about MFA enforcement.
 
 
 ## What's Next

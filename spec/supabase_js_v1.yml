@@ -171,7 +171,7 @@ functions:
           ```
       - id: sign-in-with-third-party-provider
         name: Sign in using third-party providers.
-        description: Supabase supports many different [third-party providers](https://supabase.com/docs/guides/auth#providers).
+        description: Supabase supports many different [third-party providers](https://www.supabase.cc/docs/guides/auth#providers).
         code: |
           ```js
           const { user, session, error } = await supabase.auth.signIn({

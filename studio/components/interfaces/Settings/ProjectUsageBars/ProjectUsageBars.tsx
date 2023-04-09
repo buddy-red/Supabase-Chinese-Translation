@@ -99,7 +99,7 @@ const ProjectUsage: FC<Props> = ({ projectRef }) => {
         </div>
 
         <Button type="default" icon={<IconExternalLink size={14} strokeWidth={1.5} />}>
-          <a target="_blank" href="https://supabase.com/docs/guides/platform/database-usage">
+          <a target="_blank" href="https://www.supabase.cc/docs/guides/platform/database-usage">
             What is disk size?
           </a>
         </Button>
@@ -328,7 +328,7 @@ const ProjectUsage: FC<Props> = ({ projectRef }) => {
                           <>
                             Your disk has reached 95% capacity and has entered{' '}
                             <a
-                              href={`https://supabase.com/docs/guides/platform/database-usage#paid-tier-disk-auto-scaling`}
+                              href={`https://www.supabase.cc/docs/guides/platform/database-usage#paid-tier-disk-auto-scaling`}
                               className="underline transition hover:text-scale-1200"
                             >
                               read-only mode
@@ -340,7 +340,7 @@ const ProjectUsage: FC<Props> = ({ projectRef }) => {
                             You have exceeded the 500mb Database size limit and your project is now
                             in{' '}
                             <a
-                              href={`https://supabase.com/docs/guides/platform/database-usage#free-tier-project-read-only-mode`}
+                              href={`https://www.supabase.cc/docs/guides/platform/database-usage#free-tier-project-read-only-mode`}
                               className="underline transition hover:text-scale-1200"
                             >
                               read-only mode
@@ -354,7 +354,7 @@ const ProjectUsage: FC<Props> = ({ projectRef }) => {
                           <p>
                             For Pro and Enterprise projects,{' '}
                             <a
-                              href="https://supabase.com/docs/guides/platform/database-usage#paid-tier-disk-auto-scaling"
+                              href="https://www.supabase.cc/docs/guides/platform/database-usage#paid-tier-disk-auto-scaling"
                               className="underline transition hover:text-scale-1200"
                             >
                               Disk Size expands automatically
@@ -363,7 +363,7 @@ const ProjectUsage: FC<Props> = ({ projectRef }) => {
                             If the disk size has already expanded and then reaches 95% capacity
                             within 6 hours, then{' '}
                             <a
-                              href="https://supabase.com/docs/guides/platform/database-usage#paid-tier-project-read-only-mode"
+                              href="https://www.supabase.cc/docs/guides/platform/database-usage#paid-tier-project-read-only-mode"
                               className="underline transition hover:text-scale-1200"
                             >
                               your disk will enter read-only mode
@@ -389,7 +389,7 @@ const ProjectUsage: FC<Props> = ({ projectRef }) => {
                         <p>
                           You can either{' '}
                           <a
-                            href="https://supabase.com/docs/guides/platform/database-usage#increasing-available-disk-size"
+                            href="https://www.supabase.cc/docs/guides/platform/database-usage#increasing-available-disk-size"
                             className="underline transition hover:text-scale-1200"
                           >
                             reduce your disk usage below 500mb
@@ -412,7 +412,7 @@ const ProjectUsage: FC<Props> = ({ projectRef }) => {
                         <Button type="danger" className="mt-3">
                           <a
                             target="_blank"
-                            href="https://supabase.com/docs/guides/platform/database-usage#database-storage-management"
+                            href="https://www.supabase.cc/docs/guides/platform/database-usage#database-storage-management"
                           >
                             Upgrade this project
                           </a>
@@ -425,7 +425,7 @@ const ProjectUsage: FC<Props> = ({ projectRef }) => {
                         >
                           <a
                             target="_blank"
-                            href="https://supabase.com/docs/guides/platform/database-usage#database-storage-management"
+                            href="https://www.supabase.cc/docs/guides/platform/database-usage#database-storage-management"
                           >
                             Database storage management docs
                           </a>

@@ -8,16 +8,16 @@ import CodeSnippet from '../CodeSnippet'
 const libs = [
   {
     name: 'Javascript',
-    url: 'https://supabase.com/docs/reference/javascript/introduction',
+    url: 'https://www.supabase.cc/docs/reference/javascript/introduction',
     icon: 'javascript',
   },
-  { name: 'Flutter', url: 'https://supabase.com/docs/reference/dart/introduction', icon: 'dart' },
+  { name: 'Flutter', url: 'https://www.supabase.cc/docs/reference/dart/introduction', icon: 'dart' },
   {
     name: 'Python',
-    url: 'https://supabase.com/docs/reference/python/introduction',
+    url: 'https://www.supabase.cc/docs/reference/python/introduction',
     icon: 'python',
   },
-  { name: 'C#', url: 'https://supabase.com/docs/reference/csharp/introduction', icon: 'csharp' },
+  { name: 'C#', url: 'https://www.supabase.cc/docs/reference/csharp/introduction', icon: 'csharp' },
 ]
 
 interface Props {

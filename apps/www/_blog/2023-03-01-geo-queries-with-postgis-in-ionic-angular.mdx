@@ -23,9 +23,9 @@ In this tutorial you will learn to:
 
 - Enable and use PostGIS extension with Supabase
 - Store and retrieve geolocation data
-- Use [database functions](https://supabase.com/docs/guides/database/functions) for geo-queries with PostGIS
+- Use [database functions](https://www.supabase.cc/docs/guides/database/functions) for geo-queries with PostGIS
 - Display a [Capacitor Google Map](https://capacitorjs.com/docs/apis/google-maps) with a marker
-- Upload files to Supabase Storage and use [image transformations](https://supabase.com/docs/guides/storage/image-transformations)
+- Upload files to Supabase Storage and use [image transformations](https://www.supabase.cc/docs/guides/storage/image-transformations)
 
 Since there are quite some code snippets we need I've put together the [full source code on Github](https://github.com/saimon24/supabase-postgis-ionic-angular) so you can easily run the project yourself!
 
@@ -51,7 +51,7 @@ Turns out storing lat/long coordinates and querying them isn't very effective an
 
 By enabling this extension, we get access to additional data types like `Point` or `Polygon`, and we can easily add an index to our data that makes retrieving locations within certain bounds super simpler.
 
-It's super easy to use [PostGIS with Supabase](https://supabase.com/docs/guides/database/extensions/postgis) as we just need to enable the extension - which is just one of many other Postgres extensions that you can toggle on with just a click!
+It's super easy to use [PostGIS with Supabase](https://www.supabase.cc/docs/guides/database/extensions/postgis) as we just need to enable the extension - which is just one of many other Postgres extensions that you can toggle on with just a click!
 
 ## Defining your Tables with SQL
 
@@ -149,7 +149,7 @@ With all of that in place we are ready to build a powerful app with geo-queries 
 
 ### Setting up the Project
 
-We are not bound to any framework, but in this article, we are using [Ionic Angular](https://supabase.com/docs/guides/getting-started/tutorials/with-ionic-angular) to build a cross-platform application.
+We are not bound to any framework, but in this article, we are using [Ionic Angular](https://www.supabase.cc/docs/guides/getting-started/tutorials/with-ionic-angular) to build a cross-platform application.
 
 Additionally we use [Capacitor](https://capacitorjs.com/) to include a [native Google Maps](https://capacitorjs.com/docs/apis/google-maps) component and to retrieve the user location.
 
@@ -920,7 +920,7 @@ To wrap this up, let's take a look at one more cool Supabase feature.
 
 We have the marker and store ID, so we can simply load the information from our Supabase database.
 
-Now a store might have an image, and while we download the image from our storage bucket we can use [image transformations](https://supabase.com/docs/guides/storage/image-transformations) to get an image exactly in the right dimensions to save time and bandwidth!
+Now a store might have an image, and while we download the image from our storage bucket we can use [image transformations](https://www.supabase.cc/docs/guides/storage/image-transformations) to get an image exactly in the right dimensions to save time and bandwidth!
 
 For this, add two new functions to our **src/app/services/stores.service.ts**:
 
@@ -1053,5 +1053,5 @@ Until next time and happy coding with Supabase!
 
 - [Authentication in Ionic Angular with Supabase](https://supabase.com/blog/authentication-in-ionic-angular)
 - [Building a Realtime Trello Board with Supabase and Angular](https://supabase.com/blog/building-a-realtime-trello-board-with-supabase-and-angular)
-- [Build a User Management App with Ionic Angular](https://supabase.com/docs/guides/getting-started/tutorials/with-ionic-angular)
+- [Build a User Management App with Ionic Angular](https://www.supabase.cc/docs/guides/getting-started/tutorials/with-ionic-angular)
 

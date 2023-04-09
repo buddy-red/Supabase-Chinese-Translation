@@ -9,7 +9,7 @@ export const WRAPPERS: WrapperMeta[] = [
     icon: `${BASE_PATH}/img/icons/stripe-icon.svg`,
     extensionName: 'StripeFdw',
     label: 'Stripe',
-    docsUrl: 'https://supabase.com/docs/guides/database/wrappers/stripe',
+    docsUrl: 'https://www.supabase.cc/docs/guides/database/wrappers/stripe',
     server: {
       options: [
         {
@@ -413,7 +413,7 @@ export const WRAPPERS: WrapperMeta[] = [
     icon: `${BASE_PATH}/img/icons/firebase-icon.svg`,
     extensionName: 'FirebaseFdw',
     label: 'Firebase',
-    docsUrl: 'https://supabase.com/docs/guides/database/wrappers/firebase',
+    docsUrl: 'https://www.supabase.cc/docs/guides/database/wrappers/firebase',
     server: {
       options: [
         {

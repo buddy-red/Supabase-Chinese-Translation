@@ -68,7 +68,7 @@ const QueryPerformanceReport: NextPageWithLayout = () => {
       Identify the queries that consume the most time and database resources.
       {'\n\n'}It relies on the <code>pg_stat_statements</code> table. Read more about{' '}
       <Link
-        href="https://supabase.com/docs/guides/platform/performance#examining-query-performance"
+        href="https://www.supabase.cc/docs/guides/platform/performance#examining-query-performance"
         passHref
       >
         <a target="_blank">examining query performance</a>

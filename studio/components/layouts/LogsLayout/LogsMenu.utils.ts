@@ -7,7 +7,7 @@ export const generateLogsMenu = (project?: Project): ProductMenuGroup[] => {
 
   return [
     {
-      title: 'Logs Explorer',
+      title: '日志浏览器',
       items: (
         [
           { key: 'explorer', name: 'Query', root: true },

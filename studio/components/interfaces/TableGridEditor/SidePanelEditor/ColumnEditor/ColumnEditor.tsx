@@ -247,7 +247,7 @@ const ColumnEditor: FC<Props> = ({
           <FormSectionLabel
             className="lg:!col-span-4"
             description={
-              <Link href="https://supabase.com/docs/guides/database/tables#data-types">
+              <Link href="https://www.supabase.cc/docs/guides/database/tables#data-types">
                 <a target="_blank" rel="noreferrer">
                   <Button
                     as="span"

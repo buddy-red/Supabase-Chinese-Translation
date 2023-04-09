@@ -48,7 +48,7 @@ const PROVIDER_EMAIL = {
   misc: {
     iconKey: 'email-icon2',
     helper: `To complete setup, add this authorisation callback URL to your app's configuration in the Apple Developer Console.
-            [Learn more](https://supabase.com/docs/guides/auth/social-login/auth-apple#configure-your-services-id)`,
+            [Learn more](https://www.supabase.cc/docs/guides/auth/social-login/auth-apple#configure-your-services-id)`,
   },
 }
 
@@ -284,7 +284,7 @@ const PROVIDER_PHONE = {
   misc: {
     iconKey: 'phone-icon4',
     helper: `To complete setup, add this authorisation callback URL to your app's configuration in the Apple Developer Console.
-            [Learn more](https://supabase.com/docs/guides/auth/social-login/auth-apple#configure-your-services-id)`,
+            [Learn more](https://www.supabase.cc/docs/guides/auth/social-login/auth-apple#configure-your-services-id)`,
   },
 }
 
@@ -323,7 +323,7 @@ Client identifier when authenticating or validating users.
       title: 'Secret key',
       description: `
 The secret key is a JWT token that must be generated.
-[Learn more](https://supabase.com/docs/guides/auth/social-login/auth-apple#generate-a-client_secret)`,
+[Learn more](https://www.supabase.cc/docs/guides/auth/social-login/auth-apple#generate-a-client_secret)`,
       type: 'string',
       isSecret: true,
     },
@@ -364,7 +364,7 @@ The secret key is a JWT token that must be generated.
     iconKey: 'apple-icon',
     requiresRedirect: true,
     helper: `To complete setup, add this authorisation callback URL to your app's configuration in the Apple Developer Console.
-            [Learn more](https://supabase.com/docs/guides/auth/social-login/auth-apple#configure-your-services-id)`,
+            [Learn more](https://www.supabase.cc/docs/guides/auth/social-login/auth-apple#configure-your-services-id)`,
     alert: {
       title: `Apple secrets will self expire every 6 months`,
       description: `You will need to regenerate before the 6 months elapses otherwise your users using Apple Login will no longer be able to log back in.`,
@@ -389,7 +389,7 @@ const EXTERNAL_PROVIDER_AZURE = {
     EXTERNAL_AZURE_SECRET: {
       // [TODO] Change docs
       title: 'Secret Value',
-      description: `Enter the data from Value, not the Secret ID. [Learn more](https://supabase.com/docs/guides/auth/social-login/auth-azure#obtain-a-secret-id)`,
+      description: `Enter the data from Value, not the Secret ID. [Learn more](https://www.supabase.cc/docs/guides/auth/social-login/auth-azure#obtain-a-secret-id)`,
       type: 'string',
       isSecret: true,
     },
@@ -1033,7 +1033,7 @@ export const PROVIDER_SAML = {
     SAML_ENABLED: {
       title: 'Enable SAML 2.0 Single Sign-on',
       description:
-        'You will need to use the [Supabase CLI](https://supabase.com/docs/guides/auth/sso/auth-sso-saml#managing-saml-20-connections) to set up SAML after enabling it',
+        'You will need to use the [Supabase CLI](https://www.supabase.cc/docs/guides/auth/sso/auth-sso-saml#managing-saml-20-connections) to set up SAML after enabling it',
       type: 'boolean',
     },
   },

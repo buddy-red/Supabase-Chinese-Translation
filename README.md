@@ -78,4 +78,4 @@ npm run dev:www
 - [x] 文件存储
 - [x] 仪表板
 
-![Supabase仪表板](https://raw.githubusercontent.com/supabase/supabase/master/apps/www/public/images/github/supabase-dashboard.png)
+![Supabase仪表板](./img/supabase-dashboard.png)

@@ -51,10 +51,10 @@ const RefSectionHandler = (props: RefSectionHandlerProps) => {
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageTitle} />
-        <meta property="og:image" content={`https://supabase.com/docs/img/supabase-og-image.png`} />
+        <meta property="og:image" content={`https://www.supabase.cc/docs/img/supabase-og-image.png`} />
         <meta
           name="twitter:image"
-          content={`https://supabase.com/docs/img/supabase-og-image.png`}
+          content={`https://www.supabase.cc/docs/img/supabase-og-image.png`}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>

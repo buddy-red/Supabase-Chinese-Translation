@@ -37,7 +37,7 @@ const LogsExplorerHeader: FC<Props> = ({ subtitle }) => {
           <IconList size={14} strokeWidth={3} />
         </div>
 
-        <h1 className="text-2xl text-scale-1200">Logs Explorer</h1>
+        <h1 className="text-2xl text-scale-1200">日志浏览器</h1>
         {subtitle && <span className="text-2xl text-scale-1000">{subtitle}</span>}
       </div>
       <div className="flex flex-row gap-2">
@@ -82,7 +82,7 @@ const LogsExplorerHeader: FC<Props> = ({ subtitle }) => {
                 The following table shows all the available paths that can be queried from each
                 respective source. Do note that to access nested keys, you would need to perform the
                 necessary{' '}
-                <Link href="https://supabase.com/docs/guides/platform/logs#unnesting-arrays">
+                <Link href="https://www.supabase.cc/docs/guides/platform/logs#unnesting-arrays">
                   <a target="_blank" className="text-brand-900">
                     unnesting joins
                     <IconExternalLink

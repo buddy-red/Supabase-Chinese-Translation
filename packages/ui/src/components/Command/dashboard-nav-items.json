@@ -48,23 +48,23 @@
   "docsTools": [
     {
       "label": "Database",
-      "url": "https://supabase.com/docs/guides/database"
+      "url": "https://www.supabase.cc/docs/guides/database"
     },
     {
       "label": "Auth",
-      "url": "https://supabase.com/docs/guides/auth/overview"
+      "url": "https://www.supabase.cc/docs/guides/auth/overview"
     },
     {
       "label": "Edge Functions",
-      "url": "https://supabase.com/docs/guides/functions"
+      "url": "https://www.supabase.cc/docs/guides/functions"
     },
     {
       "label": "Realtime",
-      "url": "https://supabase.com/docs/guides/realtime"
+      "url": "https://www.supabase.cc/docs/guides/realtime"
     },
     {
       "label": "Storage",
-      "url": "https://supabase.com/docs/guides/storage"
+      "url": "https://www.supabase.cc/docs/guides/storage"
     }
   ],
   "docsSupport": [

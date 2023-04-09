@@ -140,7 +140,7 @@ const EncryptionKeysManagement: FC<Props> = ({}) => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Link href="https://supabase.com/docs/guides/database/vault">
+            <Link href="https://www.supabase.cc/docs/guides/database/vault">
               <a target="_blank">
                 <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
                   Vault Documentation

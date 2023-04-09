@@ -111,7 +111,7 @@ const SignInLayout = ({
             </div>
 
             <div className="items-center hidden space-x-3 md:ml-10 md:flex md:pr-4">
-              <Link href="https://supabase.com/docs">
+              <Link href="https://www.supabase.cc/docs">
                 <a target="_blank">
                   <Button type="default" icon={<IconFileText />}>
                     Documentation

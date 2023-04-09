@@ -54,7 +54,7 @@ The only thing we will change manually for now is disabling the email confirmati
 
 ![Disable Email confirm](/images/blog/simon-grimm-angular-realtime/disable-email-confirm.png)
 
-Everything else regarding authentication[https://supabase.com/docs/guides/auth] is handled by Supabase and we don't need to worry about it at the moment!
+Everything else regarding authentication[https://www.supabase.cc/docs/guides/auth] is handled by Supabase and we don't need to worry about it at the moment!
 
 ## Defining your Tables with SQL
 
@@ -144,7 +144,7 @@ $$;
 
 Besides the creation of tables we also changed the replica identity, which helps to alter retrieve records when a row is deleted.
 
-Finally we defined a very important **function** that we will use to make the table secure using [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security).
+Finally we defined a very important **function** that we will use to make the table secure using [Row Level Security](https://www.supabase.cc/docs/guides/auth/row-level-security).
 
 This function will retrieve all boards of a user from the `user_boards` table and will be used in our policies now.
 
@@ -258,7 +258,7 @@ At this point our Supabase project is configured correctly and we can move into 
 
 ## Creating the Angular Project
 
-We are not bound to any framework, but in this article we are using [Angular](https://supabase.com/docs/guides/with-angular) to build a robust web application.
+We are not bound to any framework, but in this article we are using [Angular](https://www.supabase.cc/docs/guides/with-angular) to build a robust web application.
 
 Get started by using the [Angular CLI](https://angular.io/cli) to generate a new project and then add some components and services that we will need.
 
@@ -680,7 +680,7 @@ Our first function will simplye insert an empty object into the `boards` table, 
 
 Because we defined a default value for new rows in our SQL in the beginning, we don't have to pass any other data here.
 
-To load all tables of a user could simply query the `user_boards` table, but we might want more information about the related board so we can also [query foreign tables](https://supabase.com/docs/reference/javascript/select#query-foreign-tables) to load the board information!
+To load all tables of a user could simply query the `user_boards` table, but we might want more information about the related board so we can also [query foreign tables](https://www.supabase.cc/docs/reference/javascript/select#query-foreign-tables) to load the board information!
 
 Go ahead and begin the **src/app/services/data.service.ts** with this:
 
@@ -789,7 +789,7 @@ Besides that we simply iterate all boards, add the router link to a board based 
     >
       <div class="flex items-center">
         <a routerLink="/workspace">
-          <img class="h-6 w-auto" src="https://supabase.com/docs/supabase-dark.svg" alt="" />
+          <img class="h-6 w-auto" src="https://www.supabase.cc/docs/supabase-dark.svg" alt="" />
         </a>
       </div>
       <div class="ml-10 flex items-center space-x-4">
@@ -937,7 +937,7 @@ Since there's no real value in discussing every line, let's quickly add the foll
   }
 ```
 
-Most if not all of this is basic SQL as described in the [Supabase docs for Database](https://supabase.com/docs/reference/javascript/select)
+Most if not all of this is basic SQL as described in the [Supabase docs for Database](https://www.supabase.cc/docs/reference/javascript/select)
 
 One additional function is missing, and that's a simple invitation logic. However we gonna skip the "Ok I want to join this board" step and simply add invited users to a new board. Sometimes users need to be forced to do what's good for them.
 
@@ -1387,5 +1387,5 @@ Until next time and happy coding with Supabase!
 
 ## Resources
 
-- [Quickstart: Angular](https://supabase.com/docs/guides/with-angular)
+- [Quickstart: Angular](https://www.supabase.cc/docs/guides/with-angular)
 - [Authentication in Ionic Angular with Supabase](https://supabase.com/blog/authentication-in-ionic-angular)

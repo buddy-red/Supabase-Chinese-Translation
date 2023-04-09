@@ -36,7 +36,7 @@ const ComputeSizeSelection: FC<Props> = ({
             Choose the database instance size that best fits your needs
           </p>
         </div>
-        <Link href="https://supabase.com/docs/guides/platform/compute-add-ons">
+        <Link href="https://www.supabase.cc/docs/guides/platform/compute-add-ons">
           <a target="_blank">
             <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
               About compute add-ons

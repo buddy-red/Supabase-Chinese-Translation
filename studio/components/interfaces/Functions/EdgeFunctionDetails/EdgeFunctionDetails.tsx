@@ -208,7 +208,7 @@ const EdgeFunctionDetails: FC<Props> = () => {
                           Node.js package locally
                         </p>
                         <div className="!mt-4">
-                          <Link href="https://supabase.com/docs/guides/functions/import-maps">
+                          <Link href="https://www.supabase.cc/docs/guides/functions/import-maps">
                             <a target="_blank">
                               <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
                                 More about import maps

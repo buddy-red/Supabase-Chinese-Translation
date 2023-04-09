@@ -198,27 +198,27 @@
   "quickstarts": [
     {
       "label": "React",
-      "url": "https://supabase.com/docs/guides/getting-started/quickstarts/reactjs"
+      "url": "https://www.supabase.cc/docs/guides/getting-started/quickstarts/reactjs"
     },
     {
       "label": "Next.js",
-      "url": "https://supabase.com/docs/guides/getting-started/quickstarts/nextjs"
+      "url": "https://www.supabase.cc/docs/guides/getting-started/quickstarts/nextjs"
     },
     {
       "label": "Flutter",
-      "url": "https://supabase.com/docs/guides/getting-started/quickstarts/flutter"
+      "url": "https://www.supabase.cc/docs/guides/getting-started/quickstarts/flutter"
     },
     {
       "label": "SvelteKit",
-      "url": "https://supabase.com/docs/guides/getting-started/quickstarts/sveltekit"
+      "url": "https://www.supabase.cc/docs/guides/getting-started/quickstarts/sveltekit"
     },
     {
       "label": "SolidJS",
-      "url": "https://supabase.com/docs/guides/getting-started/quickstarts/solidjs"
+      "url": "https://www.supabase.cc/docs/guides/getting-started/quickstarts/solidjs"
     },
     {
       "label": "Vue",
-      "url": "https://supabase.com/docs/guides/getting-started/quickstarts/vue"
+      "url": "https://www.supabase.cc/docs/guides/getting-started/quickstarts/vue"
     }
   ],
   "docsGeneral": [

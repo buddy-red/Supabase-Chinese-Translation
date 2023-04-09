@@ -338,7 +338,7 @@ const ColumnManagement: FC<Props> = ({
               Add column
             </Button>
           )}
-          <Link href="https://supabase.com/docs/guides/database/tables#data-types">
+          <Link href="https://www.supabase.cc/docs/guides/database/tables#data-types">
             <a target="_blank" rel="noreferrer">
               <Button
                 type="text"

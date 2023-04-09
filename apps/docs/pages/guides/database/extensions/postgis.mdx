@@ -149,7 +149,7 @@ At this point, if you go into your Supabase dashboard and look at the data, you 
 0101000020E6100000A4DFBE0E9C91614044FAEDEBC0494240
 ```
 
-We can query the `restaurants` table directly, but it will return the `location` column in the format you see above. We will create [database functions](https://supabase.com/docs/guides/database/functions) so that we can use the [st_astext()](https://postgis.net/docs/ST_AsText.html) function to convert it back to a human-readable format like `POINT(-73.946713 40.807313)`.
+We can query the `restaurants` table directly, but it will return the `location` column in the format you see above. We will create [database functions](https://www.supabase.cc/docs/guides/database/functions) so that we can use the [st_astext()](https://postgis.net/docs/ST_AsText.html) function to convert it back to a human-readable format like `POINT(-73.946713 40.807313)`.
 
 ### Order by distance
 

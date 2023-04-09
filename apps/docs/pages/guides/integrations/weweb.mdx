@@ -82,7 +82,7 @@ If you choose the "Advanced" mode, you will be able to get the `name` field of t
 
 How?
 
-By [making custom queries to Supabase](https://supabase.com/docs/reference/javascript/select):
+By [making custom queries to Supabase](https://www.supabase.cc/docs/reference/javascript/select):
 
 _![](https://weweb-changelog.ghost.io/content/images/2022/08/CleanShot-2022-08-18-at-12.06.17.gif)_
 
@@ -97,7 +97,7 @@ If we only ask for the data from the `location` field of the `vehicles` table, S
 
 **🚨 Warning 🚨**
 
-> If you have enabled Row-Level Security in Supabase, make sure you have also [added a Policy](https://supabase.com/docs/learn/auth-deep-dive/auth-policies) that allows users to read the data in the table. Otherwise, WeWeb won't be able to get the data.
+> If you have enabled Row-Level Security in Supabase, make sure you have also [added a Policy](https://www.supabase.cc/docs/learn/auth-deep-dive/auth-policies) that allows users to read the data in the table. Otherwise, WeWeb won't be able to get the data.
 
 ## Step 3: Display Supabase Data in WeWeb
 
@@ -159,14 +159,14 @@ If you switch to Preview mode, you will be update your Supabase table from your 
 
 By default, all the data in the tables that are in the `public` schema of your Supabase project can be read, updated, or deleted.
 
-Supabase allows you to [enable Row-Level Security](https://supabase.com/docs/learn/auth-deep-dive/auth-row-level-security) for each of your tables:
+Supabase allows you to [enable Row-Level Security](https://www.supabase.cc/docs/learn/auth-deep-dive/auth-row-level-security) for each of your tables:
 
 ![](https://weweb-changelog.ghost.io/content/images/2022/10/CleanShot-2022-10-13-at-16.10.39@2x.png)
 
 If you want to restrict certain actions to specific users or roles, you'll need to:
 
 - add Supabase authentication to your WeWeb project, and
-- [write SQL policies in Supabase](https://supabase.com/docs/learn/auth-deep-dive/auth-policies).
+- [write SQL policies in Supabase](https://www.supabase.cc/docs/learn/auth-deep-dive/auth-policies).
 
 We provide a number of policy templates to get you started:
 
@@ -330,7 +330,7 @@ For such a use case, we recommend creating a `profiles` table in the `public` sc
 
 In WeWeb, you would then be able to create a Collection to get data from the `profiles` table.
 
-Learn more about [managing user data in Supabase](https://supabase.com/docs/guides/auth/managing-user-data).
+Learn more about [managing user data in Supabase](https://www.supabase.cc/docs/guides/auth/managing-user-data).
 
 export const Page = ({ children }) => <Layout meta={meta} children={children} />
 

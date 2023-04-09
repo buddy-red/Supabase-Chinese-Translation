@@ -36,7 +36,7 @@ const SQLEditorLayout = ({ title, children }: SQLEditorLayoutProps) => {
         <ProjectLayout
           isLoading={content.isLoading || sqlEditorStore === null}
           title={title || 'SQL'}
-          product="SQL Editor"
+          product="SQL编辑器"
           productMenu={<SQLEditorMenu />}
         >
           {children}

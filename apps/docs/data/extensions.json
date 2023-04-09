@@ -98,13 +98,13 @@
   {
     "name": "hypopg",
     "comment": "Hypothetical indexes for PostgreSQL",
-    "link": "https://supabase.com/docs/guides/database/extensions/hypopg",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/hypopg",
     "tags": ["Admin", "Index"]
   },
   {
     "name": "http",
     "comment": "HTTP client for PostgreSQL, allows web page retrieval inside the database.",
-    "link": "https://supabase.com/docs/guides/database/extensions/http",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/http",
     "tags": ["Utility"]
   },
   {
@@ -160,7 +160,7 @@
   {
     "name": "pg_cron",
     "comment": "Job scheduler for PostgreSQL",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgcron",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgcron",
     "tags": ["Utility"]
   },
   {
@@ -171,25 +171,25 @@
   {
     "name": "pg_graphql",
     "comment": "pg_graphql: GraphQL support",
-    "link": "https://supabase.com/docs/guides/database/extensions/pg_graphql",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pg_graphql",
     "tags": ["Utility"]
   },
   {
     "name": "pg_hashids",
     "comment": "pg_hashids",
-    "link": "https://supabase.com/docs/guides/database/extensions/pg_hashids",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pg_hashids",
     "tags": ["Utility"]
   },
   {
     "name": "pg_jsonschema",
     "comment": "pg_jsonschema",
-    "link": "https://supabase.com/docs/guides/database/extensions/pg_jsonschema",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pg_jsonschema",
     "tags": ["Utility"]
   },
   {
     "name": "pg_net",
     "comment": "Async HTTP",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgnet",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgnet",
     "tags": ["Utility", "Notifications"]
   },
   {
@@ -200,13 +200,13 @@
   {
     "name": "pg_stat_monitor",
     "comment": "The pg_stat_monitor is a PostgreSQL Query Performance Monitoring tool, based on PostgreSQL contrib module pg_stat_statements. pg_stat_monitor provides aggregated statistics, client information, plan details including plan, and histogram information.",
-    "link": "https://supabase.com/docs/guides/database/extensions/pg_stat_monitor",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pg_stat_monitor",
     "tags": ["Utility"]
   },
   {
     "name": "pg_stat_statements",
     "comment": "track execution statistics of all SQL statements executed",
-    "link": "https://supabase.com/docs/guides/database/extensions/pg_stat_statements",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pg_stat_statements",
     "tags": ["Admin", "Utility"]
   },
   {
@@ -227,7 +227,7 @@
   {
     "name": "pgaudit",
     "comment": "provides auditing functionality",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgaudit",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgaudit",
     "tags": ["Audit", "Utility"]
   },
   {
@@ -243,13 +243,13 @@
   {
     "name": "pgjwt",
     "comment": "JSON Web Token API for Postgresql",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgjwt",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgjwt",
     "tags": ["Utility", "Cryptography"]
   },
   {
     "name": "pgroonga",
     "comment": "Super fast and all languages supported full text search index based on Groonga",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgroonga",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgroonga",
     "tags": ["Search"]
   },
   {
@@ -260,7 +260,7 @@
   {
     "name": "pgrouting",
     "comment": "pgRouting Extension",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgrouting",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgrouting",
     "tags": ["Geo", "Utility"]
   },
   {
@@ -271,7 +271,7 @@
   {
     "name": "pgsodium",
     "comment": "Postgres extension for libsodium functions",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgsodium",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgsodium",
     "tags": ["Utility", "Cryptography"]
   },
   {
@@ -282,7 +282,7 @@
   {
     "name": "pgtap",
     "comment": "Unit testing for PostgreSQL",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgtap",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgtap",
     "tags": ["Utility", "Testing"]
   },
   {
@@ -308,7 +308,7 @@
   {
     "name": "plpgsql_check",
     "comment": "extended check for plpgsql functions",
-    "href": "https://supabase.com/docs/guides/database/extensions/plpgsql_check",
+    "href": "https://www.supabase.cc/docs/guides/database/extensions/plpgsql_check",
     "tags": ["Utility", "Testing"]
   },
   {
@@ -320,7 +320,7 @@
   {
     "name": "postgis",
     "comment": "PostGIS geometry and geography spatial types and functions",
-    "link": "https://supabase.com/docs/guides/database/extensions/postgis",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/postgis",
     "tags": ["Geo"]
   },
   {
@@ -381,7 +381,7 @@
   {
     "name": "rum",
     "comment": "GIN-like index for text search",
-    "link": "https://supabase.com/docs/guides/database/extensions/rum",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/rum",
     "tags": ["Index", "Search"]
   },
   {
@@ -412,7 +412,7 @@
   {
     "name": "timescaledb",
     "comment": "Enables scalable inserts and complex queries for time-series data",
-    "link": "https://supabase.com/docs/guides/database/extensions/timescaledb",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/timescaledb",
     "tags": ["Time Series", "Data Type", "Utility"]
   },
   {
@@ -433,25 +433,25 @@
   {
     "name": "uuid-ossp",
     "comment": "generate universally unique identifiers (UUIDs)",
-    "link": "https://supabase.com/docs/guides/database/extensions/uuid-ossp",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/uuid-ossp",
     "tags": ["Utility", "Data Type"]
   },
   {
     "name": "pgvector",
     "comment": "vector data type with similarity search",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgvector",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgvector",
     "tags": ["AI", "Data Type", "Search"]
   },
   {
     "name": "pg_repack",
     "comment": "Optimize physical storage and remove bloat from tables and indexes",
-    "link": "https://supabase.com/docs/guides/database/extensions/pgrepack",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/pgrepack",
     "tags": ["Admin", "Utility"]
   },
   {
     "name": "wrappers",
     "comment": "Foreign data wrappers developed by Supabase",
-    "link": "https://supabase.com/docs/guides/database/extensions/wrappers",
+    "link": "https://www.supabase.cc/docs/guides/database/extensions/wrappers",
     "tags": ["Admin", "Utility"]
   },
   {

@@ -183,7 +183,7 @@ const TableEditorMenu = ({
                   style={{ justifyContent: 'start' }}
                   onClick={onAddTable}
                 >
-                  New table
+                  新建数据表
                 </Button>
               </Tooltip.Trigger>
               {!canCreateTables && (
@@ -197,7 +197,7 @@ const TableEditorMenu = ({
                       ].join(' ')}
                     >
                       <span className="text-xs text-scale-1200">
-                        You need additional permissions to create tables
+                        您需要额外的权限才能创建数据表
                       </span>
                     </div>
                   </Tooltip.Content>
@@ -217,7 +217,7 @@ const TableEditorMenu = ({
                 <IconSearch className="text-scale-900" size={12} strokeWidth={1.5} />
               )
             }
-            placeholder="Search tables"
+            placeholder="搜索数据表"
             onChange={(e) => setSearchText(e.target.value.trim())}
             value={searchText}
             size="tiny"
@@ -235,17 +235,17 @@ const TableEditorMenu = ({
       {isLoading ? (
         <div className="mx-7 flex items-center space-x-2">
           <IconLoader className="animate-spin" size={14} strokeWidth={1.5} />
-          <p className="text-sm text-scale-1000">Loading entities...</p>
+          <p className="text-sm text-scale-1000">加载实体...</p>
         </div>
       ) : searchText.length === 0 && (entityTypes?.length ?? 0) === 0 ? (
         <div className="mx-7 space-y-1 rounded-md border border-scale-400 bg-scale-300 py-3 px-4">
-          <p className="text-xs">No entities available</p>
-          <p className="text-xs text-scale-1100">This schema has no entities available yet</p>
+          <p className="text-xs">无实体可用</p>
+          <p className="text-xs text-scale-1100">此模式尚无可用实体</p>
         </div>
       ) : searchText.length > 0 && (entityTypes?.length ?? 0) === 0 ? (
         <div className="mx-7 space-y-1 rounded-md border border-scale-400 bg-scale-300 py-3 px-4">
-          <p className="text-xs">No results found</p>
-          <p className="text-xs text-scale-1100">There are no entities that match your search</p>
+          <p className="text-xs">找不到结果</p>
+          <p className="text-xs text-scale-1100">没有符合您搜索条件的实体</p>
         </div>
       ) : (
         <Menu
@@ -259,7 +259,7 @@ const TableEditorMenu = ({
               <>
                 <div className="flex w-full items-center justify-between">
                   <div className="flex items-center space-x-1">
-                    <p>Tables</p>
+                    <p>数据表</p>
                     {totalCount !== undefined && (
                       <p style={{ fontVariantNumeric: 'tabular-nums' }}>({totalCount})</p>
                     )}
@@ -471,7 +471,7 @@ const EntityListItem = ({
                 }}
                 disabled={isLoadingTableMetadata}
               >
-                Edit Table
+                编辑数据表
               </Dropdown.Item>,
               <Dropdown.Item
                 key="duplicate-table"

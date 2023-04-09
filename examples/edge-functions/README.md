@@ -6,7 +6,7 @@
 
 ## Example Functions
 
-We're constantly adding new Function Examples, [check our docs](https://supabase.com/docs/guides/functions#examples) for a complete list!
+We're constantly adding new Function Examples, [check our docs](https://www.supabase.cc/docs/guides/functions#examples) for a complete list!
 
 ## Develop locally
 
@@ -14,7 +14,7 @@ We're constantly adding new Function Examples, [check our docs](https://supabase
 - Run `cp ./supabase/.env.local.example ./supabase/.env.local` to create your local `.env` file.
 - Set the required variables for the corresponding edge functions in the `.env.local` file.
 - Run `supabase functions serve --env-file ./supabase/.env.local --no-verify-jwt`
-- Run the CURL command in the example function, or use the [invoke method](https://supabase.com/docs/reference/javascript/invoke) on the Supabase client or use the test client [app](./app/).
+- Run the CURL command in the example function, or use the [invoke method](https://www.supabase.cc/docs/reference/javascript/invoke) on the Supabase client or use the test client [app](./app/).
 
 ## Test Client
 
@@ -95,6 +95,6 @@ jobs:
 
 ## 👁⚡️👁
 
-\o/ That's it, you can now invoke your Supabase Function via the [`supabase-js`](https://supabase.com/docs/reference/javascript/invoke) and [`supabase-dart`](https://supabase.com/docs/reference/dart/invoke) client libraries. (More client libraries coming soon. Check the [supabase-community](https://github.com/supabase-community#client-libraries) org for details).
+\o/ That's it, you can now invoke your Supabase Function via the [`supabase-js`](https://www.supabase.cc/docs/reference/javascript/invoke) and [`supabase-dart`](https://www.supabase.cc/docs/reference/dart/invoke) client libraries. (More client libraries coming soon. Check the [supabase-community](https://github.com/supabase-community#client-libraries) org for details).
 
-For more info on Supabase Functions, check out the [docs](https://supabase.com/docs/guides/functions) and the [examples](https://github.com/supabase/supabase/tree/master/examples/edge-functions).
+For more info on Supabase Functions, check out the [docs](https://www.supabase.cc/docs/guides/functions) and the [examples](https://github.com/supabase/supabase/tree/master/examples/edge-functions).

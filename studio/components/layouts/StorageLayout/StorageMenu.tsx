@@ -51,7 +51,7 @@ const StorageMenu: FC<Props> = () => {
               style={{ justifyContent: 'start' }}
               onClick={openCreateBucketModal}
             >
-              New bucket
+              新建存储桶
             </Button>
           </Tooltip.Trigger>
           {!canCreateBuckets && (
@@ -65,7 +65,7 @@ const StorageMenu: FC<Props> = () => {
                   ].join(' ')}
                 >
                   <span className="text-xs text-scale-1200">
-                    You need additional permissions to create buckets
+                    您需要额外的权限才能创建存储桶
                   </span>
                 </div>
               </Tooltip.Content>
@@ -76,18 +76,18 @@ const StorageMenu: FC<Props> = () => {
       <div className="space-y-6">
         <div className="">
           <div>
-            <Menu.Group title="All buckets" />
+            <Menu.Group title="所有存储桶" />
             {!loaded ? (
               <div className="flex items-center space-x-2 py-2 px-2">
                 <IconLoader className="animate-spin" size={14} strokeWidth={2} />
-                <span className="text-sm">Loading buckets</span>
+                <span className="text-sm">加载存储桶</span>
               </div>
             ) : (
               <>
                 {buckets.length === 0 && (
                   <div className="px-2">
-                    <Alert title="No buckets available">
-                      Buckets that you create will appear here
+                    <Alert title="无存储桶可用">
+                      您创建的存储桶将显示于此
                     </Alert>
                   </div>
                 )}
@@ -110,10 +110,10 @@ const StorageMenu: FC<Props> = () => {
         </div>
         <div className="h-px w-full bg-scale-500"></div>
         <div className="">
-          <Menu.Group title="Configuration" />
+          <Menu.Group title="配置" />
           <Link href={`/project/${ref}/storage/policies`}>
             <Menu.Item rounded active={page === 'policies'}>
-              <p className="truncate">Policies</p>
+              <p className="truncate">政策</p>
             </Menu.Item>
           </Link>
         </div>

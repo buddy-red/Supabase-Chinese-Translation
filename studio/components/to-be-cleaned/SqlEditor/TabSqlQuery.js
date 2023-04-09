@@ -138,7 +138,7 @@ const MonacoEditor = ({ error, updateSqlSnippet, setUpdatingRequired }) => {
 
     editor.addAction({
       id: 'supabase',
-      label: 'Run Query',
+      label: '运行查询',
       keybindings: [monaco.KeyMod.CtrlCmd + monaco.KeyCode.Enter],
       contextMenuGroupId: 'operation',
       contextMenuOrder: 0,
@@ -270,13 +270,13 @@ const ResultsDropdown = observer(() => {
       align="start"
       overlay={
         <>
-          <Dropdown.Item onClick={onDownloadCSV}>Download CSV</Dropdown.Item>
-          <Dropdown.Item onClick={onCopyAsMarkdown}>Copy as markdown</Dropdown.Item>
+          <Dropdown.Item onClick={onDownloadCSV}>下载CSV</Dropdown.Item>
+          <Dropdown.Item onClick={onCopyAsMarkdown}>复制为Markdown</Dropdown.Item>
         </>
       }
     >
       <Button as="span" type="text" iconRight={<IconChevronDown />}>
-        Results
+        结果
       </Button>
       <CSVLink
         ref={csvRef}
@@ -295,7 +295,7 @@ const UtilityTabResults = observer(() => {
   if (sqlEditorStore.activeTab.isExecuting) {
     return (
       <div className="bg-table-header-light dark:bg-table-header-dark">
-        <p className="m-0 border-0 px-6 py-4 font-mono text-sm">Running...</p>
+        <p className="m-0 border-0 px-6 py-4 font-mono text-sm">运行中...</p>
       </div>
     )
   } else if (sqlEditorStore.activeTab.errorResult) {
@@ -308,9 +308,8 @@ const UtilityTabResults = observer(() => {
     return (
       <div className="bg-table-header-light dark:bg-table-header-dark">
         <p className="m-0 border-0 px-6 py-4 text-sm text-scale-1000">
-          Click <code>RUN</code> or hit{' '}
-          <code>{window.navigator.platform.match(/^Mac/) ? '⌘' : 'Ctrl'} + Enter</code> to execute
-          your query.
+          点击<code>运行</code> 或按下{' '}
+          <code>{window.navigator.platform.match(/^Mac/) ? '⌘' : 'Ctrl'} + Enter</code> 以执行您的查询
         </p>
       </div>
     )
@@ -394,7 +393,7 @@ const Results = ({ results }) => {
               'mx-1 group-hover:block group-hover:opacity-50 hover:opacity-100',
               !isCopied && 'hidden'
             )}
-            title="Copy"
+            title="复制"
           />
         )}
       </div>

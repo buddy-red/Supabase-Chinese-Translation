@@ -31,17 +31,17 @@ const Layout: FC<Props> = (props: Props) => {
       <Head>
         <title>{asPath === '/' ? 'Supabase文档' : `${props.meta?.title} | Supabase文档`}</title>
         <meta name="description" content={props.meta?.description} />
-        <meta property="og:image" content={`https://supabase.com/docs/img/supabase-og-image.png`} />
+        <meta property="og:image" content={`https://www.supabase.cc/docs/img/supabase-og-image.png`} />
         <meta
           name="twitter:image"
-          content={`https://supabase.com/docs/img/supabase-og-image.png`}
+          content={`https://www.supabase.cc/docs/img/supabase-og-image.png`}
         />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
       <NextSeo
-        canonical={props.meta?.canonical ?? `https://supabase.com/docs${asPath}`}
+        canonical={props.meta?.canonical ?? `https://www.supabase.cc/docs${asPath}`}
         openGraph={{
-          url: `https://supabase.com/docs${asPath}`,
+          url: `https://www.supabase.cc/docs${asPath}`,
           type: 'article',
           videos: props.meta?.video && [
             {
