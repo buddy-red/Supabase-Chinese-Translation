@@ -227,7 +227,7 @@ const BILLING_PERMISSIONS = {
 }
 
 const PROJECT_PERMISSIONS = {
-  title: '项目',
+  title: 'Projects',
   actions: [
     {
       description: 'Can view projects',
@@ -673,10 +673,10 @@ const EDGE_FUNCTIONS_PERMISSIONS = {
 }
 
 const LOGS_EXPLORER_PERMISSIONS = {
-  title: '日志浏览器',
+  title: 'Logs Explorer',
   actions: [
     {
-      description: '可浏览日志浏览器',
+      description: 'Can view logs explorer',
       permissions: {
         owner: true,
         admin: true,

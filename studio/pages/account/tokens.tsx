@@ -20,19 +20,19 @@ const UserAccessTokens: NextPageWithLayout = () => {
       <div className="flex items-center justify-between">
         <FormHeader
           title="Access Tokens"
-          description="Personal access tokens can be used with our management API or the Supabase CLI"
+          description="Personal access tokens can be used with our management API or the Supabase CLI. These tokens will have the same permissions as you have."
         />
         <div className="flex items-center space-x-4 mb-6">
           <div className="flex items-center space-x-2">
-            <Link href="https://www.supabase.cc/docs/reference/api/introduction">
-              <a target="_blank">
+            <Link href="https://supabase.com/docs/reference/api/introduction">
+              <a target="_blank" rel="noreferrer">
                 <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
                   API Docs
                 </Button>
               </a>
             </Link>
-            <Link href="https://www.supabase.cc/docs/reference/cli/start">
-              <a target="_blank">
+            <Link href="https://supabase.com/docs/reference/cli/start">
+              <a target="_blank" rel="noreferrer">
                 <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
                   CLI docs
                 </Button>
@@ -52,7 +52,7 @@ const UserAccessTokens: NextPageWithLayout = () => {
 
 UserAccessTokens.getLayout = (page) => (
   <AccountLayout
-    title="Supabase"
+    title="Access Tokens"
     breadcrumbs={[{ key: 'supabase-account-tokens', label: 'Access Tokens' }]}
   >
     {page}

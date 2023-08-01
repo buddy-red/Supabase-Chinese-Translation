@@ -3,10 +3,10 @@ import { FC, ReactNode, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { Button, IconExternalLink, IconCode, Modal, IconTerminal } from 'ui'
 
-import { checkPermissions, withAuth } from 'hooks'
+import ProjectLayout from './'
+import { useCheckPermissions, withAuth } from 'hooks'
 import { useParams } from 'common/hooks'
 import FunctionsNav from '../interfaces/Functions/FunctionsNav'
-import BaseLayout from 'components/layouts'
 import NoPermission from 'components/ui/NoPermission'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 import { TerminalInstructions } from 'components/interfaces/Functions'
@@ -24,14 +24,14 @@ const FunctionsLayout: FC<Props> = ({ title, children }) => {
   const { data: functions, isLoading } = useEdgeFunctionsQuery({ projectRef: ref })
   const { data: selectedFunction } = useEdgeFunctionQuery({ projectRef: ref, slug: functionSlug })
 
-  const canReadFunctions = checkPermissions(PermissionAction.FUNCTIONS_READ, '*')
+  const canReadFunctions = useCheckPermissions(PermissionAction.FUNCTIONS_READ, '*')
   if (!canReadFunctions) {
     return (
-      <BaseLayout title={title || 'Edge Functions'} product="Edge Functions">
+      <ProjectLayout title={title || 'Edge Functions'} product="Edge Functions">
         <main style={{ maxHeight: '100vh' }} className="flex-1 overflow-y-auto">
           <NoPermission isFullPage resourceText="access your project's edge functions" />
         </main>
-      </BaseLayout>
+      </ProjectLayout>
     )
   }
 
@@ -40,7 +40,7 @@ const FunctionsLayout: FC<Props> = ({ title, children }) => {
   const centered = !hasFunctions
 
   return (
-    <BaseLayout isLoading={isLoading} title={title || 'Edge Functions'} product="Edge Functions">
+    <ProjectLayout isLoading={isLoading} title={title || 'Edge Functions'} product="Edge Functions">
       {centered ? (
         <>
           <div className="mx-auto max-w-5xl py-24 px-5">
@@ -53,17 +53,8 @@ const FunctionsLayout: FC<Props> = ({ title, children }) => {
             xl:flex-row"
             >
               <div className="flex items-center gap-3">
-                <div
-                  className={[
-                    'h-6 w-6 rounded border border-brand-600 bg-brand-300',
-                    'flex items-center justify-center text-brand-900',
-                  ].join(' ')}
-                >
-                  <IconCode size={14} strokeWidth={3} />
-                </div>
                 <div className="flex items-center space-x-4">
                   <h1 className="text-2xl text-scale-1200">Edge Functions</h1>
-                  <p className="mt-1 text-scale-1000">Beta</p>
                 </div>
               </div>
             </div>
@@ -97,7 +88,6 @@ const FunctionsLayout: FC<Props> = ({ title, children }) => {
                         Edge Functions
                       </h1>
                     </Link>
-                    <p className="mt-1 text-scale-1000">Beta</p>
                     {name && (
                       <div className="mt-1.5 flex items-center space-x-4">
                         <span className="text-scale-1000">
@@ -127,7 +117,7 @@ const FunctionsLayout: FC<Props> = ({ title, children }) => {
                     >
                       Terminal Instructions
                     </Button>
-                    <Link href="https://www.supabase.cc/docs/guides/functions">
+                    <Link href="https://supabase.com/docs/guides/functions">
                       <a target="_link">
                         <Button
                           type="default"
@@ -171,7 +161,7 @@ const FunctionsLayout: FC<Props> = ({ title, children }) => {
           <TerminalInstructions removeBorder />
         </div>
       </Modal>
-    </BaseLayout>
+    </ProjectLayout>
   )
 }
 

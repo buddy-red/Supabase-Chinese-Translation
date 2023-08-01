@@ -39,7 +39,7 @@ const ProductEmptyState: FC<Props> = ({
               <div className="flex items-center space-x-2">
                 {ctaButtonLabel && onClickCta && (
                   <Tooltip.Root delayDuration={0}>
-                    <Tooltip.Trigger>
+                    <Tooltip.Trigger asChild>
                       <Button type="primary" onClick={onClickCta} disabled={disabled}>
                         {ctaButtonLabel}
                       </Button>
@@ -63,7 +63,7 @@ const ProductEmptyState: FC<Props> = ({
                 )}
                 {infoButtonUrl && infoButtonLabel ? (
                   <Button type="default" icon={<IconExternalLink size={14} strokeWidth={1.5} />}>
-                    <a target="_blank" href={infoButtonUrl}>
+                    <a target="_blank" rel="noreferrer" href={infoButtonUrl}>
                       {infoButtonLabel}
                     </a>
                   </Button>

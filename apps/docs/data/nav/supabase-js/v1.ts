@@ -1,6 +1,6 @@
 const Nav = [
   {
-    label: '快速上手',
+    label: 'Getting Started',
     items: [
       { name: 'Supabase JavaScript Library', url: '/reference/javascript/v1', items: [] },
       { name: 'Installing', url: '/reference/javascript/v1/installing', items: [] },

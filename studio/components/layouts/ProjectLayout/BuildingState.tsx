@@ -1,25 +1,26 @@
+import { useQueryClient } from '@tanstack/react-query'
+import ClientLibrary from 'components/interfaces/Home/ClientLibrary'
+import ExampleProject from 'components/interfaces/Home/ExampleProject'
+import { CLIENT_LIBRARIES, EXAMPLE_PROJECTS } from 'components/interfaces/Home/Home.constants'
 import Link from 'next/link'
 import { FC, useEffect, useRef } from 'react'
-import { observer } from 'mobx-react-lite'
-import { Badge, IconArrowRight, IconLoader, Button } from 'ui'
-import ExampleProject from 'components/interfaces/Home/ExampleProject'
-import ClientLibrary from 'components/interfaces/Home/ClientLibrary'
-import { CLIENT_LIBRARIES, EXAMPLE_PROJECTS } from 'components/interfaces/Home/Home.constants'
+import { Badge, Button, IconArrowRight, IconLoader } from 'ui'
 
-import { API_URL, PROJECT_STATUS } from 'lib/constants'
-import { useStore } from 'hooks'
-import { getWithTimeout } from 'lib/common/fetch'
-import { Project } from 'types'
 import { DisplayApiSettings, DisplayConfigSettings } from 'components/ui/ProjectSettings'
+import { invalidateProjectsQuery } from 'data/projects/projects-query'
+import { getWithTimeout } from 'lib/common/fetch'
+import { API_URL, PROJECT_STATUS } from 'lib/constants'
+import { Project } from 'types'
 
-interface Props {
+export interface BuildingStateProps {
   project: Project
 }
 
-const BuildingState: FC<Props> = ({ project }) => {
-  const { ui, app } = useStore()
+const BuildingState = ({ project }: BuildingStateProps) => {
+  const queryClient = useQueryClient()
   const checkServerInterval = useRef<number>()
 
+  // TODO: move to react-query
   async function checkServer() {
     if (!project) return
 
@@ -30,9 +31,8 @@ const BuildingState: FC<Props> = ({ project }) => {
       const { status } = projectStatus
       if (status === PROJECT_STATUS.ACTIVE_HEALTHY) {
         clearInterval(checkServerInterval.current)
-        // re-fetch project detail.
-        // This will also trigger UI state change to show project building completed
-        await app.projects.fetchDetail(project.ref)
+
+        await invalidateProjectsQuery(queryClient)
       }
     }
   }
@@ -80,12 +80,13 @@ const BuildingState: FC<Props> = ({ project }) => {
                   description={
                     <p className="text-sm text-scale-1100">
                       Browse the Supabase{' '}
-                      <Link href="https://www.supabase.cc/docs">
+                      <Link href="https://supabase.com/docs">
                         <a
                           className="mb-0 text-brand-900 transition-colors hover:text-brand-1200"
                           target="_blank"
+                          rel="noreferrer"
                         >
-                          documentation
+                          文档
                         </a>
                       </Link>
                       .
@@ -112,7 +113,7 @@ const BuildingState: FC<Props> = ({ project }) => {
                         </p>
                         <Link href="/support/new">
                           <a>
-                            <Button type="default">Contact support team</Button>
+                            <Button type="default">联系技术团队</Button>
                           </a>
                         </Link>
                       </>
@@ -132,7 +133,7 @@ const BuildingState: FC<Props> = ({ project }) => {
         <div className="mx-auto my-16 w-full max-w-7xl space-y-16">
           <div className="space-y-8">
             <div className="mx-6">
-              <h5>Client libraries</h5>
+              <h5>客户端库</h5>
             </div>
             <div className="mx-6 mb-12 grid gap-12 md:grid-cols-3">
               {CLIENT_LIBRARIES.map((library) => (
@@ -142,7 +143,7 @@ const BuildingState: FC<Props> = ({ project }) => {
           </div>
           <div className="space-y-8">
             <div className="mx-6">
-              <h5>Example projects</h5>
+              <h5>示例项目</h5>
             </div>
             <div className="mx-6 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {EXAMPLE_PROJECTS.map((project) => (
@@ -155,7 +156,7 @@ const BuildingState: FC<Props> = ({ project }) => {
     </div>
   )
 }
-export default observer(BuildingState)
+export default BuildingState
 
 const ChecklistItem = ({ description }: any) => {
   return (

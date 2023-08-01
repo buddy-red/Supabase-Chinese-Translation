@@ -2,124 +2,130 @@ import Layout from '~/layouts/DefaultGuideLayout'
 
 export const meta = {
   id: 'features',
-  title: '特色',
+  title: 'Features',
   description: 'Supabase features',
 }
 
-此为Supabase为每个项目提供的功能非详尽列表
+This is a non-exhaustive list of features that Supabase provides for every project.
 
-## 数据库
+## Database
 
-### Postgres数据库
+### Postgres Database
 
-每个项目都带有一个完整的Postgres数据库。[文档](/docs/guides/database)
+Every project is a full Postgres database. [Docs](/docs/guides/database).
 
-### 数据库扩展
+### Database Extensions
 
-每个数据库都有一套完整的Postgres扩展。[文档](/docs/guides/database/extensions)
+Every database comes with a full set of Postgres extensions. [Docs](/docs/guides/database/extensions).
 
-### 数据库函数
+### Database Functions
 
-创建可以从浏览器调用的自定义数据库函数。[文档](/docs/guides/database/functions)
+Create custom database functions which you can call from the browser. [Docs](/docs/guides/database/functions).
 
-### 数据库触发器
+### Database Triggers
 
-将触发器附加到数据表以处理数据库更改。[文档](/docs/guides/auth/managing-user-data#using-triggers)
+Attach triggers to your tables to handle database changes. [Docs](/docs/guides/auth/managing-user-data#using-triggers).
 
-### 数据库Webhook
+### Database Webhooks
 
-使用Webhook将数据库更改发送到任何外部服务。<a href="https://supabase.com/blog/supabase-functions-updates#database-webhooks-alpha" target="_blank">链接</a>
+Send database changes to any external service using Webhooks. [Link](https://supabase.com/blog/supabase-functions-updates#database-webhooks-alpha).
 
-### 数据库备份
+### Database Backups
 
-每天备份项目，并可选择升级到时间点恢复。
+Projects are backed up daily with the option to upgrade to Point in Time recovery.
 
-### 搜索
+### Search
 
-使用Postgres全文搜索构建搜索功能。[文档](/docs/guides/database/full-text-search)
+Build search functionality using Postgres Full Text Search. [Docs](/docs/guides/database/full-text-search).
 
-### 密钥与加密
+### Secrets and encryption
 
-用Postgres扩展Suabase Vault加密敏感数据并存储机密。<a href="https://supabase.com/blog/supabase-vault" target="_blank">链接</a>
+Encrypt sensitive data and store secrets using our Postgres extension, Supabase Vault. [Link](https://supabase.com/blog/supabase-vault).
 
-### 数据库迁移
+### Database migrations
 
-在本地进行开发，并使用数据库迁移将更改推送到生产数据库。[文档](/docs/guides/cli/local-development#database-migrations)
-
-## 身份验证
-
-### 电子邮件 & 密码登陆
-
-为您的应用程序或网站构建电子邮件登录。[文档](/docs/guides/auth/auth-email)
-
-### 魔术链接
-
-为您的应用程序或网站构建无密码登录。[文档](/docs/guides/auth/auth-magic-link)
-
-### 社交登陆
-
-提供社交登录 - 从Apple到GitHub，再到Slack。[文档](/docs/guides/auth/social-login)
-
-### 手机登陆
-
-使用第三方短信提供商提供手机登录。[文档](/docs/guides/auth/phone-login)
-
-### 行级安全
-
-使用Postgres策略控制每个用户可以访问的数据。[文档](/docs/guides/auth/row-level-security)
-
-### 服务器端身份验证助手
-
-在流行的框架中实现用户身份验证的帮助程序，有如[Next.js](/docs/guides/auth/auth-helpers/nextjs)与[SvelteKit](/docs/guides/auth/auth-helpers/sveltekit)
-
-### 身份验证UI工具包
-
-使用自定义主题构建登录和注册页面。[文档](/docs/guides/auth/auth-helpers/auth-ui)
+Develop locally and push your changes to your production database using migrations. [Docs](/docs/guides/getting-started/local-development#database-migrations)
 
 <br />
 
-## API & 客户端库
+## Auth
 
-### 自动生成REST API
+### Email & Password Logins
 
-RESTful API从您的数据库中自动生成，无需一行代码。[文档](/docs/guides/database/api#rest-api-overview)
+Build email logins for your application or website. [Docs](/docs/guides/auth/auth-email).
 
-### 自动生成GraphQL API
+### Magic Links
 
-使用我们自定义的Postgres GraphQL扩展的快速GraphQL API。[文档](/docs/guides/database/api#graphql-api-overview)
+Build passwordless logins for your application or website.[Docs](/docs/guides/auth/auth-magic-link).
 
-### Realtime数据库变更
+### Social Logins
 
-通过websockets接收数据库变更[文档](/docs/guides/realtime/postgres-changes)
+Provide social logins - everything from Apple, to GitHub, to Slack. [Docs](/docs/guides/auth/social-login).
 
-### 用户广播
+### Phone Logins
 
-通过websockets在连接的用户之间发送消息。[文档](/docs/guides/realtime/broadcast)
+Provide phone logins using a third-party SMS provider. [Docs](/docs/guides/auth/phone-login).
 
-### 用户存在感
+### Row Level Security
 
-在您的用户之间同步共享状态，包括在线状态和输入指示器。[文档](/docs/guides/realtime/presence)
+Control the data each user can access with Postgres Policies. [Docs](/docs/guides/auth/row-level-security).
 
-### 客户端库
+### Serverside Auth Helpers
 
-官方库[JavaScript](/docs/reference/javascript/)与[Dart](/docs/reference/dart)
-非官方库[由社区支持](https://github.com/supabase-community#client-libraries)
+Helpers for implementing user authentication in popular frameworks like [Next.js](/docs/guides/auth/auth-helpers/nextjs) and [SvelteKit](/docs/guides/auth/auth-helpers/sveltekit)
+
+### Auth UI Kit
+
+Build login and registration pages with custom themes. [Docs](/docs/guides/auth/auth-helpers/auth-ui).
 
 <br />
 
-## 存储
+## APIs & Client libraries
 
-### 文件存储
+### Auto-generated REST API
 
-Supabase存储使存储和文件服务变得简单。[文档](/docs/guides/storage)
+RESTful APIs are autogenerated from your database, without a single line of code. [Docs](/docs/guides/api#rest-api-overview).
 
-### 存储CDN
+### Auto-generated GraphQL API
 
-使用Supabase CDN缓存大文件。[文档](/docs/guides/storage-cdn)
+Fast GraphQL APIs using our custom Postgres GraphQL extension. [Docs](/docs/guides/api#graphql-api-overview).
 
-### 图片转换
+### Realtime Database changes
 
-即时转换图片。[文档](/docs/guides/storage/image-transformations)
+Receive your database changes through websockets. [Docs](/docs/guides/realtime/postgres-changes).
+
+### User Broadcasting
+
+Send messages between connected users through websockets. [Docs](/docs/guides/realtime/broadcast).
+
+### User Presence
+
+Synchronize shared state across your users, including online status and typing indicators. [Docs](/docs/guides/realtime/presence).
+
+### Client libraries
+
+Official client libraries for [JavaScript](/docs/reference/javascript/) and [Dart](/docs/reference/dart).
+Unofficial libraries [supported by the community](https://github.com/supabase-community#client-libraries).
+
+<br />
+
+## Storage
+
+### File storage
+
+Supabase Storage makes it simple to store and serve files. [Docs](/docs/guides/storage).
+
+### Resumable uploads
+
+Upload large files easily using resumable uploads. [Docs](/docs/guides/storage/uploads).
+
+### Storage CDN
+
+Cache large files using the Supabase CDN. [Docs](/docs/guides/storage-cdn).
+
+### Image Transformations
+
+Transform images on the fly. [Docs](/docs/guides/storage/image-transformations).
 
 <br />
 
@@ -127,58 +133,59 @@ Supabase存储使存储和文件服务变得简单。[文档](/docs/guides/stora
 
 ### Deno Edge Functions
 
-全局分布的TypeScript函数，用于执行自定义业务逻辑。[文档](/docs/guides/functions)
+Globally distributed TypeScript functions to execute custom business logic. [Docs](/docs/guides/functions).
 
 <br />
 
-## 项目管理
+## Project Management
 
 ### CLI
 
-Use our CLI to develop your project locally and deploy to the Supabase Platform. [文档](/docs/reference/cli)
+Use our CLI to develop your project locally and deploy to the Supabase Platform. [Docs](/docs/reference/cli).
 
-### 管理API
+### Management API
 
-程序化管理您的项目[文档](/docs/reference/api)
+Manage your projects programmatically. [Docs](/docs/reference/api).
 
 <br />
 
-## 特色功能状态
+## Feature Status
 
-Postgres和Supabase平台都可以投入生产。我们在Postgres之上提供的一些工具仍在开发中。
+Both Postgres and the Supabase Platform are production-ready. Some tools we offer on top of Postgres are still under development.
 
-| 产品                    | 特色                | 阶段   | 可用于自托管                    |
-| -------------------------- | ---------------------- | ------- | ------------------------------------------- |
-| 数据库                   | Postgres               | `GA`    | ✅                                          |
-| 数据库                   | Triggers               | `GA`    | ✅                                          |
-| 数据库                   | Functions              | `GA`    | ✅                                          |
-| 数据库                   | Extensions             | `GA`    | ✅                                          |
-| 数据库                   | Full Text Search       | `GA`    | ✅                                          |
-| 数据库                   | Webhooks               | `GA`    | ✅                                          |
-| 数据库                   | Point-in-Time Recovery | `alpha` | 🚧 [wal-g](https://github.com/wal-g/wal-g)  |
-| 数据库                   | Vault                  | `alpha` | ✅                                          |
-| Studio                     |                        | `GA`    | ✅                                          |
-| Realtime                   | Postgres Changes       | `GA`    | ✅                                          |
-| Realtime                   | Broadcast              | `beta`  | ✅                                          |
-| Realtime                   | Presence               | `beta`  | ✅                                          |
-| 存储                    |                        | `GA`    | ✅                                          |
-| 存储                    | S3 Backend             | `GA`    | ✅                                          |
-| 存储                    | CDN                    | `GA`    | 🚧 [Cloudflare](https://www.cloudflare.com) |
-| 存储                    | Smart CDN              | `beta`  | 🚧 [Cloudflare](https://www.cloudflare.com) |
-| 存储                    | Image Transformations  | `beta`  | ✅                                          |
-| Edge Functions             |                        | `beta`  | 🚧 [Deno Deploy](https://deno.com/deploy)   |
-| 身份验证                       | OAuth提供商        | `beta`  | ✅                                          |
-| 身份验证                       | Passwordless           | `beta`  | ✅                                          |
-| 身份验证                       | Next.js Auth Helpers   | `alpha` | ✅                                          |
-| 身份验证                       | SvelteKit Auth Helpers | `alpha` | ✅                                          |
-| 身份验证                       | Remix Auth Helpers     | `alpha` | ✅                                          |
-| Management API             |                        | `beta`  | N/A                                         |
-| CLI                        |                        | `beta`  | N/A                                         |
-| 客户端库: JavaScript |                        | `GA`    | N/A                                         |
-| 客户端库: Dart       |                        | `beta`  | N/A                                         |
+| Product                    | Feature                | Stage  | Available on self-hosted                    |
+| -------------------------- | ---------------------- | ------ | ------------------------------------------- |
+| Database                   | Postgres               | `GA`   | ✅                                          |
+| Database                   | Triggers               | `GA`   | ✅                                          |
+| Database                   | Functions              | `GA`   | ✅                                          |
+| Database                   | Extensions             | `GA`   | ✅                                          |
+| Database                   | Full Text Search       | `GA`   | ✅                                          |
+| Database                   | Webhooks               | `GA`   | ✅                                          |
+| Database                   | Point-in-Time Recovery | `GA`   | 🚧 [wal-g](https://github.com/wal-g/wal-g)  |
+| Database                   | Vault                  | `beta` | ✅                                          |
+| Studio                     |                        | `GA`   | ✅                                          |
+| Realtime                   | Postgres Changes       | `GA`   | ✅                                          |
+| Realtime                   | Broadcast              | `beta` | ✅                                          |
+| Realtime                   | Presence               | `beta` | ✅                                          |
+| Storage                    |                        | `GA`   | ✅                                          |
+| Storage                    | S3 Backend             | `GA`   | ✅                                          |
+| Storage                    | CDN                    | `GA`   | 🚧 [Cloudflare](https://www.cloudflare.com) |
+| Storage                    | Smart CDN              | `beta` | 🚧 [Cloudflare](https://www.cloudflare.com) |
+| Storage                    | Image Transformations  | `GA`   | ✅                                          |
+| Storage                    | Resumable Uploads      | `beta` | ✅                                          |
+| Edge Functions             |                        | `beta` | ✅                                          |
+| Auth                       | OAuth Providers        | `GA`   | ✅                                          |
+| Auth                       | Passwordless           | `GA`   | ✅                                          |
+| Auth                       | Next.js Auth Helpers   | `beta` | ✅                                          |
+| Auth                       | SvelteKit Auth Helpers | `beta` | ✅                                          |
+| Auth                       | Remix Auth Helpers     | `beta` | ✅                                          |
+| CLI                        |                        | `beta` | ✅ Works with self-hosted                   |
+| Management API             |                        | `beta` | N/A                                         |
+| Client Library: JavaScript |                        | `GA`   | N/A                                         |
+| Client Library: Dart       |                        | `beta` | N/A                                         |
 
-- ✅ = 完全可用
-- 🚧 = 可用，但需要外部工具或配置。
+- ✅ = Fully Available
+- 🚧 = Available, but requires external tools or configuration
 
 export const Page = ({ children }) => <Layout meta={meta} children={children} />
 

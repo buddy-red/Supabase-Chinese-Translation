@@ -1,9 +1,10 @@
 import { auth } from 'lib/gotrue'
 import { isUndefined } from 'lodash'
 import { SupaResponse } from 'types/base'
+import { Session } from '@supabase/gotrue-js'
 
 export function handleError<T>(e: any, requestId: string): SupaResponse<T> {
-  const message = e?.message ? `出错: ${e.message}` : '出错'
+  const message = e?.message ? `发生了一个错误: ${e.message}` : '发生了一个错误'
   const error = { code: 500, message, requestId }
   return { error } as unknown as SupaResponse<T>
 }
@@ -80,21 +81,38 @@ export async function handleResponseError<T = unknown>(
   } else if (resJson.error && resJson.error.message) {
     return { error: { code: response.status, ...resJson.error } } as unknown as SupaResponse<T>
   } else {
-    const message = resTxt ?? `出错: ${response.status}`
+    const message = resTxt ?? `发生了一个错误: ${response.status}`
     const error = { code: response.status, message, requestId }
     return { error } as unknown as SupaResponse<T>
   }
 }
 
+let currentSession: Session | null = null
+
+auth.onAuthStateChange((event, session) => {
+  currentSession = session
+})
+
 export async function getAccessToken() {
   // ignore if server-side
   if (typeof window === 'undefined') return ''
 
-  const {
-    data: { session },
-  } = await auth.getSession()
+  const aboutToExpire = currentSession?.expires_at
+    ? currentSession.expires_at - Math.ceil(Date.now() / 1000) < 60
+    : false
 
-  return session?.access_token
+  if (!currentSession || aboutToExpire) {
+    const {
+      data: { session },
+    } = await auth.getSession()
+
+    currentSession = session
+  }
+
+  // using memory version as gotrue-js can be a bit slow when using
+  // #getSession() as it has to read directly from local storage
+
+  return currentSession?.access_token
 }
 
 export async function constructHeaders(requestId: string, optionHeaders?: { [prop: string]: any }) {
@@ -111,10 +129,13 @@ export async function constructHeaders(requestId: string, optionHeaders?: { [pro
     if (accessToken) headers.Authorization = `Bearer ${accessToken}`
   }
 
-  if (typeof window !== 'undefined') {
-    const gaClientId = window?.localStorage?.getItem('ga_client_id')
-    if (gaClientId && gaClientId !== 'undefined') headers['X-GA-Client-Id'] = gaClientId
-  }
-
   return headers
+}
+
+export function isResponseOk<T>(response: SupaResponse<T> | undefined): response is T {
+  return (
+    response !== undefined &&
+    response !== null &&
+    !(typeof response === 'object' && 'error' in response && Boolean(response.error))
+  )
 }

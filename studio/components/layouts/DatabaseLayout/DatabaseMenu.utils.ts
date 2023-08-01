@@ -1,21 +1,33 @@
 import { Project } from 'types'
 import { ProductMenuGroup } from 'components/ui/ProductMenu/ProductMenu.types'
-import { useFlag } from 'hooks'
 import { IS_PLATFORM } from 'lib/constants'
 
-export const generateDatabaseMenu = (project?: Project): ProductMenuGroup[] => {
+export const generateDatabaseMenu = (
+  project?: Project,
+  flags?: {
+    foreignDataWrappersEnabled: boolean
+    pgNetExtensionExists: boolean
+    schemaVisualizerEnabled: boolean
+  }
+): ProductMenuGroup[] => {
   const ref = project?.ref ?? 'default'
-
-  const HOOKS_RELEASED = '2021-07-30T15:33:54.383Z'
-  const showHooksRoute = project?.inserted_at ? project.inserted_at > HOOKS_RELEASED : false
-
-  const foreignDataWrappersEnabled = useFlag('foreignDataWrappers')
+  const { foreignDataWrappersEnabled, pgNetExtensionExists, schemaVisualizerEnabled } = flags || {}
 
   return [
     {
       title: 'Database',
       items: [
         { name: 'Tables', key: 'tables', url: `/project/${ref}/database/tables`, items: [] },
+        ...(!!schemaVisualizerEnabled
+          ? [
+              {
+                name: 'Schema Visualizer',
+                key: 'schemas',
+                url: `/project/${ref}/database/schemas`,
+                items: [],
+              },
+            ]
+          : []),
         {
           name: 'Triggers',
           key: 'triggers',
@@ -41,7 +53,7 @@ export const generateDatabaseMenu = (project?: Project): ProductMenuGroup[] => {
           url: `/project/${ref}/database/replication`,
           items: [],
         },
-        ...(showHooksRoute
+        ...(!!pgNetExtensionExists
           ? [
               {
                 name: 'Webhooks',
@@ -51,7 +63,7 @@ export const generateDatabaseMenu = (project?: Project): ProductMenuGroup[] => {
               },
             ]
           : []),
-        ...(foreignDataWrappersEnabled
+        ...(!!foreignDataWrappersEnabled
           ? [
               {
                 name: 'Wrappers',
@@ -72,6 +84,12 @@ export const generateDatabaseMenu = (project?: Project): ProductMenuGroup[] => {
               },
             ]
           : []),
+        {
+          name: 'Migrations',
+          key: 'migrations',
+          url: `/project/${ref}/database/migrations`,
+          items: [],
+        },
       ],
     },
   ]

@@ -4,7 +4,7 @@ import { partition, isNull } from 'lodash'
 import { Input, IconSearch, IconAlertCircle, Button, IconBookOpen } from 'ui'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { useStore, checkPermissions } from 'hooks'
+import { useStore, useCheckPermissions } from 'hooks'
 import { useParams } from 'common/hooks'
 import ExtensionCard from './ExtensionCard'
 import { HIDDEN_EXTENSIONS } from './Extensions.constants'
@@ -31,7 +31,7 @@ const Extensions: FC<Props> = ({}) => {
     (ext: any) => !isNull(ext.installed_version)
   )
 
-  const canUpdateExtensions = checkPermissions(
+  const canUpdateExtensions = useCheckPermissions(
     PermissionAction.TENANT_SQL_ADMIN_WRITE,
     'extensions'
   )
@@ -59,7 +59,7 @@ const Extensions: FC<Props> = ({}) => {
               />
             </div>
           ) : (
-            <Link passHref href="https://www.supabase.cc/docs/guides/database/extensions">
+            <Link passHref href="https://supabase.com/docs/guides/database/extensions">
               <a target="_blank" rel="noreferrer">
                 <Button type="default" iconRight={<IconBookOpen />}>
                   Learn more about extensions

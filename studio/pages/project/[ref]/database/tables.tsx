@@ -1,23 +1,21 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { useState, useEffect } from 'react'
-import { observer } from 'mobx-react-lite'
-import { isUndefined } from 'lodash'
 import type { PostgresColumn, PostgresTable } from '@supabase/postgres-meta'
-import { Modal } from 'ui'
+import { useQueryClient } from '@tanstack/react-query'
+import { isUndefined } from 'lodash'
+import { observer } from 'mobx-react-lite'
+import { useEffect, useState } from 'react'
 
-import { useStore } from 'hooks'
-import { sqlKeys } from 'data/sql/keys'
-
-import { DatabaseLayout } from 'components/layouts'
-import ConfirmationModal from 'components/ui/ConfirmationModal'
-import { TableList, ColumnList } from 'components/interfaces/Database'
+import { ColumnList, TableList } from 'components/interfaces/Database'
 import { SidePanelEditor } from 'components/interfaces/TableGridEditor'
+import { DatabaseLayout } from 'components/layouts'
 import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import ConfirmationModal from 'components/ui/ConfirmationModal'
+import { sqlKeys } from 'data/sql/keys'
+import { useStore } from 'hooks'
 import { NextPageWithLayout } from 'types'
+import { Modal } from 'ui'
 
 const DatabaseTables: NextPageWithLayout = () => {
   const { meta, ui } = useStore()
-
   const { project } = useProjectContext()
 
   const queryClient = useQueryClient()
@@ -34,10 +32,10 @@ const DatabaseTables: NextPageWithLayout = () => {
   const [selectedTableToDelete, setSelectedTableToDelete] = useState<PostgresTable>()
 
   useEffect(() => {
-    if (ui.selectedProject?.ref) {
+    if (project?.ref) {
       meta.types.load()
     }
-  }, [ui.selectedProject?.ref])
+  }, [project?.ref])
 
   const onAddTable = () => {
     setSidePanelKey('table')
@@ -170,34 +168,32 @@ const DatabaseTables: NextPageWithLayout = () => {
         header={
           <span className="break-words">{`Confirm deletion of table "${selectedTableToDelete?.name}"`}</span>
         }
-        children={
-          <Modal.Content>
-            <p className="py-4 text-sm text-scale-1100">
-              Are you sure you want to delete the selected table? This action cannot be undone.
-            </p>
-          </Modal.Content>
-        }
         buttonLabel="Delete"
         buttonLoadingLabel="Deleting"
         onSelectCancel={() => setIsDeleting(false)}
         onSelectConfirm={onConfirmDeleteTable}
-      />
+      >
+        <Modal.Content>
+          <p className="py-4 text-sm text-scale-1100">
+            Are you sure you want to delete the selected table? This action cannot be undone.
+          </p>
+        </Modal.Content>
+      </ConfirmationModal>
       <ConfirmationModal
         danger
         visible={isDeleting && !isUndefined(selectedColumnToDelete)}
         header={`Confirm deletion of column "${selectedColumnToDelete?.name}"`}
-        children={
-          <Modal.Content>
-            <p className="py-4 text-sm text-scale-1100">
-              Are you sure you want to delete the selected column? This action cannot be undone.
-            </p>
-          </Modal.Content>
-        }
         buttonLabel="Delete"
         buttonLoadingLabel="Deleting"
         onSelectCancel={() => setIsDeleting(false)}
         onSelectConfirm={onConfirmDeleteColumn}
-      />
+      >
+        <Modal.Content>
+          <p className="py-4 text-sm text-scale-1100">
+            Are you sure you want to delete the selected column? This action cannot be undone.
+          </p>
+        </Modal.Content>
+      </ConfirmationModal>
       <SidePanelEditor
         sidePanelKey={sidePanelKey}
         selectedSchema={selectedSchema}

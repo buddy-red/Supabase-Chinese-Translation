@@ -4,7 +4,7 @@ import { GlassPanel, IconPanel, Button, IconChevronRight } from 'ui'
 
 export const meta = {
   id: 'getting-started',
-  title: '快速上手',
+  title: 'Getting Started',
   description: 'Resources for getting started with Supabase.',
 }
 
@@ -36,12 +36,28 @@ export const meta = {
 
 </div>
 
-### 框架快速上手
+### Use Cases
+
+<div className="grid lg:grid-cols-12 gap-6 not-prose">
+  {useCases.map((item) => {
+    return (
+      <Link href={`${item.href}`} key={item.title} passHref>
+        <a className={'col-span-4'}>
+          <GlassPanel title={item.title} span="col-span-6" background={false} icon={item.icon}>
+            {item.description}
+          </GlassPanel>
+        </a>
+      </Link>
+    )
+  })}
+</div>
+
+### Framework Quickstarts
 
 <div className="grid lg:grid-cols-12 gap-6 not-prose">
   {quickstarts.map((item) => {
     return (
-      <Link href={`/${item.href}`} key={item.title} passHref>
+      <Link href={`${item.href}`} key={item.title} passHref>
         <a className={'col-span-4'}>
           <GlassPanel title={item.title} span="col-span-6" background={false} icon={item.icon}>
             {item.description}
@@ -52,12 +68,12 @@ export const meta = {
   })}
 </div>
 
-### Web应用教程
+### Web App Tutorials
 
 <div className="grid lg:grid-cols-12 gap-6 not-prose">
   {webapps.map((item) => {
     return (
-      <Link href={`/${item.href}`} key={item.title} passHref>
+      <Link href={`${item.href}`} key={item.title} passHref>
         <a className={'col-span-4'}>
           <GlassPanel title={item.title} span="col-span-6" background={false} icon={item.icon}>
             {item.description}
@@ -68,12 +84,12 @@ export const meta = {
   })}
 </div>
 
-### 移动应用教程
+### Mobile Tutorials
 
 <div className="grid lg:grid-cols-12 gap-6 not-prose">
   {mobile.map((item) => {
     return (
-      <Link href={`/${item.href}`} key={item.title} passHref>
+      <Link href={`${item.href}`} key={item.title} passHref>
         <a className={'col-span-4'}>
           <GlassPanel title={item.title} span="col-span-6" background={false} icon={item.icon}>
             {item.description}
@@ -83,28 +99,98 @@ export const meta = {
     )
   })}
 </div>
+
+export const useCases = [
+  {
+    title: 'AI, Vectors, and embeddings',
+    href: '/docs/guides/ai#examples',
+    description: `Build AI-enabled applications using our Vector toolkit.`,
+    icon: '/docs/img/icons/openai_logo',
+  },
+  {
+    title: 'Subscription Payments (SaaS)',
+    href: 'https://github.com/vercel/nextjs-subscription-payments#nextjs-subscription-payments-starter',
+    description: `Clone, deploy, and fully customize a SaaS subscription application with Next.js.`,
+    icon: '/docs/img/icons/nextjs-icon',
+  },
+  {
+    title: 'Partner Gallery',
+    href: 'https://github.com/supabase-community/partner-gallery-example#supabase-partner-gallery-example',
+    description: `Postgres full-text search, image storage, and more.`,
+    icon: '/docs/img/icons/nextjs-icon',
+  },
+]
 
 export const quickstarts = [
   {
     title: 'React',
     href: '/guides/getting-started/quickstarts/reactjs',
     description:
-      '了解如何创建Supadase项目，向数据库中添加一些示例数据，并从React应用程序中查询数据。',
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from a React app.',
     icon: '/docs/img/icons/react-icon',
   },
   {
     title: 'NextJS',
     href: '/guides/getting-started/quickstarts/nextjs',
     description:
-      '了解如何创建Supadase项目，向数据库中添加一些示例数据，并从NextJS应用程序中查询数据。',
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from a NextJS app.',
     icon: '/docs/img/icons/nextjs-icon',
+  },
+  {
+    title: 'NuxtJS',
+    href: '/guides/getting-started/quickstarts/nuxtjs',
+    description:
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from a NuxtJS app.',
+    icon: '/docs/img/icons/nuxt-icon',
+  },
+  {
+    title: 'RedwoodJS',
+    href: '/guides/getting-started/quickstarts/redwoodjs',
+    description:
+      'Learn how to create a Supabase project, add some sample data to your database using Prisma migration and seeds, and query the data from a RedwoodJS app.',
+    icon: '/docs/img/icons/redwood-icon',
   },
   {
     title: 'Flutter',
     href: '/guides/getting-started/quickstarts/flutter',
     description:
-      '了解如何创建Supadase项目，向数据库中添加一些示例数据，并从Flutter应用程序中查询数据。',
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from a Flutter app.',
     icon: '/docs/img/icons/flutter-icon',
+  },
+  {
+    title: 'Android Kotlin',
+    href: '/guides/getting-started/quickstarts/kotlin',
+    description:
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from an Android Kotlin app.',
+    icon: '/docs/img/icons/kotlin-icon',
+  },
+  {
+    title: 'SvelteKit',
+    href: '/guides/getting-started/quickstarts/sveltekit',
+    description:
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from a SvelteKit app.',
+    icon: '/docs/img/icons/svelte-icon',
+  },
+  {
+    title: 'SolidJS',
+    href: '/guides/getting-started/quickstarts/solidjs',
+    description:
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from a SolidJS app.',
+    icon: '/docs/img/icons/solidjs-icon',
+  },
+  {
+    title: 'Vue',
+    href: '/guides/getting-started/quickstarts/vue',
+    description:
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from a Vue app.',
+    icon: '/docs/img/icons/vuejs-icon',
+  },
+  {
+    title: 'refine',
+    href: '/guides/getting-started/quickstarts/refine',
+    description:
+      'Learn how to create a Supabase project, add some sample data to your database, and query the data from a refine app.',
+    icon: '/docs/img/icons/refine-icon',
   },
 ]
 
@@ -113,57 +199,64 @@ export const webapps = [
     title: 'NextJS',
     href: '/guides/getting-started/tutorials/with-nextjs',
     description:
-      '了解如何使用NextJS和Suabase数据库、身份验证和存储功能构建用户管理应用程序。',
+      'Learn how to build a user management app with NextJS and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/nextjs-icon',
   },
   {
     title: 'React',
     href: '/guides/getting-started/tutorials/with-react',
     description:
-      '了解如何构建具有React和Supadase数据库、Auth和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with React and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/react-icon',
   },
   {
     title: 'Vue 3',
     href: '/guides/getting-started/tutorials/with-vue-3',
     description:
-      '了解如何使用Vue 3和Supadase数据库、身份验证和存储功能构建用户管理应用程序。',
+      'Learn how to build a user management app with Vue 3 and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/vuejs-icon',
   },
   {
     title: 'Nuxt 3',
     href: '/guides/getting-started/tutorials/with-nuxt-3',
     description:
-      '了解如何构建具有Nuxt 3和Suabase数据库、身份验证和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with Nuxt 3 and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/nuxt-icon',
   },
   {
     title: 'Angular',
     href: '/guides/getting-started/tutorials/with-angular',
     description:
-      '了解如何构建具有Angular和Suabase数据库、Auth和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with Angular and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/angular-icon',
   },
   {
     title: 'RedwoodJS',
     href: '/guides/getting-started/tutorials/with-redwoodjs',
     description:
-      '了解如何使用RedwoodJS和Suabase数据库、身份验证和存储功能构建用户管理应用程序。',
+      'Learn how to build a user management app with RedwoodJS and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/redwood-icon',
   },
   {
     title: 'Svelte',
     href: '/guides/getting-started/tutorials/with-svelte',
     description:
-      '了解如何构建具有Svelte和Supadase数据库、身份验证和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with Svelte and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/svelte-icon',
   },
   {
     title: 'SvelteKit',
     href: '/guides/getting-started/tutorials/with-sveltekit',
     description:
-      '了解如何使用SveltKit和Supadase数据库、身份验证和存储功能构建用户管理应用程序。',
+      'Learn how to build a user management app with SvelteKit and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/svelte-icon',
+  },
+  {
+    title: 'refine',
+    href: '/guides/getting-started/tutorials/with-refine',
+    description:
+      'Learn how to build a user management app with refine and Supabase Database, Auth, and Storage functionality.',
+    icon: '/docs/img/icons/refine-icon',
   },
 ]
 
@@ -172,57 +265,64 @@ export const mobile = [
     title: 'Flutter',
     href: '/guides/getting-started/tutorials/with-flutter',
     description:
-      '了解如何构建具有Flutter和Supadase数据库、身份验证和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with Flutter and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/flutter-icon',
   },
   {
     title: 'Expo',
     href: '/guides/getting-started/tutorials/with-expo',
     description:
-      '了解如何构建具有Expo和Subabase数据库、身份验证和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with Expo and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/expo-icon',
+  },
+  {
+    title: 'Android Kotlin',
+    href: '/guides/getting-started/tutorials/with-kotlin',
+    description:
+      'Learn how to build a product management app with Android and Supabase Database, Auth, and Storage functionality.',
+    icon: '/docs/img/icons/kotlin-icon',
   },
   {
     title: 'Ionic React',
     href: '/guides/getting-started/tutorials/with-ionic-react',
     description:
-      '了解如何构建具有Ionic React和Suabase数据库、Auth和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with Ionic React and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/ionic-icon',
   },
   {
     title: 'Ionic Vue',
     href: '/guides/getting-started/tutorials/with-ionic-vue',
     description:
-      '了解如何构建具有Ionic Vue和Supadase数据库、身份验证和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with Ionic Vue and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/ionic-icon',
   },
   {
     title: 'Ionic Angular',
     href: '/guides/getting-started/tutorials/with-ionic-angular',
     description:
-      '了解如何构建具有Ionic Angular和Suabase数据库、身份验证和存储功能的用户管理应用程序。',
+      'Learn how to build a user management app with Ionic Angular and Supabase Database, Auth, and Storage functionality.',
     icon: '/docs/img/icons/ionic-icon',
   },
 ]
 
 export const resources = [
   {
-    title: '特色',
+    title: 'Features',
     hasLightIcon: true,
     href: '/guides/getting-started/features',
-    description: 'Supabase为每个项目提供的功能非详尽列表',
+    description: 'A non-exhaustive list of features that Supabase provides for every project.',
   },
   {
-    title: '架构',
+    title: 'Architecture',
     hasLightIcon: true,
     href: '/guides/getting-started/architecture',
-    description: "Suabase的体系结构和产品原理概述",
+    description: "An overview of Supabase's architecture and product principles.",
   },
   {
-    title: '本地开发',
+    title: 'Local Development',
     hasLightIcon: true,
-    href: '/guides/cli/local-development',
-    description: '用Suabase CLI进行本地开发并在团队之间进行协作',
+    href: '/guides/getting-started/local-development',
+    description: 'Use the Supabase CLI to develop locally and collaborate between teams.',
   },
 ]
 

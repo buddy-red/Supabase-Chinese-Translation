@@ -4,7 +4,9 @@ export const meta = {
   id: 'local-development',
   title: 'Local Development',
   description: 'How to use Supabase on your local development machine.',
-  video: 'https://www.youtube.com/v/vyHyYpvjaks',
+  subtitle: 'How to use Supabase on your local development machine.',
+  video: 'https://www.youtube-nocookie.com/v/vyHyYpvjaks',
+  tocVideo: 'vyHyYpvjaks',
 }
 
 Supabase is a flexible platform that lets you decide how you want to build your projects. You can use the Dashboard directly to get up and running quickly, or use a proper local setup. We suggest you work locally and deploy your changes to a linked project on the [Supabase Platform](https://app.supabase.io/).
@@ -19,28 +21,11 @@ The Dashboard provides a wide range of features for setting up your project: cre
 
 2. **Easier Collaboration**: Developing locally can make it easier to collaborate with others on the same project.
 
-3. **Cost-Effective**: Supabase provides a generous free tier and gives you two free projects to get started. But what if you need more than two? When you develop locally, you can spin up unlimited local projects and link them with live projects when you're ready to launch.
+3. **Cost-Effective**: Supabase provides a generous free plan and gives you two free projects to get started. But what if you need more than two? When you develop locally, you can spin up unlimited local projects and link them with live projects when you're ready to launch.
 
 4. **Configuration in code**: If you directly change your tables via the Dashboard, none of that gets captured in code. If you follow these local development practices, you'll store all of your table schemas in code.
 
 5. **Work offline**: Need to work from a train? A plane? An automobile? No problem. Developing your project locally allows you to work offline.
-
-<div className="video-container">
-  <iframe
-    src="https://www.youtube-nocookie.com/embed/vyHyYpvjaks"
-    frameBorder="1"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    allowFullScreen
-  ></iframe>
-</div>
-
-## Prerequisites
-
-Make sure you have these installed on your local machine:
-
-- [Docker](https://docs.docker.com/engine/install/)
-- [Git](https://github.com/git-guides/install-git)
-- [Supabase CLI](/docs/guides/cli)
 
 ## Log in to the Supabase CLI
 
@@ -50,7 +35,7 @@ supabase login
 
 <Admonition type="note">
 
-If you installed the Supabase CLI via NPM you may have to use `npx supabase login`.
+If you installed the Supabase CLI via NPM, you will need to run `npx supabase login` instead.
 
 </Admonition>
 
@@ -99,7 +84,7 @@ service_role key: eyJh......
 
 ```
 
-You can use the [supabase stop](/docs/reference/cli/usage#supabase-stop) command at any time to stop all services.
+You can use the [`supabase stop`](/docs/reference/cli/usage#supabase-stop) command at any time to stop all services and reset your local database. Use `supabase stop --backup` to stop all services without resetting your local database.
 
 ## Access your project's services
 
@@ -184,7 +169,7 @@ For this guide, we'll create a table called `employees` and see how we can make 
   <StepHikeCompact.Step step={1}>
     <StepHikeCompact.Details title="Create your first migration file">
 
-      To get started, generate a [new migration](https://www.supabase.cc/docs/reference/cli/supabase-migration-new) to store the SQL needed to create our `employees` table
+      To get started, generate a [new migration](https://supabase.com/docs/reference/cli/supabase-migration-new) to store the SQL needed to create our `employees` table
 
     </StepHikeCompact.Details>
 
@@ -359,13 +344,17 @@ create table "public"."cities" (
 
 ```
 
+Alternately, you can view your table definitions directly from the Table Editor:
+
+![SQL Definition](/docs/img/guides/cli/sql-definitions.png)
+
 You can then copy this SQL into a new migration file, and run `supabase db reset` to apply the changes.
 
 The last step is deploying these changes to a live Supabase project.
 
 ## Deploy your project
 
-You've been developing your project locally, making changes to your tables via migrations. It's time to deploy your project to the Supabase Platform and start scaling up to millions of users! Head over to [Supabase](https://app.supabase.com) and create a new project to deploy to.
+You've been developing your project locally, making changes to your tables via migrations. It's time to deploy your project to the Supabase Platform and start scaling up to millions of users! Head over to [Supabase](https://supabase.com/dashboard) and create a new project to deploy to.
 
 ### Link your project
 
@@ -373,7 +362,7 @@ Associate your project with your remote project using [`supabase link`](/docs/re
 
 ```bash
 supabase link --project-ref <project-id>
-# You can get <project-id> from your project's dashboard URL: https://app.supabase.com/project/<project-id>
+# You can get <project-id> from your project's dashboard URL: https://supabase.com/dashboard/project/<project-id>
 
 supabase db remote commit
 # Capture any changes that you have made to your remote database before you went through the steps above
@@ -397,7 +386,7 @@ Deploy any local database migrations using [`db push`](/docs/reference/cli/usage
 supabase db push
 ```
 
-Visiting your live project on [Supabase](https://app.supabase.com), you'll see a new `employees` table, complete with the `department` column you added in the second migration above.
+Visiting your live project on [Supabase](https://supabase.com/dashboard), you'll see a new `employees` table, complete with the `department` column you added in the second migration above.
 
 ### Deploy Edge Functions
 
@@ -407,25 +396,54 @@ If your project uses Edge Functions, you can deploy these using [`functions depl
 supabase functions deploy <function_name>
 ```
 
+### Use Auth locally
+
+To use Auth locally, update your project's `supabase/config.toml` file that gets created after running `supabase init`. Add any providers you want, and set enabled to `true`.
+
+```bash supabase/config.toml
+[auth.external.github]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GITHUB_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GITHUB_SECRET)"
+redirect_uri = "http://localhost:54321/auth/v1/callback"
+```
+
+As a best practice, any secret values should be loaded from environment variables. You can add them to `.env` file in your project's root directory for the CLI to automatically substitute them.
+
+```bash .env
+SUPABASE_AUTH_GITHUB_CLIENT_ID="redacted"
+SUPABASE_AUTH_GITHUB_SECRET="redacted"
+```
+
+For these changes to take effect, you need to run `supabase stop` and `supabase start` again.
+
+If you have additional triggers or RLS policies defined on your `auth` schema, you can pull them as a migration file locally.
+
+```bash
+supabase db remote commit --schema auth
+```
+
 ### Enabling Local Logging
 
 Local logs rely on the Supabase Analytics Server. This can be enabled via the CLI configuration, and requires a Google Cloud project and BigQuery access.
 
 <Admonition type="note">
-The Google Cloud project must have billing enabled.
+  The Google Cloud project must have billing enabled. The dataset created and managed by Analytics
+  will be within the US. Read more about this requirement
+  [here](https://supabase.com/docs/reference/self-hosting-analytics/introduction#bigquery).
 </Admonition>
 
 Requirements:
 
-1. Google Cloud project number (must be paid)
+1. Google Cloud project number
 2. Google Cloud project ID
-3. Google Cloud JWT, obtained through [Google Cloud IAM dashboard](https://console.cloud.google.com/iam-admin/iam)
+3. Google Cloud Service Account Key, obtained through [Google Cloud IAM dashboard](https://console.cloud.google.com/iam-admin/iam), with BigQuery Admin role assigned to the service account.
 
 Once you have these 3 items, follow these steps:
 
-1. Update your project's `config.toml` and fill in the following:
+First, update your project's `supabase/config.toml`:
 
-```
+```bash
 [analytics]
 enabled = true
 gcp_project_number = "123456"
@@ -433,18 +451,18 @@ gcp_project_id = "my-project-id"
 gcp_jwt_path = "supabase/gcloud.json"
 ```
 
-2. Place your JWT file at the corresponding path and ensure that it is correctly named.
+Next, place your service account key (a JSON file) at the corresponding path and ensure that it is correctly named.
 
-3. Start your local stack using `supabase start`
+Last, start your local stack using `supabase start`
 
 This will switch the logging drivers and will direct logs to the Analytics server. You will be able to view and query your logs via the Studio Logs Explorer and Logs UI.
 
 ## Limitations and considerations
 
-The local development environment is not as feature-complete as the Supabase Platform. We're working towards parity between the hosted platform and the local environment. Here are some of the differences:
+The local development environment is not as feature-complete as the Supabase Platform. Here are some of the differences:
 
-- The Functions interface is coming soon.
-- You cannot update your project settings in the Dashboard. This must be done using the CLI.
+- You cannot update your project settings in the Dashboard. This must be done using the local config file.
+- The CLI version determines the local version of Studio used, so make sure you keep your local [Supabase CLI up to date](https://github.com/supabase/cli#getting-started). We're constantly adding new features and bug fixes.
 
 export const Page = ({ children }) => <Layout meta={meta} children={children} />
 

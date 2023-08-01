@@ -1,6 +1,6 @@
 const Nav = [
   {
-    label: '快速上手',
+    label: 'Getting Started',
     items: [
       { name: 'Supabase Flutter Library', url: '/reference/dart', items: [] },
       { name: 'Installing', url: '/reference/dart/installing', items: [] },

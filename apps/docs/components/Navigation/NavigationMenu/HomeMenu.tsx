@@ -3,156 +3,18 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Fragment } from 'react'
-import { Badge } from '~/../../packages/ui'
+import { Badge, cn } from 'ui'
+import { HOMEPAGE_MENU_ITEMS } from './NavigationMenu.constants'
+import HomeMenuIconPicker from './HomeMenuIconPicker'
 
-const home = [
-  [
-    {
-      label: '首页',
-      icon: '/img/icons/menu/home',
-      href: '/',
-      level: 'home',
-    },
-    {
-      label: '快速上手',
-      icon: '/img/icons/menu/getting-started',
-      href: '/guides/getting-started',
-      level: 'gettingstarted',
-    },
-  ],
-  [
-    {
-      label: '数据库',
-      icon: '/img/icons/menu/database',
-      href: '/guides/database',
-      level: 'database',
-    },
-    {
-      label: 'Serverless API',
-      icon: '/img/icons/menu/reference',
-      href: '/guides/api',
-      level: 'api',
-    },
-    {
-      label: '身份验证',
-      icon: '/img/icons/menu/auth',
-      href: '/guides/auth',
-      level: 'auth',
-    },
-    {
-      label: 'Edge Functions',
-      icon: '/img/icons/menu/functions',
-      href: '/guides/functions',
-      level: 'functions',
-    },
-    {
-      label: 'Realtime',
-      icon: '/img/icons/menu/realtime',
-      href: '/guides/realtime',
-      level: 'realtime',
-    },
-    {
-      label: '存储',
-      icon: '/img/icons/menu/storage',
-      href: '/guides/storage',
-      level: 'storage',
-    },
-  ],
-  [
-    {
-      label: '平台',
-      icon: '/img/icons/menu/platform',
-      href: '/guides/platform',
-      level: 'platform',
-    },
-    {
-      label: '资源',
-      icon: '/img/icons/menu/platform',
-      href: '/guides/resources',
-      level: 'resources',
-    },
-    {
-      label: '自托管',
-      icon: '/img/icons/menu/platform',
-      href: '/guides/self-hosting',
-      level: 'self_hosting',
-    },
-    {
-      label: '集成',
-      icon: '/img/icons/menu/integrations',
-      hasLightIcon: true,
-      href: '/guides/integrations',
-      level: 'integrations',
-    },
-  ],
-  [
-    {
-      label: '客户端库参考',
-    },
-    {
-      label: 'JavaScript',
-      icon: '/img/icons/menu/reference-javascript',
-      href: '/reference/javascript/introduction',
-      level: 'reference_javascript',
-    },
-    {
-      label: 'Flutter',
-      icon: '/img/icons/menu/reference-dart',
-      href: '/reference/dart/introduction',
-      level: 'reference_dart',
-    },
-    {
-      label: 'Python',
-      icon: '/img/icons/menu/reference-python',
-      href: '/reference/python/introduction',
-      level: 'reference_python',
-      community: true,
-    },
-    {
-      label: 'C#',
-      icon: '/img/icons/menu/reference-csharp',
-      href: '/reference/csharp/introduction',
-      level: 'reference_csharp',
-      community: true,
-    },
-    {
-      label: 'Swift',
-      icon: '/img/icons/menu/reference-swift',
-      href: '/reference/swift/introduction',
-      level: 'reference_swift',
-      community: true,
-    },
-    {
-      label: '工具',
-    },
-    {
-      label: '管理API',
-      icon: '/img/icons/menu/reference-api',
-      href: '/reference/api/introduction',
-      level: 'reference_javascript',
-    },
-    {
-      label: 'Supabase CLI',
-      icon: '/img/icons/menu/reference-cli',
-      href: '/guides/cli',
-      level: 'reference_javascript',
-    },
-  ],
-]
-
-const NavigationMenuHome = ({ active }) => {
+const NavigationMenuHome = () => {
   const router = useRouter()
   const { isDarkMode } = useTheme()
 
   return (
-    <div
-      className={[
-        'transition-all duration-150 ease-out',
-        active ? 'opacity-100 ml-0 delay-150' : 'opacity-0 -ml-8 invisible absolute',
-      ].join(' ')}
-    >
-      <ul className="relative w-full flex flex-col gap-4">
-        {home.map((section, sectionIndex) => {
+    <div className="transition-all duration-150 ease-out opacity-100 ml-0 delay-150">
+      <ul className="relative w-full flex flex-col gap-4 pb-5">
+        {HOMEPAGE_MENU_ITEMS.map((section, sectionIndex) => {
           return (
             <Fragment key={`section-container-${sectionIndex}-border`}>
               {sectionIndex !== 0 && (
@@ -162,16 +24,19 @@ const NavigationMenuHome = ({ active }) => {
                 ></div>
               )}
               <div key={`section-${sectionIndex}`}>
-                <div className="flex flex-col gap-3">
-                  {section.map((link) => {
+                <div className="flex flex-col gap-4">
+                  {section.map((link, i) => {
                     if (!link.href) {
                       return (
-                        <span
+                        <div
                           key={link.label}
-                          className="font-mono uppercase text-xs text-scale-900"
+                          className={cn(
+                            'font-mono uppercase text-xs text-scale-900 ',
+                            i !== 0 && 'mt-4'
+                          )}
                         >
                           {link.label}
-                        </span>
+                        </div>
                       )
                     } else {
                       return (
@@ -179,21 +44,13 @@ const NavigationMenuHome = ({ active }) => {
                           <a>
                             <li
                               className={[
-                                'group flex items-center gap-3',
-                                'text-base transition-all duration-150 text-scale-1200 hover:text-brand-900 hover:cursor-pointer ',
+                                'group flex items-center gap-2',
+                                'text-sm transition-all duration-150 text-scale-1100 hover:text-scale-1200  hover:cursor-pointer ',
                               ].join(' ')}
                             >
-                              <Image
-                                alt={link.label}
-                                src={`${router.basePath}${
-                                  isDarkMode ? link.icon : `${link.icon}-light`
-                                }${!link.icon.includes('png') ? '.svg' : ''}`}
-                                width={17}
-                                height={17}
-                                className="w-4 h-4 group-hover:scale-110 ease-out transition-all"
-                              />
+                              {link?.icon && <HomeMenuIconPicker icon={link.icon} />}
                               {link.label}
-                              {link.community && <Badge size="small">社区</Badge>}
+                              {link.community && <Badge size="small">Community</Badge>}
                             </li>
                           </a>
                         </Link>

@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query'
 import { get } from 'lib/common/fetch'
-import { API_ADMIN_URL } from 'lib/constants'
+import { API_ADMIN_URL, IS_PLATFORM } from 'lib/constants'
 import { useCallback } from 'react'
 import { edgeFunctionsKeys } from './keys'
 
@@ -19,6 +19,7 @@ export type EdgeFunctionResponse = {
   verify_jwt: boolean
   import_map: boolean
   version: number
+  import_map_path: string
 }
 
 export async function getEdgeFunction(
@@ -46,7 +47,8 @@ export const useEdgeFunctionQuery = <TData = EdgeFunctionData>(
     edgeFunctionsKeys.detail(projectRef, slug),
     ({ signal }) => getEdgeFunction({ projectRef, slug }, signal),
     {
-      enabled: enabled && typeof projectRef !== 'undefined' && typeof slug !== 'undefined',
+      enabled:
+        IS_PLATFORM && enabled && typeof projectRef !== 'undefined' && typeof slug !== 'undefined',
       ...options,
     }
   )

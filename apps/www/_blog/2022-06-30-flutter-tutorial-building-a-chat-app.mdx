@@ -70,13 +70,13 @@ Run `flutter pub get` to install the packages. Note that you will have to termin
 
 ### Creating a new Supabase project
 
-If you do not have a Supabase account yet, do not worry, you can [get started for free](https://app.supabase.com/).
+If you do not have a Supabase account yet, do not worry, you can [get started for free](https://supabase.com/dashboard/).
 
 You will be prompted to sign in using your Github account with a big green button, so let's go ahead and press it. Proceed with the sign up process and once you are done, you will be taken to a list of projects. You can go ahead and create a new project by pressing the “New Project” button at the top.
 
 ![Create new Supabase project](/images/blog/flutter-chat/create-new-supabase-project.png)
 
-You will be entering a few things here like the name of the project. You can call it “chat” for now. For the database password, go ahead and hit the “Generate a password” button to generate a random password. We won't use this password in this app, but if you ever need it, you can always override it later to whatever you want it to be. You can leave the pricing plan for free as Supabase has a very generous free tier that will be way more than enough for our chat app. Once you have entered everything, you can press the “Create new Project” button. Spinning up a brand new Supabase project could take a few minutes.
+You will be entering a few things here like the name of the project. You can call it “chat” for now. For the database password, go ahead and hit the “Generate a password” button to generate a random password. We won't use this password in this app, but if you ever need it, you can always override it later to whatever you want it to be. You can leave the pricing plan for free as Supabase has a very generous free plan that will be way more than enough for our chat app. Once you have entered everything, you can press the “Create new Project” button. Spinning up a brand new Supabase project could take a few minutes.
 
 Once your project is ready, we can dive into setting up our project!
 
@@ -109,7 +109,7 @@ create table if not exists public.profiles (
 comment on table public.profiles is 'Holds all of users profile information';
 
 create table if not exists public.messages (
-    id uuid not null primary key default uuid_generate_v4(),
+    id uuid not null primary key default gen_random_uuid(),
     profile_id uuid default auth.uid() references public.profiles(id) on delete cascade not null,
     content varchar(500) not null,
     created_at timestamp with time zone default timezone('utc' :: text, now()) not null
@@ -224,7 +224,7 @@ extension ShowSnackBar on BuildContext {
 
 ### Step 2: Initialize Supabase
 
-In order to use Supabase, we need to [initialize](https://www.supabase.cc/docs/reference/dart/initializing#flutter-initialize) it at the top of the main function. Let’s edit the main.dart file so that we can initialize Supabase. Note that within the build method of MyApp, we are loading the theme data created in the `constants.dart` file and the home is set to SplashPage(), which we will create in later sections.
+In order to use Supabase, we need to [initialize](https://supabase.com/docs/reference/dart/initializing#flutter-initialize) it at the top of the main function. Let’s edit the main.dart file so that we can initialize Supabase. Note that within the build method of MyApp, we are loading the theme data created in the `constants.dart` file and the home is set to SplashPage(), which we will create in later sections.
 
 You can find your Supabase URL and Supabase anon key under settings -> API in your dashboard.
 
@@ -266,7 +266,7 @@ class MyApp extends StatelessWidget {
 
 When a user launches the app, we want to redirect those who have already signed in to the Chat page and those who have not signed in yet to the register page.
 In order to achieve this, we will create a splash page, which is just a page with a preloader at the middle from the user, but takes care of fetching auth state and redirects users accordingly behind the scenes.
-Within the `_redirect()` method, we are fetching the auth state and navigating the user accordingly. 
+Within the `_redirect()` method, we are fetching the auth state and navigating the user accordingly.
 
 ```dart title="lib/pages/splash_page.dart"
 import 'package:flutter/material.dart';
@@ -516,7 +516,7 @@ If you look at the validator function of the username field, you notice that we 
 If you take a closer look at the `_signup()` method, you notice that the username is passed as a `data`.
 By passing `data` to your sign up method, you can populate the meta data field of your authenticated users.
 We will need to copy this username into our profiles table so that other users can find you.
-In order to do this, we will utilize a [Postgres function](https://www.supabase.cc/docs/guides/database/functions) and Postgres trigger.
+In order to do this, we will utilize a [Postgres function](https://supabase.com/docs/guides/database/functions) and Postgres trigger.
 Run the following SQL to create a Postgres function that will automatically run when a new user signs up to our application.
 Since we have set a unique constraint on the username column of our profiles table, the sign up will fail if a user chooses a username that is already taken.
 
@@ -638,7 +638,7 @@ class _LoginPageState extends State<LoginPage> {
 Last, we create the Chat page.
 This page will load the messages in real time and display them to the users.
 Users will also be able to send messages to everyone else using the app.
-We are using the [stream()](https://www.supabase.cc/docs/reference/dart/stream) method on Supabase SDK to load the messages in realtime.
+We are using the [stream()](https://supabase.com/docs/reference/dart/stream) method on Supabase SDK to load the messages in realtime.
 As those messages come in, we are lazily loading the profiles of each message’s sender.
 We will display the user icon as soon as their profile data is available.
 
@@ -881,14 +881,14 @@ With that, we are done creating our application. If you kept your `flutter run` 
 
 ## Conclusion / Future improvements
 
-We saw how easily it is to create a chat application when you combine amazing tools like Flutter and Supabase. One thing that was missing from this chat application is authorization. We did implement registration, but that was only to distinguish different users. In the coming up article, we will cover how you can add authorization using [row level security](https://www.supabase.cc/docs/guides/auth/row-level-security) in Supabase to secure this chat application. With authorization, we can create private chat rooms so that messages can only be seen by those inside those rooms.
+We saw how easily it is to create a chat application when you combine amazing tools like Flutter and Supabase. One thing that was missing from this chat application is authorization. We did implement registration, but that was only to distinguish different users. In the coming up article, we will cover how you can add authorization using [row level security](https://supabase.com/docs/guides/auth/row-level-security) in Supabase to secure this chat application. With authorization, we can create private chat rooms so that messages can only be seen by those inside those rooms.
 
 If you have any questions please reach out via [Twitter](https://twitter.com/dshukertjr) or join our [Discord](https://discord.supabase.com).
 
 ## More Flutter Resources
 
 - [Part 2: Flutter Authentication and Authorization with RLS](https://supabase.com/blog/flutter-authentication-and-authorization-with-rls)
-- [Flutter Supabase Quick Starter Guide](https://www.supabase.cc/docs/guides/with-flutter)
+- [Flutter Supabase Quick Starter Guide](https://supabase.com/docs/guides/with-flutter)
 - [supabase-flutter v1.0 released](https://supabase.com/blog/supabase-flutter-sdk-v1-released)
 - [How to build a real-time multiplayer game with Flutter Flame](https://supabase.com/blog/flutter-real-time-multiplayer-game)
 - [Open source map based Flutter app with CI/CD and scalable statemanagement example](https://github.com/dshukertjr/spot)

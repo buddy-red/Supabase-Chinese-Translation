@@ -1,25 +1,13 @@
-import {
-  IconArchive,
-  IconBarChart,
-  IconCode,
-  IconDatabase,
-  IconFileText,
-  IconList,
-  IconSettings,
-  IconUsers,
-} from 'ui'
+import { IconBarChart, IconFileText, IconList, IconSettings, IconUsers } from 'ui'
+import { products } from 'shared-data'
 import SVG from 'react-inlinesvg'
 
 import { ProjectBase } from 'types'
 import { Route } from 'components/ui/ui.types'
 import { BASE_PATH, IS_PLATFORM, PROJECT_STATUS } from 'lib/constants'
-import { SHOW_O11Y } from 'components/interfaces/Settings/Logs'
 
 export const generateToolRoutes = (ref?: string, project?: ProjectBase): Route[] => {
   const isProjectBuilding = project?.status === PROJECT_STATUS.COMING_UP
-  const isProjectPaused = project?.status === PROJECT_STATUS.INACTIVE
-
-  const homeUrl = `/project/${ref}`
   const buildingUrl = `/project/${ref}/building`
 
   return [
@@ -33,9 +21,7 @@ export const generateToolRoutes = (ref?: string, project?: ProjectBase): Route[]
           preProcessor={(code) => code.replace(/svg/, 'svg class="m-auto text-color-inherit"')}
         />
       ),
-      link:
-        ref &&
-        (isProjectPaused ? homeUrl : isProjectBuilding ? buildingUrl : `/project/${ref}/editor`),
+      link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/editor`),
     },
     {
       key: 'sql',
@@ -47,69 +33,108 @@ export const generateToolRoutes = (ref?: string, project?: ProjectBase): Route[]
           preProcessor={(code) => code.replace(/svg/, 'svg class="m-auto text-color-inherit"')}
         />
       ),
-      link:
-        ref &&
-        (isProjectPaused ? homeUrl : isProjectBuilding ? buildingUrl : `/project/${ref}/sql`),
+      link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/sql`),
     },
   ]
 }
 export const generateProductRoutes = (ref?: string, project?: ProjectBase): Route[] => {
-  const isProjectBuilding = project?.status !== PROJECT_STATUS.ACTIVE_HEALTHY
-  const isProjectPaused = project?.status === PROJECT_STATUS.INACTIVE
-
-  const homeUrl = `/project/${ref}`
+  const isProjectBuilding = project?.status === PROJECT_STATUS.COMING_UP
   const buildingUrl = `/project/${ref}/building`
 
   return [
     {
       key: 'database',
       label: '数据库',
-      icon: <IconDatabase size={18} strokeWidth={2} />,
-      link:
-        ref &&
-        (isProjectPaused
-          ? homeUrl
-          : isProjectBuilding
-          ? buildingUrl
-          : `/project/${ref}/database/tables`),
+      icon: (
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d={products.database.icon[18]}
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeMiterlimit="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ),
+      link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/database/tables`),
     },
     {
       key: 'auth',
-      label: '身份验证',
-      icon: <IconUsers size={18} strokeWidth={2} />,
-      link:
-        ref &&
-        (isProjectPaused
-          ? homeUrl
-          : isProjectBuilding
-          ? buildingUrl
-          : `/project/${ref}/auth/users`),
+      label: 'Authentication',
+      icon: (
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d={products.authentication.icon[24]}
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeMiterlimit="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ),
+      link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/auth/users`),
     },
     {
       key: 'storage',
-      label: '存储',
-      icon: <IconArchive size={18} strokeWidth={2} />,
-      link:
-        ref &&
-        (isProjectPaused
-          ? homeUrl
-          : isProjectBuilding
-          ? buildingUrl
-          : `/project/${ref}/storage/buckets`),
+      label: 'Storage',
+      icon: (
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 18 18"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d={products.storage.icon[18]}
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeMiterlimit="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ),
+      link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/storage/buckets`),
     },
     ...(IS_PLATFORM
       ? [
           {
             key: 'functions',
             label: 'Edge Functions',
-            icon: <IconCode size={18} strokeWidth={2} />,
-            link:
-              ref &&
-              (isProjectPaused
-                ? homeUrl
-                : isProjectBuilding
-                ? buildingUrl
-                : `/project/${ref}/functions`),
+            icon: (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d={products.functions.icon[18]}
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeMiterlimit="10"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            ),
+            link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/functions`),
           },
         ]
       : []),
@@ -118,9 +143,6 @@ export const generateProductRoutes = (ref?: string, project?: ProjectBase): Rout
 
 export const generateOtherRoutes = (ref?: string, project?: ProjectBase): Route[] => {
   const isProjectBuilding = project?.status === PROJECT_STATUS.COMING_UP
-  const isProjectPaused = project?.status === PROJECT_STATUS.INACTIVE
-
-  const homeUrl = `/project/${ref}`
   const buildingUrl = `/project/${ref}/building`
 
   return [
@@ -128,47 +150,29 @@ export const generateOtherRoutes = (ref?: string, project?: ProjectBase): Route[
       ? [
           {
             key: 'reports',
-            label: '报告',
+            label: 'Reports',
             icon: <IconBarChart size={18} strokeWidth={2} />,
-            link:
-              ref &&
-              (isProjectPaused
-                ? homeUrl
-                : isProjectBuilding
-                ? buildingUrl
-                : `/project/${ref}/reports`),
-          },
-        ]
-      : []),
-    ...(SHOW_O11Y
-      ? [
-          {
-            key: 'logs',
-            label: '日志',
-            icon: <IconList size={18} strokeWidth={2} />,
-            link:
-              ref &&
-              (isProjectPaused
-                ? homeUrl
-                : isProjectBuilding
-                ? buildingUrl
-                : `/project/${ref}/logs/explorer`),
+            link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/reports`),
           },
         ]
       : []),
     {
+      key: 'logs',
+      label: 'Logs',
+      icon: <IconList size={18} strokeWidth={2} />,
+      link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/logs/explorer`),
+    },
+    {
       key: 'api',
-      label: 'API文档',
+      label: 'API Docs',
       icon: <IconFileText size={18} strokeWidth={2} />,
-      link:
-        ref &&
-        (isProjectPaused ? homeUrl : isProjectBuilding ? buildingUrl : `/project/${ref}/api`),
+      link: ref && (isProjectBuilding ? buildingUrl : `/project/${ref}/api`),
     },
     ...(IS_PLATFORM
       ? [
           {
             key: 'settings',
-            label: '项目设置',
+            label: 'Project Settings',
             icon: <IconSettings size={18} strokeWidth={2} />,
             link: ref && `/project/${ref}/settings/general`,
           },

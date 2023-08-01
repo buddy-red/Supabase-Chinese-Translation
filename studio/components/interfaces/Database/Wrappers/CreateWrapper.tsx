@@ -1,43 +1,56 @@
-import Link from 'next/link'
-import { isEmpty } from 'lodash'
-import { useState } from 'react'
-import { useRouter } from 'next/router'
-import { observer } from 'mobx-react-lite'
-import { Button, Form, Input, IconArrowLeft, IconExternalLink, IconEdit, IconTrash } from 'ui'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
+import { isEmpty } from 'lodash'
+import { observer } from 'mobx-react-lite'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
+import { Button, Form, IconArrowLeft, IconEdit, IconExternalLink, IconTrash, Input } from 'ui'
 
-import { checkPermissions, useStore } from 'hooks'
 import { useParams } from 'common/hooks'
 import {
-  FormPanel,
   FormActions,
+  FormPanel,
   FormSection,
-  FormsContainer,
-  FormSectionLabel,
   FormSectionContent,
+  FormSectionLabel,
+  FormsContainer,
 } from 'components/ui/Forms'
 import { useFDWCreateMutation } from 'data/fdw/fdw-create-mutation'
+import { useCheckPermissions, useStore } from 'hooks'
 
-import InputField from './InputField'
-import { WRAPPERS } from './Wrappers.constants'
-import WrapperTableEditor from './WrapperTableEditor'
-import { makeValidateRequired } from './Wrappers.utils'
 import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import InputField from './InputField'
+import WrapperTableEditor from './WrapperTableEditor'
+import { WRAPPERS } from './Wrappers.constants'
+import { makeValidateRequired } from './Wrappers.utils'
 
 const CreateWrapper = () => {
   const formId = 'create-wrapper-form'
   const router = useRouter()
-  const { ui } = useStore()
+  const { ui, meta } = useStore()
   const { ref, type } = useParams()
   const { project } = useProjectContext()
-  const { mutateAsync: createFDW } = useFDWCreateMutation()
+  const canCreateWrapper = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'wrappers')
 
   const [newTables, setNewTables] = useState<any[]>([])
   const [isEditingTable, setIsEditingTable] = useState(false)
   const [selectedTableToEdit, setSelectedTableToEdit] = useState()
   const [formErrors, setFormErrors] = useState<{ [k: string]: string }>({})
 
-  const canCreateWrapper = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'wrappers')
+  const { mutate: createFDW, isLoading: isCreating } = useFDWCreateMutation({
+    onSuccess: () => {
+      ui.setNotification({
+        category: 'success',
+        message: `Successfully created ${wrapperMeta?.label} foreign data wrapper`,
+      })
+      setNewTables([])
+
+      const hasNewSchema = newTables.some((table) => table.is_new_schema)
+      if (hasNewSchema) meta.schemas.load()
+
+      router.push(`/project/${ref}/database/wrappers`)
+    },
+  })
 
   const wrapperMeta = WRAPPERS.find((wrapper) => wrapper.name === type)
   const initialValues =
@@ -86,7 +99,7 @@ const CreateWrapper = () => {
     setSelectedTableToEdit(undefined)
   }
 
-  const onSubmit = async (values: any, { setSubmitting }: any) => {
+  const onSubmit = async (values: any) => {
     const validate = makeValidateRequired(wrapperMeta.server.options)
     const errors: any = validate(values)
 
@@ -95,30 +108,13 @@ const CreateWrapper = () => {
     if (newTables.length === 0) errors.tables = 'Please add at least one table'
     if (!isEmpty(errors)) return setFormErrors(errors)
 
-    setSubmitting(true)
-    try {
-      await createFDW({
-        projectRef: project?.ref,
-        connectionString: project?.connectionString,
-        wrapperMeta,
-        formState: { ...values, server_name: `${wrapper_name}_server` },
-        tables: newTables,
-      })
-      ui.setNotification({
-        category: 'success',
-        message: `Successfully created ${wrapperMeta.label} foreign data wrapper`,
-      })
-      setNewTables([])
-      router.push(`/project/${ref}/database/wrappers`)
-    } catch (error: any) {
-      ui.setNotification({
-        error,
-        category: 'error',
-        message: `Failed to create ${wrapperMeta.label} foreign data wrapper: ${error.message}`,
-      })
-    } finally {
-      setSubmitting(false)
-    }
+    createFDW({
+      projectRef: project?.ref,
+      connectionString: project?.connectionString,
+      wrapperMeta,
+      formState: { ...values, server_name: `${wrapper_name}_server` },
+      tables: newTables,
+    })
   }
 
   return (
@@ -140,10 +136,10 @@ const CreateWrapper = () => {
               </a>
             </Link>
           </div>
-          <h3 className="mb-2 text-xl text-scale-1200">Create a {wrapperMeta?.label} Wrapper</h3>
+          <h3 className="mb-2 text-xl text-scale-1200">Create a {wrapperMeta.label} Wrapper</h3>
           <div className="flex items-center space-x-2">
-            <Link href="https://supabase.github.io/wrappers/stripe/">
-              <a target="_blank">
+            <Link href={wrapperMeta.docsUrl}>
+              <a target="_blank" rel="noreferrer">
                 <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
                   Documentation
                 </Button>
@@ -153,7 +149,7 @@ const CreateWrapper = () => {
         </div>
 
         <Form id={formId} initialValues={initialValues} onSubmit={onSubmit}>
-          {({ isSubmitting, handleReset, values, initialValues }: any) => {
+          {({ handleReset, values, initialValues }: any) => {
             const hasChanges = JSON.stringify(values) !== JSON.stringify(initialValues)
             return (
               <FormPanel
@@ -162,7 +158,7 @@ const CreateWrapper = () => {
                   <div className="flex px-8 py-4">
                     <FormActions
                       form={formId}
-                      isSubmitting={isSubmitting}
+                      isSubmitting={isCreating}
                       hasChanges={hasChanges}
                       handleReset={handleReset}
                       disabled={!canCreateWrapper}
@@ -229,13 +225,17 @@ const CreateWrapper = () => {
                     ) : (
                       <div className="space-y-2">
                         {newTables.map((table, i) => (
-                          <div className="flex items-center justify-between px-4 py-2 border rounded-md border-scale-600">
+                          <div
+                            key={`${table.schema_name}.${table.table_name}`}
+                            className="flex items-center justify-between px-4 py-2 border rounded-md border-scale-600"
+                          >
                             <div>
                               <p className="text-sm">
                                 {table.schema_name}.{table.table_name}
                               </p>
                               <p className="text-sm text-scale-1000">
-                                {wrapperMeta.tables[table.index].label}: {table.columns.join(', ')}
+                                {wrapperMeta.tables[table.index].label}:{' '}
+                                {table.columns.map((column: any) => column.name).join(', ')}
                               </p>
                             </div>
                             <div className="flex items-center space-x-2">

@@ -13,7 +13,7 @@ toc_depth: 3
 
 Postgres is one of the best F/OSS databases partly because of its immense feature-set.
 
-One of my favorite Postgres features is [Full Text Search](https://www.supabase.cc/docs/guides/database/full-text-search) (FTS). Search is a common requirement of applications. Well-known search engines like [Solr](https://solr.apache.org/) and [ElasticSearch](https://www.elastic.co/elasticsearch) are often a first choice, but with Postgres in your stack you've got a great chance for [Pareto improvement](https://en.wikipedia.org/wiki/Pareto_principle) at low complexity cost.
+One of my favorite Postgres features is [Full Text Search](https://supabase.com/docs/guides/database/full-text-search) (FTS). Search is a common requirement of applications. Well-known search engines like [Solr](https://solr.apache.org/) and [ElasticSearch](https://www.elastic.co/elasticsearch) are often a first choice, but with Postgres in your stack you've got a great chance for [Pareto improvement](https://en.wikipedia.org/wiki/Pareto_principle) at low complexity cost.
 
 Many projects function just fine with Postgres Full Text Search and other [built-in](https://www.postgresql.org/docs/current/contrib.html) extensions like [trigram search (`pg_trgm`)](https://www.postgresql.org/docs/current/pgtrgm.html). [GitLab's blog has a great article](https://about.staging.gitlab.com/blog/2016/03/18/fast-search-using-postgresql-trigram-indexes/) on their use of Trigram indices to speed up search.
 
@@ -78,13 +78,9 @@ With nothing but the raw data in your database, we can actually do some _basic_ 
 
 ```sql
 select
-	*
-from
-	movies
-where
-  title like '%Avengers%'
-	or
-	overview like '%Avengers%';
+  *
+from movies
+where title like '%Avengers%' or overview like '%Avengers%';
 ```
 
 The `LIKE` [operator](https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE) as used in the query above will match _only_ the term "Avengers", but it will match it in any part of a given row's `title` or `overview`.

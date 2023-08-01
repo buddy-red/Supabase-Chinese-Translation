@@ -11,10 +11,10 @@ function RefSEO({ title }) {
       title={title}
       openGraph={{
         title,
-        url: `https://www.supabase.cc/docs${path}`,
+        url: `https://supabase.com/docs${path}`,
         images: [
           {
-            url: `https://www.supabase.cc/docs/img/supabase-og-image.png`,
+            url: `https://supabase.com/docs/img/supabase-og-image.png`,
           },
         ],
       }}

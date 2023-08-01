@@ -51,7 +51,7 @@ const Success: FC<Props> = ({ sentCategory = '' }) => {
                   key="search"
                   href={`https://github.com/supabase/supabase/discussions?discussions_q=${searchValue}`}
                 >
-                  <a target="_blank">
+                  <a target="_blank" rel="noreferrer">
                     <Button
                       className="mr-1"
                       type="default"
@@ -72,7 +72,7 @@ const Success: FC<Props> = ({ sentCategory = '' }) => {
       <div className="w-full pb-4 px-4 flex items-center justify-end">
         <Link href="/projects">
           <a>
-            <Button>返回仪表板</Button>
+            <Button>Go back to dashboard</Button>
           </a>
         </Link>
       </div>

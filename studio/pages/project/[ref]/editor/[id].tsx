@@ -23,9 +23,11 @@ import {
   useProjectContext,
 } from 'components/layouts/ProjectLayout/ProjectContext'
 import { ForeignRowSelectorProps } from 'components/interfaces/TableGridEditor/SidePanelEditor/RowEditor/ForeignRowSelector/ForeignRowSelector'
+import { useTheme } from 'common'
 
 const TableEditorPage: NextPageWithLayout = () => {
   const router = useRouter()
+  const { isDarkMode } = useTheme()
   const { id, ref: projectRef } = useParams()
   const [_, setParams] = useUrlState({ arrayKeys: ['filter', 'sort'] })
 
@@ -268,6 +270,7 @@ const TableEditorPage: NextPageWithLayout = () => {
   return (
     <TableEditorLayout
       selectedSchema={selectedSchema}
+      selectedTable={selectedTable?.name}
       onSelectSchema={setSelectedSchema}
       onAddTable={onAddTable}
       onEditTable={onEditTable}
@@ -292,48 +295,14 @@ const TableEditorPage: NextPageWithLayout = () => {
         onExpandJSONEditor={onExpandJSONEditor}
         onEditForeignKeyColumnValue={onEditForeignKeyColumnValue}
         onClosePanel={onClosePanel}
-        theme={ui.themeOption == 'dark' ? 'dark' : 'light'}
         onImportData={onImportData}
+        theme={isDarkMode ? 'dark' : 'light'}
       />
       <ConfirmationModal
         danger
         size="small"
         visible={isDeleting && !isUndefined(selectedColumnToDelete)}
         header={`Confirm deletion of column "${selectedColumnToDelete?.name}"`}
-        children={
-          <Modal.Content>
-            <div className="py-4 space-y-4">
-              <p className="text-sm text-scale-1100">
-                Are you sure you want to delete the selected column? This action cannot be undone.
-              </p>
-              <Checkbox
-                label="Drop column with cascade?"
-                description="Deletes the column and its dependent objects"
-                checked={isDeleteWithCascade}
-                onChange={() => setIsDeleteWithCascade(!isDeleteWithCascade)}
-              />
-              {isDeleteWithCascade && (
-                <Alert
-                  withIcon
-                  variant="warning"
-                  title="Warning: Dropping with cascade may result in unintended consequences"
-                >
-                  <p className="mb-4">
-                    All dependent objects will be removed, as will any objects that depend on them,
-                    recursively.
-                  </p>
-                  <Link href="https://www.postgresql.org/docs/current/ddl-depend.html">
-                    <a target="_blank">
-                      <Button size="tiny" type="default" icon={<IconExternalLink />}>
-                        About dependency tracking
-                      </Button>
-                    </a>
-                  </Link>
-                </Alert>
-              )}
-            </div>
-          </Modal.Content>
-        }
         buttonLabel="Delete"
         buttonLoadingLabel="Deleting"
         onSelectCancel={() => {
@@ -341,47 +310,46 @@ const TableEditorPage: NextPageWithLayout = () => {
           setSelectedColumnToDelete(undefined)
         }}
         onSelectConfirm={onConfirmDeleteColumn}
-      />
+      >
+        <Modal.Content>
+          <div className="py-4 space-y-4">
+            <p className="text-sm text-scale-1100">
+              Are you sure you want to delete the selected column? This action cannot be undone.
+            </p>
+            <Checkbox
+              label="Drop column with cascade?"
+              description="Deletes the column and its dependent objects"
+              checked={isDeleteWithCascade}
+              onChange={() => setIsDeleteWithCascade(!isDeleteWithCascade)}
+            />
+            {isDeleteWithCascade && (
+              <Alert
+                withIcon
+                variant="warning"
+                title="Warning: Dropping with cascade may result in unintended consequences"
+              >
+                <p className="mb-4">
+                  All dependent objects will be removed, as will any objects that depend on them,
+                  recursively.
+                </p>
+                <Link href="https://www.postgresql.org/docs/current/ddl-depend.html">
+                  <a target="_blank" rel="noreferrer">
+                    <Button size="tiny" type="default" icon={<IconExternalLink />}>
+                      About dependency tracking
+                    </Button>
+                  </a>
+                </Link>
+              </Alert>
+            )}
+          </div>
+        </Modal.Content>
+      </ConfirmationModal>
       <ConfirmationModal
         danger
         size="small"
         visible={isDeleting && !isUndefined(selectedTableToDelete)}
         header={
           <span className="break-words">{`Confirm deletion of table "${selectedTableToDelete?.name}"`}</span>
-        }
-        children={
-          <Modal.Content>
-            <div className="py-4 space-y-4">
-              <p className="text-sm text-scale-1100">
-                Are you sure you want to delete the selected table? This action cannot be undone.
-              </p>
-              <Checkbox
-                label="Drop table with cascade?"
-                description="Deletes the table and its dependent objects"
-                checked={isDeleteWithCascade}
-                onChange={() => setIsDeleteWithCascade(!isDeleteWithCascade)}
-              />
-              {isDeleteWithCascade && (
-                <Alert
-                  withIcon
-                  variant="warning"
-                  title="Warning: Dropping with cascade may result in unintended consequences"
-                >
-                  <p className="mb-4">
-                    All dependent objects will be removed, as will any objects that depend on them,
-                    recursively.
-                  </p>
-                  <Link href="https://www.postgresql.org/docs/current/ddl-depend.html">
-                    <a target="_blank">
-                      <Button size="tiny" type="default" icon={<IconExternalLink />}>
-                        About dependency tracking
-                      </Button>
-                    </a>
-                  </Link>
-                </Alert>
-              )}
-            </div>
-          </Modal.Content>
         }
         buttonLabel="Delete"
         buttonLoadingLabel="Deleting"
@@ -390,7 +358,40 @@ const TableEditorPage: NextPageWithLayout = () => {
           setSelectedTableToDelete(undefined)
         }}
         onSelectConfirm={onConfirmDeleteTable}
-      />
+      >
+        <Modal.Content>
+          <div className="py-4 space-y-4">
+            <p className="text-sm text-scale-1100">
+              Are you sure you want to delete the selected table? This action cannot be undone.
+            </p>
+            <Checkbox
+              label="Drop table with cascade?"
+              description="Deletes the table and its dependent objects"
+              checked={isDeleteWithCascade}
+              onChange={() => setIsDeleteWithCascade(!isDeleteWithCascade)}
+            />
+            {isDeleteWithCascade && (
+              <Alert
+                withIcon
+                variant="warning"
+                title="Warning: Dropping with cascade may result in unintended consequences"
+              >
+                <p className="mb-4">
+                  All dependent objects will be removed, as will any objects that depend on them,
+                  recursively.
+                </p>
+                <Link href="https://www.postgresql.org/docs/current/ddl-depend.html">
+                  <a target="_blank" rel="noreferrer">
+                    <Button size="tiny" type="default" icon={<IconExternalLink />}>
+                      About dependency tracking
+                    </Button>
+                  </a>
+                </Link>
+              </Alert>
+            )}
+          </div>
+        </Modal.Content>
+      </ConfirmationModal>
     </TableEditorLayout>
   )
 }

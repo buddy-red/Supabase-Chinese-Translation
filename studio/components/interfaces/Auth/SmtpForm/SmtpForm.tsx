@@ -12,7 +12,7 @@ import {
   FormSectionContent,
   FormSectionLabel,
 } from 'components/ui/Forms'
-import { useStore, checkPermissions } from 'hooks'
+import { useStore, useCheckPermissions } from 'hooks'
 import { urlRegex } from './../Auth.constants'
 import { defaultDisabledSmtpFormValues } from './SmtpForm.constants'
 import { generateFormValues, isSmtpEnabled } from './SmtpForm.utils'
@@ -26,13 +26,13 @@ const SmtpForm = () => {
 
   const formId = 'auth-config-smtp-form'
   const initialValues = generateFormValues(authConfig.config)
-  const canUpdateConfig = checkPermissions(PermissionAction.UPDATE, 'custom_config_gotrue')
+  const canUpdateConfig = useCheckPermissions(PermissionAction.UPDATE, 'custom_config_gotrue')
 
   useEffect(() => {
     if (isLoaded && isSmtpEnabled(config)) {
       setEnableSmtp(true)
     }
-  }, [isLoaded])
+  }, [isLoaded, config])
 
   const schema = object({
     SMTP_ADMIN_EMAIL: string().when([], {
@@ -125,12 +125,15 @@ const SmtpForm = () => {
         const isValidSmtpConfig = isSmtpEnabled(values)
         const hasChanges = JSON.stringify(values) !== JSON.stringify(initialValues)
 
+        // [Alaister] although this "technically" is breaking the rules of React hooks
+        // it won't error because the hooks are always rendered in the same order
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         useEffect(() => {
           if (isLoaded) {
             const formValues = generateFormValues(config)
             resetForm({ values: formValues, initialValues: formValues })
           }
-        }, [isLoaded])
+        }, [isLoaded, config])
 
         const onResetForm = () => {
           setEnableSmtp(isSmtpEnabled(initialValues))

@@ -1,19 +1,7 @@
 import Link from 'next/link'
 import { FC, useEffect, useState } from 'react'
 import { isUndefined, isEmpty } from 'lodash'
-import {
-  Badge,
-  Checkbox,
-  SidePanel,
-  Input,
-  Alert,
-  IconBookOpen,
-  Button,
-  Modal,
-  IconShieldOff,
-  IconLock,
-  IconAlertOctagon,
-} from 'ui'
+import { Badge, Checkbox, SidePanel, Input, Alert, IconBookOpen, Button, Modal } from 'ui'
 import type { PostgresTable, PostgresType } from '@supabase/postgres-meta'
 
 import { useStore } from 'hooks'
@@ -189,24 +177,18 @@ const TableEditor: FC<Props> = ({
       onConfirm={() => (resolve: () => void) => onSaveChanges(resolve)}
       customFooter={
         <ActionBar
-          backButtonLabel="Cancel"
-          applyButtonLabel="Save"
+          backButtonLabel="取消"
+          applyButtonLabel="保存"
           closePanel={closePanel}
           applyFunction={(resolve: () => void) => onSaveChanges(resolve)}
         />
       }
-      onInteractOutside={(event) => {
-        const isToast = (event.target as Element)?.closest('#toast')
-        if (isToast) {
-          event.preventDefault()
-        }
-      }}
     >
       <>
         <SidePanel.Content>
           <div className="space-y-10 py-6">
             <Input
-              label="Name"
+              label="名称"
               layout="horizontal"
               type="text"
               error={errors.name}
@@ -214,8 +196,8 @@ const TableEditor: FC<Props> = ({
               onChange={(event: any) => onUpdateField({ name: event.target.value })}
             />
             <Input
-              label="Description"
-              placeholder="Optional"
+              label="描述"
+              placeholder="选填"
               layout="horizontal"
               type="text"
               value={tableFields?.comment ?? ''}
@@ -231,15 +213,15 @@ const TableEditor: FC<Props> = ({
               // @ts-ignore
               label={
                 <div className="flex items-center space-x-2">
-                  <span>Enable Row Level Security (RLS)</span>
-                  <Badge color="gray">Recommended</Badge>
+                  <span>行级安全(RLS)</span>
+                  <Badge color="gray">推荐</Badge>
                 </div>
               }
               // @ts-ignore
               description={
                 <>
                   <p>
-                    Restrict access to your table by enabling RLS and writing Postgres policies.
+                    通过启用RLS和编写Postgres策略来限制对数据表的访问。
                   </p>
                 </>
               }
@@ -258,21 +240,19 @@ const TableEditor: FC<Props> = ({
                 withIcon
                 variant="info"
                 className="!px-4 !py-3 mt-3"
-                title="Policies are required to query data"
+                title="查询数据要求策略"
               >
                 <p>
-                  You need to write an access policy before you can query data from this table.
-                  Without a policy, querying this table will result in an <u>empty array</u> of
-                  results.
+                  您需要先编写访问策略，然后才能从此数据表中查询数据。如果没有策略，查询该表将得到<u>空白数组结果</u>。
                 </p>
                 {isNewRecord && (
-                  <p className="mt-3">You can create policies after you create this table.</p>
+                  <p className="mt-3">创建数据表后您可以创建策略</p>
                 )}
                 <p className="mt-4">
-                  <Link href="https://www.supabase.cc/docs/guides/auth/row-level-security">
-                    <a target="_blank">
+                  <Link href="https://supabase.com/docs/guides/auth/row-level-security">
+                    <a target="_blank" rel="noreferrer">
                       <Button type="default" icon={<IconBookOpen strokeWidth={1.5} />}>
-                        RLS Documentation
+                        RLS文档
                       </Button>
                     </a>
                   </Link>
@@ -285,12 +265,14 @@ const TableEditor: FC<Props> = ({
                 className="!px-4 !py-3 mt-3"
                 title="You are allowing anonymous access to your table"
               >
-                <p>The table foo will be publicly writable and readable</p>
+                <p>
+                  {tableFields.name ? `数据表 ${tableFields.name}` : '您的数据表'} 将公开可写和可读
+                </p>
                 <p className="mt-4">
-                  <Link href="https://www.supabase.cc/docs/guides/auth/row-level-security">
-                    <a target="_blank">
+                  <Link href="https://supabase.com/docs/guides/auth/row-level-security">
+                    <a target="_blank" rel="noreferrer">
                       <Button type="default" icon={<IconBookOpen strokeWidth={1.5} />}>
-                        RLS Documentation
+                        RLS文档
                       </Button>
                     </a>
                   </Link>
@@ -299,8 +281,8 @@ const TableEditor: FC<Props> = ({
             )}
             <Checkbox
               id="enable-realtime"
-              label="Enable Realtime"
-              description="Broadcast changes on this table to authorized subscribers"
+              label="启用实时"
+              description="向授权订阅者传布此数据表上的更改"
               checked={tableFields.isRealtimeEnabled}
               onChange={() => onUpdateField({ isRealtimeEnabled: !tableFields.isRealtimeEnabled })}
               size="medium"
@@ -359,12 +341,11 @@ const TableEditor: FC<Props> = ({
                 onUpdateField({ isRLSEnabled: !tableFields.isRLSEnabled })
                 setRlsConfirmVisible(false)
               }}
-              children={
-                <Modal.Content>
-                  <RLSDisableModalContent />
-                </Modal.Content>
-              }
-            />
+            >
+              <Modal.Content>
+                <RLSDisableModalContent />
+              </Modal.Content>
+            </ConfirmationModal>
           </div>
         </SidePanel.Content>
       </>

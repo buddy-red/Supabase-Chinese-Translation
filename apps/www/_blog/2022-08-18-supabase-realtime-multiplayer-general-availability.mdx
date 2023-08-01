@@ -21,10 +21,10 @@ Today, we're excited to announce the general availability of Realtime's multipla
 
 Here are the key takeaways:
 
-- We've added [Broadcast](https://www.supabase.cc/docs/guides/realtime/broadcast) and [Presence](https://www.supabase.cc/docs/guides/realtime/presence) to our Realtime server. You can use these features with the new [supabase-js](https://www.supabase.cc/docs/reference/javascript/next) release.
-- All active Supabase projects on the free tier have access to the these features.
+- We've added [Broadcast](https://supabase.com/docs/guides/realtime/broadcast) and [Presence](https://supabase.com/docs/guides/realtime/presence) to our Realtime server. You can use these features with the new [supabase-js](https://supabase.com/docs/reference/javascript/next) release.
+- All active Supabase projects on the free plan have access to the these features.
 - All new Supabase projects created from August 18th have access to these features.
-- We will work with all other projects to migrate to the new Realtime over the next few weeks. If you want immediate access, [reach out](https://app.supabase.com/support/new).
+- We will work with all other projects to migrate to the new Realtime over the next few weeks. If you want immediate access, [reach out](https://supabase.com/dashboard/support/new).
 - [Chris McCord](https://twitter.com/chris_mccord), the creator of Phoenix Framework, is now a technical advisor.
 
 ## Background
@@ -56,7 +56,7 @@ Broadcast follows the classic Publisher/Subscriber pattern. A client (publisher)
 
 Other clients (subscribers) can “listen” to these messages in real-time, using the unique identifier. If they are listening to the `#random` channel, then they will receive the message.
 
-This functionality is [baked into the Phoenix framework](https://hexdocs.pm/phoenix/Phoenix.Channel.html) and we've already been using this to [broadcast Postgres changes](https://www.supabase.cc/docs/reference/javascript/subscribe).
+This functionality is [baked into the Phoenix framework](https://hexdocs.pm/phoenix/Phoenix.Channel.html) and we've already been using this to [broadcast Postgres changes](https://supabase.com/docs/reference/javascript/subscribe).
 With this release we're exposing the underlying primitives which unlocks a variety of use-cases for developers.
 
 A common use-case is sharing a user's cursor position with other clients in an online game. Previously, developers were sending all the mouse movements through their Postgres database which added latency and degraded database performance. In contrast, Broadcasts are ephemeral - they bypass the database completely.

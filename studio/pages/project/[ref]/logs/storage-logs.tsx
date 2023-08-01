@@ -20,6 +20,6 @@ export const LogPage: NextPageWithLayout = () => {
   )
 }
 
-LogPage.getLayout = (page) => <LogsLayout title="存储">{page}</LogsLayout>
+LogPage.getLayout = (page) => <LogsLayout title="Storage">{page}</LogsLayout>
 
 export default observer(LogPage)

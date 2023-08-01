@@ -1,22 +1,22 @@
-import { FC, ReactNode, useState, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useRouter } from 'next/router'
+import { PropsWithChildren, useEffect, useState } from 'react'
 
-import { useStore, withAuth } from 'hooks'
-import BaseLayout from '../'
+import { useParams } from 'common'
 import Error from 'components/ui/Error'
 import ProductMenu from 'components/ui/ProductMenu'
+import { useStore, withAuth } from 'hooks'
+import ProjectLayout from '../'
 import { generateAuthMenu } from './AuthLayout.utils'
 
-interface Props {
+export interface AuthLayoutProps {
   title?: string
-  children: ReactNode
 }
 
-const AuthLayout: FC<Props> = ({ title, children }) => {
+const AuthLayout = ({ title, children }: PropsWithChildren<AuthLayoutProps>) => {
   const { ui, meta } = useStore()
   const { isInitialized, isLoading, error } = meta.tables
-  const projectRef = ui.selectedProject?.ref ?? 'default'
+  const { ref: projectRef = 'default' } = useParams()
 
   const router = useRouter()
   const page = router.pathname.split('/')[4]
@@ -24,13 +24,13 @@ const AuthLayout: FC<Props> = ({ title, children }) => {
   const [loaded, setLoaded] = useState<boolean>(isInitialized)
 
   useEffect(() => {
-    if (ui.selectedProject?.ref) {
+    if (ui.selectedProjectRef) {
       meta.policies.load()
       meta.tables.load()
       meta.roles.load()
       meta.schemas.load()
     }
-  }, [ui.selectedProject?.ref])
+  }, [ui.selectedProjectRef])
 
   useEffect(() => {
     if (!isLoading && !loaded) {
@@ -40,14 +40,14 @@ const AuthLayout: FC<Props> = ({ title, children }) => {
 
   if (error) {
     return (
-      <BaseLayout>
+      <ProjectLayout>
         <Error error={error} />
-      </BaseLayout>
+      </ProjectLayout>
     )
   }
 
   return (
-    <BaseLayout
+    <ProjectLayout
       isLoading={!loaded}
       title={title || 'Authentication'}
       product="Authentication"
@@ -56,7 +56,7 @@ const AuthLayout: FC<Props> = ({ title, children }) => {
       <main style={{ maxHeight: '100vh' }} className="flex-1 overflow-y-auto">
         {children}
       </main>
-    </BaseLayout>
+    </ProjectLayout>
   )
 }
 

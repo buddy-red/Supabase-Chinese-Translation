@@ -17,43 +17,24 @@ export type CustomDomainActivateProps = {
 
 const CustomDomainActivate = ({ projectRef, customDomain }: CustomDomainActivateProps) => {
   const { ui } = useStore()
-
   const [isActivateConfirmModalVisible, setIsActivateConfirmModalVisible] = useState(false)
 
-  const { mutateAsync: activateCustomDomain } = useCustomDomainActivateMutation()
-  const { mutateAsync: deleteCustomDomain, isLoading: isDeleting } = useCustomDomainDeleteMutation()
+  const { mutate: activateCustomDomain } = useCustomDomainActivateMutation({
+    onSuccess: () => {
+      ui.setNotification({ category: 'success', message: `Successfully activated custom domain` })
+      setIsActivateConfirmModalVisible(false)
+    },
+  })
+  const { mutate: deleteCustomDomain, isLoading: isDeleting } = useCustomDomainDeleteMutation()
 
   const onActivateCustomDomain = async () => {
-    if (!projectRef) {
-      throw new Error('Project ref is required')
-    }
-
-    try {
-      await activateCustomDomain({ projectRef })
-
-      ui.setNotification({
-        category: 'success',
-        message: `Successfully activated custom domain`,
-      })
-
-      setIsActivateConfirmModalVisible(false)
-    } catch (error: any) {
-      ui.setNotification({
-        category: 'error',
-        message: error.message,
-      })
-    }
+    if (!projectRef) return console.error('Project ref is required')
+    activateCustomDomain({ projectRef })
   }
 
   const onCancelCustomDomain = async () => {
-    if (!projectRef) {
-      throw new Error('Project ref is required')
-    }
-    try {
-      await deleteCustomDomain({ projectRef })
-    } catch (error: any) {
-      ui.setNotification({ category: 'error', message: error.message })
-    }
+    if (!projectRef) return console.error('Project ref is required')
+    deleteCustomDomain({ projectRef })
   }
 
   return (
@@ -77,8 +58,8 @@ const CustomDomainActivate = ({ projectRef, customDomain }: CustomDomainActivate
 
         <Panel.Content className="w-full">
           <div className="flex items-center justify-between">
-            <Link href="https://www.supabase.cc/docs/guides/platform/custom-domains">
-              <a target="_blank">
+            <Link href="https://supabase.com/docs/guides/platform/custom-domains">
+              <a target="_blank" rel="noreferrer">
                 <Button type="default" icon={<IconExternalLink />}>
                   Documentation
                 </Button>

@@ -1,12 +1,15 @@
 import AuthLayout from './AuthLayout/AuthLayout'
 import SignInLayout from './SignInLayout/SignInLayout'
 import ForgotPasswordLayout from './SignInLayout/ForgotPasswordLayout'
-import ProjectLayout, { ProjectLayoutWithAuth } from './ProjectLayout/ProjectLayout'
+import ProjectLayout, {
+  ProjectLayoutWithAuth,
+  ProjectLayoutNonBlocking,
+} from './ProjectLayout/ProjectLayout'
 import TableEditorLayout from './TableEditorLayout/TableEditorLayout'
 import SQLEditorLayout from './SQLEditorLayout/SQLEditorLayout'
 import DatabaseLayout from './DatabaseLayout/DatabaseLayout'
 import DocsLayout from './DocsLayout/DocsLayout'
-import SettingsLayout from './SettingsLayout/SettingsLayout'
+import SettingsLayout from './ProjectSettingsLayout/SettingsLayout'
 import StorageLayout from './StorageLayout/StorageLayout'
 import AccountLayout from './AccountLayout/AccountLayout'
 import { AccountLayoutWithoutAuth } from './AccountLayout/AccountLayout'
@@ -20,6 +23,7 @@ import OrganizationLayout from './OrganizationLayout'
 
 export {
   ProjectLayoutWithAuth,
+  ProjectLayoutNonBlocking,
   AuthLayout,
   SignInLayout,
   ForgotPasswordLayout,

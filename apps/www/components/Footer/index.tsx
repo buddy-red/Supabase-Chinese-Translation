@@ -8,15 +8,20 @@ import Image from 'next/image'
 import * as supabaseLogoWordmarkDark from 'common/assets/images/supabase-logo-wordmark--dark.png'
 import * as supabaseLogoWordmarkLight from 'common/assets/images/supabase-logo-wordmark--light.png'
 import { useRouter } from 'next/router'
+import { Fragment } from 'react'
 
-const Footer = () => {
+interface Props {
+  className?: string
+}
+
+const Footer = (props: Props) => {
   const { isDarkMode } = useTheme()
   const { pathname } = useRouter()
-  const isLaunchWeekPage = pathname.includes('launch-week')
+  const isLaunchWeekPage = pathname.includes('launch-week') || pathname === '/'
 
   return (
     <footer
-      className="border-scale-500 dark:border-scale-600 border-t"
+      className={['border-scale-500 dark:border-scale-600 border-t', props.className].join(' ')}
       aria-labelledby="footerHeading"
     >
       <h2 id="footerHeading" className="sr-only">
@@ -98,15 +103,16 @@ const Footer = () => {
           </div>
           <div className="mt-12 grid grid-cols-1 gap-8 xl:col-span-2 xl:mt-0">
             <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-              {FooterLinks.map((segment: any) => {
+              {FooterLinks.map((segment) => {
                 return (
                   <div key={`footer_${segment.title}`}>
                     <h6 className="text-scale-1200 overwrite text-base">{segment.title}</h6>
                     <ul className="mt-4 space-y-2">
-                      {segment.links.map((link: any, idx: number) => (
-                        <li key={`${segment.title}_link_${idx}`}>
+                      {segment.links.map((link, idx) => {
+                        const children = (
                           <a
-                            href={link.url}
+                            // only add href key if link is external
+                            {...(link.url.startsWith('https') && { href: link.url })}
                             className={`text-sm transition-colors ${
                               link.url
                                 ? 'text-scale-1100 hover:text-scale-1200 '
@@ -122,8 +128,18 @@ const Footer = () => {
                               </div>
                             )}
                           </a>
-                        </li>
-                      ))}
+                        )
+
+                        return (
+                          <li key={`${segment.title}_link_${idx}`}>
+                            {link.url.startsWith('https') ? (
+                              <Fragment>{children}</Fragment>
+                            ) : (
+                              <Link href={link.url}>{children}</Link>
+                            )}
+                          </li>
+                        )
+                      })}
                     </ul>
                   </div>
                 )
@@ -133,7 +149,7 @@ const Footer = () => {
         </div>
         <div className="border-scale-500 dark:border-scale-600 mt-32 flex justify-between border-t pt-8">
           <small className="small">&copy; Supabase Inc</small>
-          <DarkModeToggle />
+          <DarkModeToggle disabled={isLaunchWeekPage} />
         </div>
       </SectionContainer>
     </footer>

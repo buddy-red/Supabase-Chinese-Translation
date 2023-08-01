@@ -1,15 +1,12 @@
-import React from 'react'
 import { useRouter } from 'next/router'
-import { toJS } from 'mobx'
+
+import { useFlag } from 'hooks'
 import { Button, Dropdown, IconPlus } from 'ui'
-import { observer } from 'mobx-react-lite'
 
 const OrganizationDropdown = ({ organizations }) => {
   const router = useRouter()
 
-  const organizationList = Object.values(toJS(organizations.data)).sort((a, b) =>
-    a.name.localeCompare(b.name)
-  )
+  const orgCreationV2 = useFlag('orgcreationv2')
 
   return (
     <Dropdown
@@ -18,7 +15,7 @@ const OrganizationDropdown = ({ organizations }) => {
       overlay={
         <>
           <Dropdown.Label>Choose organization</Dropdown.Label>
-          {organizationList
+          {organizations
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((x) => (
               <Dropdown.Item
@@ -30,14 +27,19 @@ const OrganizationDropdown = ({ organizations }) => {
               </Dropdown.Item>
             ))}
           <Dropdown.Separator />
-          <Dropdown.Item icon={<IconPlus size="tiny" />} onClick={() => router.push(`/new`)}>
+          <Dropdown.Item
+            icon={<IconPlus size="tiny" />}
+            onClick={() => router.push(orgCreationV2 ? `/new-with-subscription` : `/new`)}
+          >
             New organization
           </Dropdown.Item>
         </>
       }
     >
-      <Button as="span">New project</Button>
+      <Button asChild>
+        <span>New project</span>
+      </Button>
     </Dropdown>
   )
 }
-export default observer(OrganizationDropdown)
+export default OrganizationDropdown

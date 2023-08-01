@@ -19537,7 +19537,7 @@
                 "summary": [
                   {
                     "kind": "text",
-                    "text": "Types for the schema from the [type\ngenerator](https://www.supabase.cc/docs/reference/javascript/next/typescript-support)"
+                    "text": "Types for the schema from the [type\ngenerator](https://supabase.com/docs/reference/javascript/next/typescript-support)"
                   }
                 ]
               },

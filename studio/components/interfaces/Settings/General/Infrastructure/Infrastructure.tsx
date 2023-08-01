@@ -1,10 +1,9 @@
 import Link from 'next/link'
-import { FC } from 'react'
 import { Alert, Badge, Button, IconPackage, Input } from 'ui'
 import { observer } from 'mobx-react-lite'
 import * as Tooltip from '@radix-ui/react-tooltip'
 
-import { useFlag, useStore } from 'hooks'
+import { useFlag } from 'hooks'
 import { useParams } from 'common/hooks'
 import { PRICING_TIER_PRODUCT_IDS } from 'lib/constants'
 import {
@@ -17,20 +16,25 @@ import {
 import ProjectUpgradeAlert from './ProjectUpgradeAlert'
 import PauseProjectButton from './PauseProjectButton'
 import RestartServerButton from './RestartServerButton'
-import { useProjectSubscriptionQuery } from 'data/subscriptions/project-subscription-query'
 import { useProjectUpgradeEligibilityQuery } from 'data/config/project-upgrade-eligibility-query'
+import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import { useProjectSubscriptionV2Query } from 'data/subscriptions/project-subscription-v2-query'
 
-interface Props {}
+interface InfrastructureProps {}
 
-const Infrastructure: FC<Props> = ({}) => {
-  const { ui } = useStore()
+const Infrastructure = ({}: InfrastructureProps) => {
   const { ref } = useParams()
+  const { project } = useProjectContext()
+  const { data: subscription } = useProjectSubscriptionV2Query({ projectRef: ref })
+  const isFreeProject = subscription?.plan?.id === 'free'
 
-  const project = ui.selectedProject
-  const { data: subscription } = useProjectSubscriptionQuery({ projectRef: ref })
-  const isFreeProject = subscription?.tier.supabase_prod_id === PRICING_TIER_PRODUCT_IDS.FREE
-
-  const { data, isLoading } = useProjectUpgradeEligibilityQuery({ projectRef: ref })
+  const {
+    data,
+    isLoading: isLoadingUpgradeElibility,
+    isError,
+  } = useProjectUpgradeEligibilityQuery({
+    projectRef: ref,
+  })
   const { current_app_version, latest_app_version, requires_manual_intervention } = data || {}
   const isOnLatestVersion = current_app_version === latest_app_version
   const currentPgVersion = (current_app_version ?? '').split('supabase-postgres-')[1]
@@ -55,7 +59,7 @@ const Infrastructure: FC<Props> = ({}) => {
                   </p>
                 </div>
               </div>
-              {project && <RestartServerButton project={project} />}
+              {project && <RestartServerButton />}
             </div>
 
             {isFreeProject && (
@@ -70,9 +74,7 @@ const Infrastructure: FC<Props> = ({}) => {
                       </p>
                     </div>
                   </div>
-                  {project && (
-                    <PauseProjectButton projectId={project.id} projectRef={project.ref} />
-                  )}
+                  {project && <PauseProjectButton />}
                 </div>
               </>
             )}
@@ -87,11 +89,13 @@ const Infrastructure: FC<Props> = ({}) => {
         </FormSection>
 
         <FormSection header={<FormSectionLabel>Postgres</FormSectionLabel>}>
-          <FormSectionContent loading={isLoading}>
+          <FormSectionContent loading={isLoadingUpgradeElibility}>
             <Input
               readOnly
               disabled
-              value={currentPgVersion}
+              value={
+                currentPgVersion ?? (isError ? 'Unable to fetch Postgres version of project' : '')
+              }
               label="Current version"
               actions={[
                 isOnLatestVersion && (
@@ -134,7 +138,7 @@ const Infrastructure: FC<Props> = ({}) => {
                 <Link
                   href={`/support/new?category=Database_unresponsive&ref=${ref}&subject=${subject}&message=${message}`}
                 >
-                  <a target="_blank">
+                  <a target="_blank" rel="noreferrer">
                     <Button size="tiny" type="default">
                       Contact support
                     </Button>

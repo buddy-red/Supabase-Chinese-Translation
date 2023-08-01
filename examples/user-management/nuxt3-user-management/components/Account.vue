@@ -11,7 +11,7 @@
         </div>
         <div>
             <label for="website">Website</label>
-            <input id="website" type="website" v-model="website" />
+            <input id="website" type="url" v-model="website" />
         </div>
 
         <div>
@@ -30,7 +30,7 @@
 <script setup>
 const supabase = useSupabaseClient()
 
-const loading = ref(true)
+const loading = ref(false)
 const username = ref('')
 const website = ref('')
 const avatar_path = ref('')

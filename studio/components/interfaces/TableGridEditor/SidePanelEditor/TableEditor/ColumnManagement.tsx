@@ -141,21 +141,21 @@ const ColumnManagement: FC<Props> = ({
     <>
       <div className="w-full space-y-4 table-editor-columns">
         <div className="flex items-center justify-between w-full">
-          <h5>Columns</h5>
+          <h5>数据列</h5>
           {isNewRecord && (
             <>
               {hasImportContent ? (
                 <div className="flex items-center space-x-3">
                   <Button type="default" icon={<IconEdit />} onClick={onSelectImportData}>
-                    Edit content
+                    编辑内容
                   </Button>
-                  <Button danger type="outline" icon={<IconTrash />} onClick={onClearImportContent}>
-                    Remove content
+                  <Button type="danger" icon={<IconTrash />} onClick={onClearImportContent}>
+                    移出内容
                   </Button>
                 </div>
               ) : (
                 <Button type="default" onClick={onSelectImportData}>
-                  Import data via spreadsheet
+                  通过电子表格导入数据
                 </Button>
               )}
             </>
@@ -193,7 +193,7 @@ const ColumnManagement: FC<Props> = ({
             {/* Drag handle */}
             {isNewRecord && <div className="w-[5%]" />}
             <div className="w-[25%] flex items-center space-x-2">
-              <h5 className="text-xs text-scale-900">Name</h5>
+              <h5 className="text-xs text-scale-900">名称</h5>
               <Tooltip.Root delayDuration={0}>
                 <Tooltip.Trigger>
                   <h5 className="text-xs text-scale-900">
@@ -219,10 +219,10 @@ const ColumnManagement: FC<Props> = ({
               </Tooltip.Root>
             </div>
             <div className="w-[25%]">
-              <h5 className="text-xs text-scale-900">Type</h5>
+              <h5 className="text-xs text-scale-900">类型</h5>
             </div>
             <div className={`${isNewRecord ? 'w-[25%]' : 'w-[30%]'} flex items-center space-x-2`}>
-              <h5 className="text-xs text-scale-900">Default Value</h5>
+              <h5 className="text-xs text-scale-900">默认值</h5>
 
               <Tooltip.Root delayDuration={0}>
                 <Tooltip.Trigger>
@@ -240,7 +240,8 @@ const ColumnManagement: FC<Props> = ({
                       ].join(' ')}
                     >
                       <span className="text-xs text-scale-1200">
-                        Can be either a value or a SQL expression
+                        Can either be a literal or an expression. When using an expression wrap your
+                        expression in brackets, e.g. (gen_random_uuid())
                       </span>
                     </div>
                   </Tooltip.Content>
@@ -248,7 +249,7 @@ const ColumnManagement: FC<Props> = ({
               </Tooltip.Root>
             </div>
             <div className="w-[10%]">
-              <h5 className="text-xs text-scale-900">Primary</h5>
+              <h5 className="text-xs text-scale-900">主键</h5>
             </div>
             {/* Empty space */}
             <div className={`${hasImportContent ? 'w-[10%]' : 'w-0'}`} />
@@ -335,17 +336,17 @@ const ColumnManagement: FC<Props> = ({
         <div className="flex items-center justify-between">
           {!hasImportContent && (
             <Button type="default" onClick={() => onAddColumn()}>
-              Add column
+              添加数据列
             </Button>
           )}
-          <Link href="https://www.supabase.cc/docs/guides/database/tables#data-types">
+          <Link href="https://supabase.com/docs/guides/database/tables#data-types">
             <a target="_blank" rel="noreferrer">
               <Button
                 type="text"
                 className="text-scale-1000 hover:text-scale-1200"
                 icon={<IconExternalLink size={12} strokeWidth={2} />}
               >
-                Learn more about data types
+                了解更多数据类型
               </Button>
             </a>
           </Link>

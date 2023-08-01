@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useStore } from 'hooks'
+import { useTheme } from 'common'
+import { useFlag, useStore } from 'hooks'
 import { usePushNext } from 'hooks/misc/useAutoAuthRedirect'
 import { BASE_PATH, IS_PLATFORM } from 'lib/constants'
 import { auth, getReturnToPath, STORAGE_KEY } from 'lib/gotrue'
@@ -26,9 +27,9 @@ const SignInLayout = ({
   children,
 }: PropsWithChildren<SignInLayoutProps>) => {
   const pushNext = usePushNext()
-  const { ui } = useStore()
   const queryClient = useQueryClient()
-  const { theme } = ui
+  const { isDarkMode } = useTheme()
+  const ongoingIncident = useFlag('ongoingIncident')
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
@@ -89,7 +90,7 @@ const SignInLayout = ({
       )}
 
       <div className="flex flex-col flex-1 bg-scale-100">
-        <div className="absolute top-0 w-full px-8 pt-6 mx-auto sm:px-6 lg:px-8">
+        <div className={`absolute top-0 w-full px-8 mx-auto sm:px-6 lg:px-8 ${ongoingIncident ? 'pt-16' : 'pt-6'}`}>
           <nav className="relative flex items-center justify-between sm:h-10">
             <div className="flex items-center flex-grow flex-shrink-0 lg:flex-grow-0">
               <div className="flex items-center justify-between w-full md:w-auto">
@@ -97,7 +98,7 @@ const SignInLayout = ({
                   <a>
                     <Image
                       src={
-                        theme == 'dark'
+                        isDarkMode
                           ? `${BASE_PATH}/img/supabase-dark.svg`
                           : `${BASE_PATH}/img/supabase-light.svg`
                       }
@@ -111,8 +112,8 @@ const SignInLayout = ({
             </div>
 
             <div className="items-center hidden space-x-3 md:ml-10 md:flex md:pr-4">
-              <Link href="https://www.supabase.cc/docs">
-                <a target="_blank">
+              <Link href="https://supabase.com/docs">
+                <a target="_blank" rel="noreferrer">
                   <Button type="default" icon={<IconFileText />}>
                     Documentation
                   </Button>

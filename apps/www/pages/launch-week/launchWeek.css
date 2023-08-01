@@ -1,5 +1,4 @@
 .bg-lw7 {
-  /* background: radial-gradient(72.03% 66.03% at 50% 69.72%, #3fcf8e 0%, #9e44ef 100%); */
   background: #9e44ef;
 }
 
@@ -8,27 +7,21 @@
 }
 
 .bg-lw7-gradient {
-  /* background: radial-gradient(72.03% 66.03% at 50% 69.72%, #3fcf8e 0%, transparent 100%); */
   background: radial-gradient(80% 65% at 50% 95%, #dbb8bf 0%, transparent 100%);
 }
 
-/* .bg-lw7-gradient.gold {
-  background: radial-gradient(80% 65% at 50% 95%, #ffd132 0%, transparent 100%);
-} */
-
 @media (min-width: 768px) {
   .bg-lw7-gradient {
-    /* background: radial-gradient(72.03% 66.03% at 50% 69.72%, #3fcf8e 0%, transparent 100%); */
     background: radial-gradient(72.03% 66.03% at 50% 69.72%, #dbb8bf 0%, transparent 100%);
   }
-
-  /* .bg-lw7-gradient.gold {
-    background: radial-gradient(72.03% 70% at 50% 75%, #ffd132 0%, transparent 100%);
-  } */
 }
 
 .opacity-pulse {
-  animation: opacity-pulse 3.5s ease-in-out infinite alternate both;
+  animation: opacity-pulse 0.6s ease-in-out infinite alternate both;
+}
+
+.opacity-pulse-full {
+  animation: opacity-pulse-full 0.6s ease-in-out infinite alternate both;
 }
 
 .glass-tile-gradient {
@@ -58,7 +51,16 @@
 
 @keyframes opacity-pulse {
   0% {
-    opacity: 0.75;
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes opacity-pulse-full {
+  0% {
+    opacity: 0;
   }
   100% {
     opacity: 1;

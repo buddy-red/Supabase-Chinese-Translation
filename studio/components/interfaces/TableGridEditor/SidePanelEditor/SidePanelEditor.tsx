@@ -1,30 +1,30 @@
-import { useState } from 'react'
+import type { PostgresColumn, PostgresTable } from '@supabase/postgres-meta'
 import { QueryKey, useQueryClient } from '@tanstack/react-query'
-import { find, isEmpty, isUndefined, noop } from 'lodash'
 import { Dictionary } from 'components/grid'
+import { find, isEmpty, isUndefined, noop } from 'lodash'
+import { useState } from 'react'
 import { Modal } from 'ui'
-import type { PostgresTable, PostgresColumn } from '@supabase/postgres-meta'
 
-import { useStore, useUrlState } from 'hooks'
+import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import ConfirmationModal from 'components/ui/ConfirmationModal'
 import { entityTypeKeys } from 'data/entity-types/keys'
+import { sqlKeys } from 'data/sql/keys'
 import { useTableRowCreateMutation } from 'data/table-rows/table-row-create-mutation'
 import { useTableRowUpdateMutation } from 'data/table-rows/table-row-update-mutation'
-import { RowEditor, ColumnEditor, TableEditor, SpreadsheetImport } from '.'
-import { ImportContent } from './TableEditor/TableEditor.types'
+import { useStore, useUrlState } from 'hooks'
+import { ColumnEditor, RowEditor, SpreadsheetImport, TableEditor } from '.'
+import ForeignRowSelector, {
+  ForeignRowSelectorProps,
+} from './RowEditor/ForeignRowSelector/ForeignRowSelector'
+import JsonEdit from './RowEditor/JsonEditor/JsonEditor'
+import { JsonEditValue } from './RowEditor/RowEditor.types'
 import {
   ColumnField,
   CreateColumnPayload,
   ExtendedPostgresRelationship,
   UpdateColumnPayload,
 } from './SidePanelEditor.types'
-import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
-import ConfirmationModal from 'components/ui/ConfirmationModal'
-import JsonEdit from './RowEditor/JsonEditor/JsonEditor'
-import { JsonEditValue } from './RowEditor/RowEditor.types'
-import { sqlKeys } from 'data/sql/keys'
-import ForeignRowSelector, {
-  ForeignRowSelectorProps,
-} from './RowEditor/ForeignRowSelector/ForeignRowSelector'
+import { ImportContent } from './TableEditor/TableEditor.types'
 
 export interface SidePanelEditorProps {
   selectedSchema: string
@@ -84,10 +84,7 @@ const SidePanelEditor = ({
   const { mutateAsync: createTableRows } = useTableRowCreateMutation()
   const { mutateAsync: updateTableRow } = useTableRowUpdateMutation({
     async onMutate({ projectRef, table, configuration, payload }) {
-      closePanel()
-
       const primaryKeyColumns = new Set(Object.keys(configuration.identifiers))
-
       const queryKey = sqlKeys.query(projectRef, [
         table.schema,
         table.name,
@@ -95,9 +92,7 @@ const SidePanelEditor = ({
       ])
 
       await queryClient.cancelQueries(queryKey)
-
       const previousRowsQueries = queryClient.getQueriesData<{ result: any[] }>(queryKey)
-
       queryClient.setQueriesData<{ result: any[] }>(queryKey, (old) => {
         return {
           result:
@@ -137,6 +132,8 @@ const SidePanelEditor = ({
         }
         queryClient.invalidateQueries(queryKey)
       })
+
+      ui.setNotification({ error, category: 'error', message: error.message })
     },
   })
 
@@ -160,32 +157,26 @@ const SidePanelEditor = ({
           payload,
           enumArrayColumns,
         })
-
         onRowCreated(result[0])
       } catch (error: any) {
         saveRowError = true
-        ui.setNotification({ category: 'error', message: error?.message })
       }
     } else {
       const hasChanges = !isEmpty(payload)
       if (hasChanges) {
         if (selectedTable.primary_keys.length > 0) {
-          if (selectedTable!.primary_keys.length > 0) {
-            try {
-              const result = await updateTableRow({
-                projectRef: project.ref,
-                connectionString: project.connectionString,
-                table: selectedTable as any,
-                configuration,
-                payload,
-                enumArrayColumns,
-              })
-
-              onRowUpdated(result[0], configuration.rowIdx)
-            } catch (error: any) {
-              saveRowError = true
-              ui.setNotification({ category: 'error', message: error?.message })
-            }
+          try {
+            const result = await updateTableRow({
+              projectRef: project.ref,
+              connectionString: project.connectionString,
+              table: selectedTable as any,
+              configuration,
+              payload,
+              enumArrayColumns,
+            })
+            onRowUpdated(result[0], configuration.rowIdx)
+          } catch (error) {
+            saveRowError = true
           }
         } else {
           saveRowError = true
@@ -365,7 +356,7 @@ const SidePanelEditor = ({
       } else if (isNewRecord) {
         toastId = ui.setNotification({
           category: 'loading',
-          message: `Creating new table: ${payload.name}...`,
+          message: `正在创建数据表: ${payload.name}...`,
         })
 
         const table = await meta.createTable(
@@ -410,13 +401,13 @@ const SidePanelEditor = ({
           queryClient.invalidateQueries(sqlKeys.query(project?.ref, ['foreign-key-constraints']))
           await Promise.all([
             queryClient.invalidateQueries(
-              sqlKeys.query(project?.ref, [selectedTable!.schema, selectedTable!.name])
+              sqlKeys.query(project?.ref, [selectedTableToEdit.schema, selectedTableToEdit.name])
             ),
             queryClient.invalidateQueries(
               sqlKeys.query(project?.ref, [
                 'table-definition',
-                selectedTable!.schema,
-                selectedTable!.name,
+                selectedTableToEdit.schema,
+                selectedTableToEdit.name,
               ])
             ),
             queryClient.invalidateQueries(entityTypeKeys.list(project?.ref)),
@@ -431,7 +422,7 @@ const SidePanelEditor = ({
       }
     } catch (error: any) {
       saveTableError = true
-      ui.setNotification({ id: toastId, category: 'error', message: error.message })
+      ui.setNotification({ error, id: toastId, category: 'error', message: error.message })
     }
 
     if (!saveTableError) {
@@ -452,42 +443,71 @@ const SidePanelEditor = ({
       category: 'loading',
       message: `Adding ${rowCount.toLocaleString()} rows to ${selectedTable.name}`,
     })
-    const { error }: any = await meta.insertRowsViaSpreadsheet(
-      file,
-      selectedTable,
-      selectedHeaders,
-      (progress: number) => {
-        ui.setNotification({
-          id: toastId,
-          progress,
-          category: 'loading',
-          message: `Adding ${rowCount.toLocaleString()} rows to ${selectedTable.name}`,
-        })
-      }
-    )
 
-    if (error) {
-      ui.setNotification({
-        error,
-        id: toastId,
-        category: 'error',
-        message: `Failed to import data: ${error.message}`,
-      })
-      resolve()
+    if (file && rowCount > 0) {
+      // CSV file upload
+      const { error }: any = await meta.insertRowsViaSpreadsheet(
+        file,
+        selectedTable,
+        selectedHeaders,
+        (progress: number) => {
+          ui.setNotification({
+            id: toastId,
+            progress,
+            category: 'loading',
+            message: `Adding ${rowCount.toLocaleString()} rows to ${selectedTable.name}`,
+          })
+        }
+      )
+      if (error) {
+        ui.setNotification({
+          error,
+          id: toastId,
+          category: 'error',
+          message: `Failed to import data: ${error.message}`,
+        })
+        return resolve()
+      }
     } else {
-      await Promise.all([
-        queryClient.invalidateQueries(
-          sqlKeys.query(project?.ref, [selectedTable!.schema, selectedTable!.name])
-        ),
-      ])
-      ui.setNotification({
-        id: toastId,
-        category: 'success',
-        message: `Successfully imported ${rowCount} rows of data into ${selectedTable.name}`,
-      })
-      resolve()
-      closePanel()
+      // Text paste
+      const { error } = await meta.insertTableRows(
+        selectedTable,
+        importContent.rows,
+        selectedHeaders,
+        (progress: number) => {
+          ui.setNotification({
+            id: toastId,
+            progress,
+            category: 'loading',
+            message: `Adding ${importContent.rows.length.toLocaleString()} rows to ${
+              selectedTable.name
+            }`,
+          })
+        }
+      )
+      if (error) {
+        ui.setNotification({
+          error,
+          id: toastId,
+          category: 'error',
+          message: `Failed to import data: ${error.message}`,
+        })
+        return resolve()
+      }
     }
+
+    await Promise.all([
+      queryClient.invalidateQueries(
+        sqlKeys.query(project?.ref, [selectedTable!.schema, selectedTable!.name])
+      ),
+    ])
+    ui.setNotification({
+      id: toastId,
+      category: 'success',
+      message: `Successfully imported ${rowCount} rows of data into ${selectedTable.name}`,
+    })
+    resolve()
+    closePanel()
   }
 
   const onClosePanel = () => {
@@ -562,15 +582,14 @@ const SidePanelEditor = ({
           setIsEdited(false)
           closePanel()
         }}
-        children={
-          <Modal.Content>
-            <p className="py-4 text-sm text-scale-1100">
-              There are unsaved changes. Are you sure you want to close the panel? Your changes will
-              be lost.
-            </p>
-          </Modal.Content>
-        }
-      />
+      >
+        <Modal.Content>
+          <p className="py-4 text-sm text-scale-1100">
+            There are unsaved changes. Are you sure you want to close the panel? Your changes will
+            be lost.
+          </p>
+        </Modal.Content>
+      </ConfirmationModal>
     </>
   )
 }

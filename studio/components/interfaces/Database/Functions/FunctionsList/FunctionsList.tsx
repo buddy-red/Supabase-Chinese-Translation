@@ -6,7 +6,7 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { PostgresFunction } from '@supabase/postgres-meta'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { checkPermissions, useStore } from 'hooks'
+import { useCheckPermissions, useStore } from 'hooks'
 import AlphaPreview from 'components/to-be-cleaned/AlphaPreview'
 import ProductEmptyState from 'components/to-be-cleaned/ProductEmptyState'
 import SchemaTable from './SchemaTable'
@@ -32,7 +32,10 @@ const FunctionsList: FC<Props> = ({
     includes(x.name?.toLowerCase(), filterString.toLowerCase())
   )
   const filteredFunctionSchemas = lodashMap(uniqBy(filteredFunctions, 'schema'), 'schema')
-  const canCreateFunctions = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'functions')
+  const canCreateFunctions = useCheckPermissions(
+    PermissionAction.TENANT_SQL_ADMIN_WRITE,
+    'functions'
+  )
 
   if (meta.functions.isLoading) {
     return (
@@ -63,7 +66,6 @@ const FunctionsList: FC<Props> = ({
             disabled={!canCreateFunctions}
             disabledMessage="You need additional permissions to create functions"
           >
-            <AlphaPreview />
             <p className="text-sm text-scale-1100">
               PostgreSQL functions, also known as stored procedures, is a set of SQL and procedural
               commands such as declarations, assignments, loops, flow-of-control, etc.

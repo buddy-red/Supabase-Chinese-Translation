@@ -5,8 +5,6 @@ export interface UseThemeProps {
   /**
    * Toggle between dark mode and light mode.
    *
-   * ---
-   *
    * If `darkMode` left `undefined`, toggles between modes.
    *
    * If `darkMode` set, forces
@@ -17,6 +15,7 @@ export interface UseThemeProps {
 
 interface ThemeProviderProps {
   children?: any
+  detectSystemColorPreference?: boolean
 }
 
 export const ThemeContext = createContext<UseThemeProps>({
@@ -26,22 +25,38 @@ export const ThemeContext = createContext<UseThemeProps>({
 
 export const useTheme = () => useContext(ThemeContext)
 
-export const ThemeProvider = ({ children }: ThemeProviderProps) => {
-  const [isDarkMode, setIsDarkMode] = useState(false)
+export const ThemeProvider = ({
+  detectSystemColorPreference = true,
+  children,
+}: ThemeProviderProps) => {
+  const [isDarkMode, setIsDarkMode] = useState(true)
 
   useEffect(() => {
     const key = localStorage.getItem('supabaseDarkMode')
-    // Default to dark mode if no preference config
-    setIsDarkMode(!key || key === 'true')
+    // If no localStorage is set
+    // and detectSystemColorPreference is false
+    // default to dark mode
+    const hasNoKey = key === null
+    const shouldBeDarkMode = hasNoKey || key === 'true'
+
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+    hasNoKey && detectSystemColorPreference
+      ? toggleTheme(prefersDark)
+      : toggleTheme(shouldBeDarkMode)
   }, [])
 
   const toggleTheme: UseThemeProps['toggleTheme'] = (darkMode) => {
     const newMode = typeof darkMode === 'boolean' ? darkMode : !isDarkMode
-
     localStorage.setItem('supabaseDarkMode', newMode.toString())
 
-    const key = localStorage.getItem('supabaseDarkMode')
-    document.documentElement.className = key === 'true' ? 'dark' : ''
+    const newTheme = newMode ? 'dark' : 'light'
+
+    document.body.classList.remove('light', 'dark')
+    document.body.classList.add(newTheme)
+
+    // Color scheme must be applied to document element (`<html>`)
+    document.documentElement.style.colorScheme = newTheme
 
     setIsDarkMode(newMode)
   }

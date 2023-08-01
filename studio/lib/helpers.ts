@@ -1,6 +1,7 @@
-import { v4 as _uuidV4 } from 'uuid'
 import { post } from 'lib/common/fetch'
-import { PASSWORD_STRENGTH, DEFAULT_MINIMUM_PASSWORD_STRENGTH, API_URL } from 'lib/constants'
+import { API_URL, DEFAULT_MINIMUM_PASSWORD_STRENGTH, PASSWORD_STRENGTH } from 'lib/constants'
+import { toast } from 'react-hot-toast'
+import { v4 as _uuidV4 } from 'uuid'
 
 export const tryParseJson = (jsonString: any) => {
   try {
@@ -49,7 +50,7 @@ export const getURL = () => {
       ? process.env.NEXT_PUBLIC_SITE_URL
       : process?.env?.VERCEL_URL && process.env.VERCEL_URL !== ''
       ? process.env.VERCEL_URL
-      : 'https://app.supabase.com'
+      : 'https://supabase.com/dashboard'
   return url.includes('http') ? url : `https://${url}`
 }
 
@@ -136,15 +137,17 @@ export const propsAreEqual = (prevProps: any, nextProps: any) => {
   }
 }
 
-export const formatBytes = (bytes: any, decimals = 2) => {
-  if (bytes === 0 || bytes === undefined) return '0 bytes'
-
+export const formatBytes = (
+  bytes: any,
+  decimals = 2,
+  size?: 'bytes' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' | 'EB' | 'ZB' | 'YB'
+) => {
   const k = 1024
   const dm = decimals < 0 ? 0 : decimals
   const sizes = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
 
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-
+  if (bytes === 0 || bytes === undefined) return size !== undefined ? `0 ${size}` : '0 bytes'
+  const i = size !== undefined ? sizes.indexOf(size) : Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
 }
 
@@ -153,10 +156,24 @@ export const snakeToCamel = (str: string) =>
     group.toUpperCase().replace('-', '').replace('_', '')
   )
 
-export const copyToClipboard = (str: string, callback = () => {}) => {
+/**
+ * Copy text content (string or Promise<string>) into Clipboard.
+ * Safari doesn't support write text into clipboard async, so if you need to load
+ * text content async before coping, please use Promise<string> for the 1st arg.
+ */
+export const copyToClipboard = async (str: string | Promise<string>, callback = () => {}) => {
   const focused = window.document.hasFocus()
   if (focused) {
-    window.navigator?.clipboard?.writeText(str).then(callback)
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      const text = await Promise.resolve(str)
+      Promise.resolve(window.navigator?.clipboard?.writeText(text)).then(callback)
+
+      return
+    }
+
+    Promise.resolve(str)
+      .then((text) => window.navigator?.clipboard?.writeText(text))
+      .then(callback)
   } else {
     console.warn('Unable to copy to clipboard')
   }
@@ -192,6 +209,8 @@ export async function passwordStrength(value: string) {
             result?.feedback?.warning ? result?.feedback?.warning + '.' : ''
           } You need a stronger password.`
         }
+      } else {
+        toast.error(`Failed to check password strength: ${response.error.message}`)
       }
     }
   }
@@ -213,4 +232,37 @@ export const detectBrowser = () => {
   } else if (navigator.userAgent.indexOf('Safari') !== -1) {
     return 'Safari'
   }
+}
+
+export const detectOS = () => {
+  if (typeof navigator === 'undefined' || !navigator) return undefined
+
+  const userAgent = window.navigator.userAgent.toLowerCase()
+  const macosPlatforms = /(macintosh|macintel|macppc|mac68k|macos)/i
+  const windowsPlatforms = /(win32|win64|windows|wince)/i
+
+  if (macosPlatforms.test(userAgent)) {
+    return 'macos'
+  } else if (windowsPlatforms.test(userAgent)) {
+    return 'windows'
+  } else {
+    return undefined
+  }
+}
+
+/**
+ * Pluralize a word based on a count
+ */
+export function pluralize(count: number, singular: string, plural?: string) {
+  return count === 1 ? singular : plural || singular + 's'
+}
+
+export const isValidHttpUrl = (value: string) => {
+  let url: URL
+  try {
+    url = new URL(value)
+  } catch (_) {
+    return false
+  }
+  return url.protocol === 'http:' || url.protocol === 'https:'
 }

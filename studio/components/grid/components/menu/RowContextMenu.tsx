@@ -1,4 +1,4 @@
-import { Menu, Item, ItemParams, PredicateParams } from 'react-contexify'
+import { Menu, Item, ItemParams, PredicateParams, Separator } from 'react-contexify'
 import { IconTrash, IconClipboard, IconEdit } from 'ui'
 import { useDispatch, useTrackedState } from '../../store'
 import { formatClipboardValue, copyToClipboard } from '../../utils'
@@ -19,7 +19,18 @@ const RowContextMenu = ({ table, rows }: RowContextMenuProps) => {
   const dispatch = useDispatch()
 
   const { project } = useProjectContext()
-  const { mutateAsync: deleteRows } = useTableRowDeleteMutation()
+  const { mutate: deleteRows } = useTableRowDeleteMutation({
+    onSuccess: (res, variables) => {
+      dispatch({ type: 'REMOVE_ROWS', payload: { rowIdxs: [variables.rows[0].idx] } })
+      dispatch({
+        type: 'SELECTED_ROWS_CHANGE',
+        payload: { selectedRows: new Set() },
+      })
+    },
+    onError: (error) => {
+      if (state.onError) state.onError(error)
+    },
+  })
 
   function onDeleteRow(p: ItemParams) {
     confirmAlert({
@@ -31,22 +42,12 @@ const RowContextMenu = ({ table, rows }: RowContextMenuProps) => {
         const row = rows[rowIdx]
         if (!row || !project) return
 
-        try {
-          await deleteRows({
-            projectRef: project.ref,
-            connectionString: project.connectionString,
-            table,
-            rows: [row],
-          })
-
-          dispatch({ type: 'REMOVE_ROWS', payload: { rowIdxs: [row.idx] } })
-          dispatch({
-            type: 'SELECTED_ROWS_CHANGE',
-            payload: { selectedRows: new Set() },
-          })
-        } catch (error) {
-          if (state.onError) state.onError(error)
-        }
+        deleteRows({
+          projectRef: project.ref,
+          connectionString: project.connectionString,
+          table,
+          rows: [row],
+        })
       },
     })
   }
@@ -84,11 +85,7 @@ const RowContextMenu = ({ table, rows }: RowContextMenuProps) => {
 
   return (
     <>
-      <Menu
-        id={ROW_CONTEXT_MENU_ID}
-        animation={false}
-        className="!bg-scale-300 border border-scale-500"
-      >
+      <Menu id={ROW_CONTEXT_MENU_ID} animation={false}>
         <Item onClick={onCopyCellContent}>
           <IconClipboard size="tiny" />
           <span className="ml-2 text-xs">Copy cell content</span>
@@ -97,6 +94,7 @@ const RowContextMenu = ({ table, rows }: RowContextMenuProps) => {
           <IconEdit size="tiny" />
           <span className="ml-2 text-xs">Edit row</span>
         </Item>
+        <Separator />
         <Item onClick={onDeleteRow} hidden={isItemHidden} data="delete">
           <IconTrash size="tiny" stroke="red" />
           <span className="ml-2 text-xs">Delete row</span>

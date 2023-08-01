@@ -1,5 +1,6 @@
 import authors from 'lib/authors.json'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 import Author from '~/types/author'
 import PostTypes from '~/types/post'
@@ -24,8 +25,8 @@ const BlogListItem = ({ post }: Props) => {
 
   return (
     <div>
-      <a href={`${post.path}`}>
-        <div className="group inline-block min-w-full">
+      <Link href={post.path}>
+        <a className="group inline-block min-w-full">
           <div className="flex flex-col space-y-6">
             <div className="flex flex-col space-y-3">
               <div
@@ -47,8 +48,18 @@ const BlogListItem = ({ post }: Props) => {
               </div>
 
               <h3 className="text-scale-1200 max-w-sm text-xl">{post.title}</h3>
-              {post.date && <p className="text-scale-1100 text-xs">{post.date}</p>}
               <p className="text-scale-1100 max-w-sm text-base">{post.description}</p>
+              {post.date && (
+                <div className="text-scale-900 flex items-center space-x-1.5 text-sm">
+                  <p>{post.date}</p>
+                  {post.readingTime && (
+                    <>
+                      <p>•</p>
+                      <p>{post.readingTime}</p>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
             <div className="flex items-center -space-x-2">
               {author.map((author: any, i: number) => {
@@ -69,8 +80,8 @@ const BlogListItem = ({ post }: Props) => {
               })}
             </div>
           </div>
-        </div>
-      </a>
+        </a>
+      </Link>
     </div>
   )
 }

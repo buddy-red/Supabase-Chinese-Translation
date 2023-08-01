@@ -1,21 +1,16 @@
-import SVG from 'react-inlinesvg'
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
 import { noop, partition } from 'lodash'
 import { observer } from 'mobx-react-lite'
 import {
+  Alert,
   Button,
   Dropdown,
   IconCheck,
-  IconChevronDown,
   IconChevronsDown,
-  IconCopy,
   IconEdit,
   IconLoader,
-  IconLock,
   IconRefreshCw,
   IconSearch,
-  IconTrash,
   IconX,
   Input,
   Listbox,
@@ -26,15 +21,12 @@ import { PermissionAction } from '@supabase/shared-types/out/constants'
 import type { PostgresSchema } from '@supabase/postgres-meta'
 
 import { useParams } from 'common/hooks'
-import { BASE_PATH } from 'lib/constants'
-import { checkPermissions, useStore, useLocalStorage } from 'hooks'
-import ProductMenuItem from 'components/ui/ProductMenu/ProductMenuItem'
+import { useCheckPermissions, useStore, useLocalStorage } from 'hooks'
 import { useEntityTypesQuery } from 'data/entity-types/entity-types-infinite-query'
-import { ENTITY_TYPE } from 'data/entity-types/entity-type-constants'
 import { Entity } from 'data/entity-types/entity-type-query'
 import { useProjectContext } from '../ProjectLayout/ProjectContext'
 import InfiniteList from 'components/ui/InfiniteList'
-import clsx from 'clsx'
+import EntityListItem from './EntityListItem'
 
 export interface TableEditorMenuProps {
   selectedSchema?: string
@@ -92,9 +84,8 @@ const TableEditorMenu = ({
   )
 
   const schemas: PostgresSchema[] = meta.schemas.list()
-
   const schema = schemas.find((schema) => schema.name === selectedSchema)
-  const canCreateTables = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
+  const canCreateTables = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
 
   const isLoadingTableMetadata = id ? !meta.tables.byId(id) : true
 
@@ -117,8 +108,15 @@ const TableEditorMenu = ({
         {!meta.schemas.isInitialized ? (
           <div className="flex h-[26px] items-center space-x-3 rounded border border-gray-500 px-3">
             <IconLoader className="animate-spin" size={12} />
-            <span className="text-xs text-scale-900">Loading schemas...</span>
+            <span className="text-xs text-scale-900">加载模式...</span>
           </div>
+        ) : meta.schemas.hasError ? (
+          <Alert variant="warning" title="加载模式失败" className="!px-3 !py-3">
+            <p className="mb-2">出错: {meta.schemas?.error?.message}</p>
+            <Button type="default" size="tiny" onClick={() => meta.schemas.load()}>
+              重新加载模式
+            </Button>
+          </Alert>
         ) : (
           <Listbox
             size="tiny"
@@ -128,15 +126,22 @@ const TableEditorMenu = ({
               onSelectSchema(name)
             }}
           >
-            <Listbox.Option disabled key="normal-schemas" value="normal-schemas" label="Schemas">
-              <p className="text-xs text-scale-1100">Schemas</p>
+            <Listbox.Option
+              disabled
+              key="normal-schemas"
+              value="normal-schemas"
+              label="模式"
+              className="!w-[200px]"
+            >
+              <p className="text-xs text-scale-1100">模式</p>
             </Listbox.Option>
             {openSchemas.map((schema) => (
               <Listbox.Option
                 key={schema.id}
                 value={schema.name}
                 label={schema.name}
-                addOnBefore={() => <span className="text-scale-900 text-xs">schema</span>}
+                className="!w-[200px]"
+                addOnBefore={() => <span className="text-scale-900 text-xs">模式</span>}
               >
                 <span className="text-scale-1200 text-xs">{schema.name}</span>
               </Listbox.Option>
@@ -146,6 +151,7 @@ const TableEditorMenu = ({
               key="protected-schemas"
               value="protected-schemas"
               label="Protected schemas"
+              className="!w-[200px]"
             >
               <p className="text-xs text-scale-1100">Protected schemas</p>
             </Listbox.Option>
@@ -154,6 +160,7 @@ const TableEditorMenu = ({
                 key={schema.id}
                 value={schema.name}
                 label={schema.name}
+                className="!w-[200px]"
                 addOnBefore={() => <span className="text-scale-900 text-xs">schema</span>}
               >
                 <span className="text-scale-1200 text-xs">{schema.name}</span>
@@ -170,8 +177,8 @@ const TableEditorMenu = ({
             <Tooltip.Root delayDuration={0}>
               <Tooltip.Trigger className="w-full">
                 <Button
+                  asChild
                   block
-                  as="span"
                   disabled={!canCreateTables}
                   size="tiny"
                   icon={
@@ -183,7 +190,7 @@ const TableEditorMenu = ({
                   style={{ justifyContent: 'start' }}
                   onClick={onAddTable}
                 >
-                  新建数据表
+                  <span>新建数据表</span>
                 </Button>
               </Tooltip.Trigger>
               {!canCreateTables && (
@@ -240,12 +247,12 @@ const TableEditorMenu = ({
       ) : searchText.length === 0 && (entityTypes?.length ?? 0) === 0 ? (
         <div className="mx-7 space-y-1 rounded-md border border-scale-400 bg-scale-300 py-3 px-4">
           <p className="text-xs">无实体可用</p>
-          <p className="text-xs text-scale-1100">此模式尚无可用实体</p>
+          <p className="text-xs text-scale-1100">该模式尚无可用实体</p>
         </div>
       ) : searchText.length > 0 && (entityTypes?.length ?? 0) === 0 ? (
         <div className="mx-7 space-y-1 rounded-md border border-scale-400 bg-scale-300 py-3 px-4">
           <p className="text-xs">找不到结果</p>
-          <p className="text-xs text-scale-1100">没有符合您搜索条件的实体</p>
+          <p className="text-xs text-scale-1100">没有与您的搜索匹配的实体</p>
         </div>
       ) : (
         <Menu
@@ -285,7 +292,7 @@ const TableEditorMenu = ({
                             setSort('alphabetical')
                           }}
                         >
-                          Alphabetical
+                          按字母顺序
                         </Dropdown.Item>,
                         <Dropdown.Item
                           key="grouped-alphabetical"
@@ -300,7 +307,7 @@ const TableEditorMenu = ({
                             setSort('grouped-alphabetical')
                           }}
                         >
-                          Entity Type
+                          实体类型
                         </Dropdown.Item>,
                       ]}
                     >
@@ -319,7 +326,7 @@ const TableEditorMenu = ({
                                 'border border-scale-200',
                               ].join(' ')}
                             >
-                              <span className="text-xs">Sort By</span>
+                              <span className="text-xs">排序方式</span>
                             </div>
                           </Tooltip.Content>
                         </Tooltip.Portal>
@@ -363,154 +370,3 @@ const TableEditorMenu = ({
 }
 
 export default observer(TableEditorMenu)
-
-export interface EntityListItemProps {
-  id: number
-  projectRef: string
-  item: Entity
-  isLocked: boolean
-  onEditTable: (table: Entity) => void
-  onDeleteTable: (table: Entity) => void
-  onDuplicateTable: (table: Entity) => void
-  isLoadingTableMetadata?: boolean
-}
-
-const EntityListItem = ({
-  id,
-  projectRef,
-  item: entity,
-  isLocked,
-  onEditTable,
-  onDeleteTable,
-  onDuplicateTable,
-  isLoadingTableMetadata = false,
-}: EntityListItemProps) => {
-  const isActive = Number(id) === entity.id
-  const formatTooltipText = (entityType: string) => {
-    return Object.entries(ENTITY_TYPE)
-      .find(([, value]) => value === entityType)?.[0]
-      ?.toLowerCase()
-      ?.split('_')
-      ?.join(' ')
-  }
-
-  return (
-    <ProductMenuItem
-      url={`/project/${projectRef}/editor/${entity.id}`}
-      name={entity.name}
-      hoverText={entity.comment ? entity.comment : entity.name}
-      isActive={isActive}
-      icon={
-        <Tooltip.Root delayDuration={0} disableHoverableContent={true}>
-          <Tooltip.Trigger className="w-full flex items-center">
-            {entity.type === ENTITY_TYPE.TABLE ? (
-              <SVG
-                className="table-icon"
-                src={`${BASE_PATH}/img/icons/table-icon.svg`}
-                style={{ width: `16px`, height: `16px`, strokeWidth: '1px' }}
-                preProcessor={(code: any) =>
-                  code.replace(/svg/, 'svg class="m-auto text-color-inherit"')
-                }
-              />
-            ) : entity.type === ENTITY_TYPE.VIEW ? (
-              <SVG
-                className="view-icon"
-                src={`${BASE_PATH}/img/icons/view-icon.svg`}
-                style={{ width: `16px`, height: `16px`, strokeWidth: '1px' }}
-                preProcessor={(code: any) =>
-                  code.replace(/svg/, 'svg class="m-auto text-color-inherit"')
-                }
-              />
-            ) : (
-              <div
-                className={clsx(
-                  'flex items-center justify-center text-xs h-4 w-4 rounded-[2px] font-bold',
-                  entity.type === ENTITY_TYPE.FOREIGN_TABLE && 'text-yellow-900 bg-yellow-500',
-                  entity.type === ENTITY_TYPE.MATERIALIZED_VIEW && 'text-purple-1000 bg-purple-500',
-                  entity.type === ENTITY_TYPE.PARTITIONED_TABLE && 'text-scale-1100 bg-scale-800'
-                )}
-              >
-                {Object.entries(ENTITY_TYPE)
-                  .find(([, value]) => value === entity.type)?.[0]?.[0]
-                  ?.toUpperCase()}
-              </div>
-            )}
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content side="bottom">
-              <Tooltip.Arrow className="radix-tooltip-arrow" />
-              <div
-                className={[
-                  'rounded bg-scale-100 py-1 px-2 leading-none shadow',
-                  'border border-scale-200',
-                ].join(' ')}
-              >
-                <span className="text-xs text-scale-1200 capitalize">
-                  {formatTooltipText(entity.type)}
-                </span>
-              </div>
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
-      }
-      action={
-        entity.type === ENTITY_TYPE.TABLE &&
-        isActive &&
-        !isLocked && (
-          <Dropdown
-            size="small"
-            side="bottom"
-            align="start"
-            overlay={[
-              <Dropdown.Item
-                key="edit-table"
-                icon={<IconEdit size="tiny" />}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEditTable(entity)
-                }}
-                disabled={isLoadingTableMetadata}
-              >
-                编辑数据表
-              </Dropdown.Item>,
-              <Dropdown.Item
-                key="duplicate-table"
-                icon={<IconCopy size="tiny" />}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDuplicateTable(entity)
-                }}
-                disabled={isLoadingTableMetadata}
-              >
-                Duplicate Table
-              </Dropdown.Item>,
-              <Link href={`/project/${projectRef}/auth/policies?search=${entity.id}`}>
-                <a>
-                  <Dropdown.Item key="delete-table" icon={<IconLock size="tiny" />}>
-                    View Policies
-                  </Dropdown.Item>
-                </a>
-              </Link>,
-              <Dropdown.Separator key="separator" />,
-              <Dropdown.Item
-                key="delete-table"
-                icon={<IconTrash size="tiny" />}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDeleteTable(entity)
-                }}
-                disabled={isLoadingTableMetadata}
-              >
-                Delete Table
-              </Dropdown.Item>,
-            ]}
-          >
-            <div className="text-scale-900 transition-colors hover:text-scale-1200">
-              <IconChevronDown size={14} strokeWidth={2} />
-            </div>
-          </Dropdown>
-        )
-      }
-    />
-  )
-}

@@ -5,7 +5,7 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { Button, Form, Input, Modal } from 'ui'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { checkPermissions, useStore } from 'hooks'
+import { useCheckPermissions, useStore } from 'hooks'
 import { FormHeader } from 'components/ui/Forms'
 import { urlRegex } from '../Auth.constants'
 import RedirectUrlList from './RedirectUrlList'
@@ -14,23 +14,28 @@ const RedirectUrls = () => {
   const { authConfig, ui } = useStore()
 
   const URI_ALLOW_LIST_ARRAY = authConfig.config.URI_ALLOW_LIST
-    ? authConfig.config.URI_ALLOW_LIST.split(',')
+    ? authConfig.config.URI_ALLOW_LIST.split(/\s*[,]+\s*/).filter((url: string) => url)
     : []
 
   const [open, setOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [selectedUrlToDelete, setSelectedUrlToDelete] = useState<string>()
 
-  const canUpdateConfig = checkPermissions(PermissionAction.UPDATE, 'custom_config_gotrue')
+  const canUpdateConfig = useCheckPermissions(PermissionAction.UPDATE, 'custom_config_gotrue')
 
   const newUrlSchema = object({
     url: string().matches(urlRegex, 'URL is not valid').required(),
   })
 
   const onAddNewUrl = async (values: any, { setSubmitting }: any) => {
+    if (!values.url) {
+      return
+    }
+
     setSubmitting(true)
     const payload = URI_ALLOW_LIST_ARRAY
-    payload.push(values.url)
+    // remove any trailing commas
+    payload.push(values.url.replace(/,\s*$/, ''))
 
     const payloadString = payload.toString()
 
@@ -136,7 +141,7 @@ const RedirectUrls = () => {
                 <div className="px-5">
                   <p className="text-sm text-scale-1100">
                     This will add a URL to a list of allowed URLs that can interact with your
-                    Authenticaton services for this project.
+                    Authentication services for this project.
                   </p>
                 </div>
                 <div className="border-overlay-border border-t" />

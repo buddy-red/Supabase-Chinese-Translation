@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import { IconChevronLeft } from 'ui'
 import * as NavItems from './NavigationMenu.constants'
 
-// @ts-expect-error
 import clientLibsCommon from '~/../../spec/common-cli.yml' assert { type: 'yml' }
 
 const NavigationMenuCliList = ({ currentLevel, setLevel, id }) => {
@@ -22,7 +21,7 @@ const NavigationMenuCliList = ({ currentLevel, setLevel, id }) => {
     icon?: string
   }) => {
     return (
-      <li key={id} className="function-link-item text-scale-1000">
+      <li key={id} className="function-link-item text-scale-1000 leading-3">
         <Link href={`#${id}`} passHref>
           <a className="cursor-pointer transition text-scale-1000 text-sm hover:text-brand-900 flex gap-3">
             {icon && <img className="w-3" src={`${router.basePath}${icon}`} />}
@@ -49,33 +48,33 @@ const NavigationMenuCliList = ({ currentLevel, setLevel, id }) => {
   }
 
   const Divider = () => {
-    return <div className="h-px w-full bg-green-500 my-3"></div>
+    return <div className="h-px w-full bg-scale-500 my-3"></div>
   }
 
   const MenuSections = [
     {
       key: 'general',
-      label: '基本设置',
+      label: 'General',
     },
     {
       key: 'secrets',
-      label: '密钥',
+      label: 'Secrets',
     },
     {
       key: 'projects',
-      label: '项目',
+      label: 'Projects',
     },
     {
       key: 'organizations',
-      label: '组织',
+      label: 'Organizations',
     },
     {
       key: 'migration',
-      label: '迁移',
+      label: 'Migration',
     },
     {
       key: 'database',
-      label: '数据库',
+      label: 'Database',
     },
     {
       key: 'completion',

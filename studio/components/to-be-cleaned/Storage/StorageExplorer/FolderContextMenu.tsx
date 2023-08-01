@@ -4,7 +4,7 @@ import 'react-contexify/dist/ReactContexify.css'
 import { IconEdit, IconDownload, IconTrash2 } from 'ui'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 
-import { checkPermissions } from 'hooks'
+import { useCheckPermissions } from 'hooks'
 import { useStorageStore } from 'localStores/storageExplorer/StorageExplorerStore'
 
 interface Props {
@@ -14,10 +14,10 @@ interface Props {
 const FolderContextMenu: FC<Props> = ({ id = '' }) => {
   const storageExplorerStore = useStorageStore()
   const { downloadFolder, setSelectedItemToRename, setSelectedItemsToDelete } = storageExplorerStore
-  const canUpdateFiles = checkPermissions(PermissionAction.STORAGE_ADMIN_WRITE, '*')
+  const canUpdateFiles = useCheckPermissions(PermissionAction.STORAGE_ADMIN_WRITE, '*')
 
   return (
-    <Menu id={id} animation="fade" className="!bg-scale-300 border border-scale-500">
+    <Menu id={id} animation="fade">
       {canUpdateFiles && (
         <Item onClick={({ props }) => setSelectedItemToRename(props.item)}>
           <IconEdit size="tiny" />
@@ -29,9 +29,9 @@ const FolderContextMenu: FC<Props> = ({ id = '' }) => {
         <span className="ml-2 text-xs">Download</span>
       </Item>
       {canUpdateFiles && [
-        <Separator />,
-        <Item onClick={({ props }) => setSelectedItemsToDelete([props.item])}>
-          <IconTrash2 size="tiny" />
+        <Separator key="separator" />,
+        <Item key="delete" onClick={({ props }) => setSelectedItemsToDelete([props.item])}>
+          <IconTrash2 size="tiny" stroke="red" />
           <span className="ml-2 text-xs">Delete</span>
         </Item>,
       ]}

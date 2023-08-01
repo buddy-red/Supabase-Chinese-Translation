@@ -5,7 +5,7 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
 import { Badge, Button, Dropdown, IconMoreVertical, IconTrash, IconEdit3 } from 'ui'
 
-import { useStore, checkPermissions } from 'hooks'
+import { useStore, useCheckPermissions } from 'hooks'
 import Table from 'components/to-be-cleaned/Table'
 
 interface Props {
@@ -23,7 +23,7 @@ const TriggerList: FC<Props> = ({ filterString, schema, editTrigger, deleteTrigg
   )
 
   const _triggers = filteredTriggers.filter((x: any) => x.schema == schema)
-  const canUpdateTriggers = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'triggers')
+  const canUpdateTriggers = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'triggers')
 
   function onEdit(trigger: any) {
     editTrigger(trigger)
@@ -37,16 +37,16 @@ const TriggerList: FC<Props> = ({ filterString, schema, editTrigger, deleteTrigg
     <>
       {_triggers.map((x: any) => (
         <Table.tr key={x.id}>
-          <Table.td className="space-x-2 break-all">
-            <p>{x.name}</p>
+          <Table.td className="space-x-2">
+            <p title={x.name} className="truncate">
+              {x.name}
+            </p>
           </Table.td>
           <Table.td className="hidden lg:table-cell break-all">
-            <p>{x.table}</p>
+            <p title={x.table}>{x.table}</p>
           </Table.td>
           <Table.td className="hidden space-x-2 xl:table-cell">
-            <div className="flex flex-col">
-              <p>{x.function_name}</p>
-            </div>
+            <p title={x.function_name}>{x.function_name}</p>
           </Table.td>
           <Table.td className="hidden xl:table-cell">
             <div className="flex space-x-2">
@@ -75,12 +75,14 @@ const TriggerList: FC<Props> = ({ filterString, schema, editTrigger, deleteTrigg
                     </>
                   }
                 >
-                  <Button as="span" type="default" icon={<IconMoreVertical />} />
+                  <Button asChild type="default" icon={<IconMoreVertical />}>
+                    <span></span>
+                  </Button>
                 </Dropdown>
               ) : (
                 <Tooltip.Root delayDuration={0}>
-                  <Tooltip.Trigger>
-                    <Button as="span" disabled type="default" icon={<IconMoreVertical />} />
+                  <Tooltip.Trigger asChild>
+                    <Button disabled type="default" icon={<IconMoreVertical />} />
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content side="left">

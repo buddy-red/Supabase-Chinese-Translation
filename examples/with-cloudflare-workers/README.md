@@ -17,7 +17,7 @@ In order to send a JSON response, we first stringify the object we get back from
 **Install Supabase JS**
 
 ```bash
-npm i @supabase-supabase-js
+npm i @supabase/supabase-js
 ```
 
 **Create a Cloudflare secret**
@@ -62,7 +62,7 @@ return new Response(JSON.stringify(data), {
 
 ## Resources
 
-- [Selecting data with Supabase JS](https://www.supabase.cc/docs/reference/javascript/select)
+- [Selecting data with Supabase JS](https://supabase.com/docs/reference/javascript/select)
 - [Introducing Secrets and Environment Variables to Cloudflare Workers](https://blog.cloudflare.com/workers-secrets-environment/)
 - [Cloudflare docs for sending JSON responses](https://developers.cloudflare.com/workers/examples/return-json/)
 

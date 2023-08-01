@@ -1,13 +1,16 @@
+import { useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
 import { Button, IconCheckSquare, Loading } from 'ui'
 
+import { useParams } from 'common'
+import { invalidateOrganizationsQuery } from 'data/organizations/organizations-query'
 import { useStore } from 'hooks'
-import { auth } from 'lib/gotrue'
+import { useSignOut } from 'lib/auth'
+import { delete_, get, post } from 'lib/common/fetch'
 import { API_URL } from 'lib/constants'
-import { get, post, delete_ } from 'lib/common/fetch'
-import { useProfileQuery } from 'data/profile/profile-query'
+import { useProfile } from 'lib/profile'
 
 interface ITokenInfo {
   organization_name?: string | undefined
@@ -21,13 +24,15 @@ interface ITokenInfo {
 type TokenInfo = ITokenInfo | undefined
 
 const JoinOrganizationPage = () => {
+  const queryClient = useQueryClient()
   const router = useRouter()
-  const { slug, token, name } = router.query
-  const { ui, app } = useStore()
-  const { data: profile } = useProfileQuery()
+  const { slug, token, name } = useParams()
+  const { ui } = useStore()
+  const { profile } = useProfile()
+  const signOut = useSignOut()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<any>()
   const [tokenValidationInfo, setTokenValidationInfo] = useState<TokenInfo>(undefined)
   const [tokenInfoLoaded, setTokenInfoLoaded] = useState(false)
   const { token_does_not_exist, email_match, expired_token, organization_name, invite_id } =
@@ -37,8 +42,6 @@ const JoinOrganizationPage = () => {
 
   useEffect(() => {
     const fetchTokenInfo = async () => {
-      await ui.load()
-
       const response = await get(`${API_URL}/organizations/${slug}/members/join?token=${token}`)
 
       if (response.error) {
@@ -67,13 +70,14 @@ const JoinOrganizationPage = () => {
 
     if (response.error) {
       ui.setNotification({
+        error: response.error,
         category: 'error',
         message: `Failed to join organization: ${response.error.message}`,
       })
       setIsSubmitting(false)
     } else {
       setIsSubmitting(false)
-      app.onOrgAdded(response)
+      await invalidateOrganizationsQuery(queryClient)
       router.push('/')
     }
   }
@@ -115,7 +119,7 @@ const JoinOrganizationPage = () => {
     )
 
     const message = error ? (
-      <p>There was an error requesting details for this invitation.</p>
+      <p>There was an error requesting details for this invitation. ({error.message})</p>
     ) : token_does_not_exist ? (
       <>
         <p>The invite token is invalid.</p>
@@ -135,7 +139,7 @@ const JoinOrganizationPage = () => {
           <a
             className="cursor-pointer text-brand-900"
             onClick={async () => {
-              await auth.signOut()
+              await signOut()
               router.reload()
             }}
           >
@@ -181,7 +185,7 @@ const JoinOrganizationPage = () => {
       </div>
 
       <div
-        className={['border-t border-scale-400', isError ? 'bg-sand-100' : 'bg-transparent'].join(
+        className={['border-t border-scale-400', isError ? 'bg-scale-100' : 'bg-transparent'].join(
           ' '
         )}
       >

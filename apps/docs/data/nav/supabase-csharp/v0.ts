@@ -1,6 +1,6 @@
 const Nav = [
   {
-    label: '快速上手',
+    label: 'Getting Started',
     items: [
       { name: 'Supabase C# Library', url: '/reference/csharp', items: [] },
       { name: 'Installing', url: '/reference/csharp/installing', items: [] },

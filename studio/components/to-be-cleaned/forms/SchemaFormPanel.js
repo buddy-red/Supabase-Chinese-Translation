@@ -11,6 +11,7 @@ export default function SchemaFormPanel({
   onChangeModel = (model) => {},
   onReset = () => {},
   onSubmit,
+  loading,
   submitLabel = 'Save',
   cancelLabel = 'Cancel',
   message = '',
@@ -64,7 +65,7 @@ export default function SchemaFormPanel({
             </Button>
             <Button
               onClick={onClickSubmit}
-              loading={submitButtonLoading}
+              loading={loading !== undefined ? loading : submitButtonLoading}
               disabled={disabled || !hasChanged}
               type="primary"
               className="ml-2 hover:border-green-500"
@@ -86,7 +87,6 @@ export default function SchemaFormPanel({
           formRef={(ref) => (formRef = ref)}
           schema={schema}
           model={model}
-          children={children}
           onSubmit={async (args) => {
             onSubmit(args)
               .then(() => {
@@ -95,7 +95,9 @@ export default function SchemaFormPanel({
               })
               .catch(() => setSubmitButtonLoading(false))
           }}
-        />
+        >
+          {children}
+        </SchemaForm>
       </div>
     </section>
   )

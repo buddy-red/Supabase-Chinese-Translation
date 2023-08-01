@@ -10,7 +10,7 @@ You don't need to go through all of these for every PR you contribute. These che
 
 ## Tools and features
 
-### 数据表编辑器
+### Table Editor
 
 - [ ] Go to **Table editor**
   - [ ] Create a **new table**

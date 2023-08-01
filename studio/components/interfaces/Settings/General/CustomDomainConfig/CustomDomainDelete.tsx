@@ -1,13 +1,13 @@
+import { observer } from 'mobx-react-lite'
 import Link from 'next/link'
 import { useState } from 'react'
-import { observer } from 'mobx-react-lite'
 import { Button, IconExternalLink, IconTrash } from 'ui'
 
-import { useStore } from 'hooks'
+import ConfirmModal from 'components/ui/Dialogs/ConfirmDialog'
+import Panel from 'components/ui/Panel'
 import { useCustomDomainDeleteMutation } from 'data/custom-domains/custom-domains-delete-mutation'
 import { CustomDomainResponse } from 'data/custom-domains/custom-domains-query'
-import Panel from 'components/ui/Panel'
-import ConfirmModal from 'components/ui/Dialogs/ConfirmDialog'
+import { useStore } from 'hooks'
 
 export type CustomDomainDeleteProps = {
   projectRef?: string
@@ -16,31 +16,17 @@ export type CustomDomainDeleteProps = {
 
 const CustomDomainDelete = ({ projectRef, customDomain }: CustomDomainDeleteProps) => {
   const { ui } = useStore()
-
   const [isDeleteConfirmModalVisible, setIsDeleteConfirmModalVisible] = useState(false)
-
-  const { mutateAsync: deleteCustomDomain } = useCustomDomainDeleteMutation()
+  const { mutate: deleteCustomDomain } = useCustomDomainDeleteMutation({
+    onSuccess: () => {
+      ui.setNotification({ category: 'success', message: `Successfully deleted custom domain` })
+      setIsDeleteConfirmModalVisible(false)
+    },
+  })
 
   const onDeleteCustomDomain = async () => {
-    if (!projectRef) {
-      throw new Error('Project ref is required')
-    }
-
-    try {
-      await deleteCustomDomain({ projectRef })
-
-      ui.setNotification({
-        category: 'success',
-        message: `Successfully deleted custom domain`,
-      })
-
-      setIsDeleteConfirmModalVisible(false)
-    } catch (error: any) {
-      ui.setNotification({
-        category: 'error',
-        message: error.message,
-      })
-    }
+    if (!projectRef) return console.error('Project ref is required')
+    deleteCustomDomain({ projectRef })
   }
 
   return (
@@ -64,8 +50,8 @@ const CustomDomainDelete = ({ projectRef, customDomain }: CustomDomainDeleteProp
 
       <Panel.Content className="w-full">
         <div className="flex items-center justify-between">
-          <Link href="https://www.supabase.cc/docs/guides/platform/custom-domains">
-            <a target="_blank">
+          <Link href="https://supabase.com/docs/guides/platform/custom-domains">
+            <a target="_blank" rel="noreferrer">
               <Button type="default" icon={<IconExternalLink />}>
                 Documentation
               </Button>

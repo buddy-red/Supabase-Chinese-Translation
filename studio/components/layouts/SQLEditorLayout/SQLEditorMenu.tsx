@@ -1,186 +1,138 @@
-import { useState } from 'react'
-import { observer } from 'mobx-react-lite'
-import {
-  Button,
-  Dropdown,
-  Menu,
-  Input,
-  IconSearch,
-  IconPlus,
-  IconX,
-  IconLoader,
-  IconTrash,
-  IconChevronDown,
-  Modal,
-  IconEdit2,
-} from 'ui'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
+import { partition } from 'lodash'
+import { observer } from 'mobx-react-lite'
+import { useRouter } from 'next/router'
+import { useMemo, useState } from 'react'
 
-import { useOptimisticSqlSnippetCreate, useStore, checkPermissions } from 'hooks'
-import { IS_PLATFORM } from 'lib/constants'
-import QueryTab from 'localStores/sqlEditor/QueryTab'
-import { useSqlStore, TAB_TYPES } from 'localStores/sqlEditor/SqlEditorStore'
-import { useProfileQuery } from 'data/profile/profile-query'
-
-import RenameQuery from 'components/to-be-cleaned/SqlEditor/RenameQuery'
-import ConfirmationModal from 'components/ui/ConfirmationModal'
+import { useParams } from 'common'
+import { createSqlSnippetSkeleton } from 'components/interfaces/SQLEditor/SQLEditor.utils'
 import ProductMenuItem from 'components/ui/ProductMenu/ProductMenuItem'
-
-const OpenQueryItem = observer(
-  ({ tabInfo, canCreateSQLSnippet }: { tabInfo: QueryTab; canCreateSQLSnippet: boolean }) => {
-    const sqlEditorStore: any = useSqlStore()
-    const { id, name } = tabInfo || {}
-    const active = sqlEditorStore.activeTab.id === id
-
-    return (
-      <ProductMenuItem
-        key={id}
-        isActive={active}
-        name={name}
-        action={active && canCreateSQLSnippet && <DropdownMenu tabInfo={tabInfo} />}
-        onClick={() => sqlEditorStore.selectTab(id)}
-        textClassName="w-44"
-      />
-    )
-  }
-)
-
-const DropdownMenu = observer(({ tabInfo }: { tabInfo: QueryTab }) => {
-  const { data: profile } = useProfileQuery()
-  const { content: contentStore } = useStore()
-
-  const sqlEditorStore: any = useSqlStore()
-
-  const [tabId, setTabId] = useState('')
-  const [renameModalOpen, setRenameModalOpen] = useState(false)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-
-  const { id, name } = tabInfo || {}
-
-  function onCloseRenameModal() {
-    setRenameModalOpen(false)
-  }
-
-  function renameQuery(e: any) {
-    setTabId(id)
-    setRenameModalOpen(true)
-  }
-
-  function renderMenu() {
-    return (
-      <>
-        <Dropdown.Item onClick={renameQuery} icon={<IconEdit2 size="tiny" />}>
-          Rename query
-        </Dropdown.Item>
-        <Dropdown.Separator />
-        <Dropdown.Item onClick={() => setDeleteModalOpen(true)} icon={<IconTrash size="tiny" />}>
-          Remove query
-        </Dropdown.Item>
-      </>
-    )
-  }
-
-  return (
-    <div>
-      {IS_PLATFORM ? (
-        <Dropdown side="bottom" align="end" overlay={renderMenu()}>
-          <Button
-            as="span"
-            type="text"
-            icon={<IconChevronDown size={12} />}
-            style={{ padding: '3px' }}
-          />
-        </Dropdown>
-      ) : (
-        <Button as="span" type="text" style={{ padding: '3px' }} />
-      )}
-
-      <RenameQuery
-        // @ts-ignore -- @mildtomato not sure what is wrong here
-        visible={renameModalOpen}
-        onCancel={onCloseRenameModal}
-        tabId={tabId}
-        onComplete={onCloseRenameModal}
-      />
-
-      <ConfirmationModal
-        header="Confirm to remove"
-        buttonLabel="Confirm"
-        visible={deleteModalOpen}
-        onSelectConfirm={async () => {
-          sqlEditorStore.closeTab(id)
-
-          await contentStore.del(id)
-
-          sqlEditorStore.loadTabs(
-            sqlEditorStore.tabsFromContentStore(contentStore, profile?.id),
-            false
-          )
-        }}
-        onSelectCancel={() => setDeleteModalOpen(false)}
-      >
-        <Modal.Content>
-          <p className="py-4 text-sm text-scale-1100">{`Are you sure you want to remove '${name}' ?`}</p>
-        </Modal.Content>
-      </ConfirmationModal>
-    </div>
-  )
-})
+import ShimmeringLoader from 'components/ui/ShimmeringLoader'
+import { SqlSnippet, useSqlSnippetsQuery } from 'data/content/sql-snippets-query'
+import { useCheckPermissions, useFlag, useStore } from 'hooks'
+import { IS_PLATFORM } from 'lib/constants'
+import { uuidv4 } from 'lib/helpers'
+import { useProfile } from 'lib/profile'
+import { useSnippets, useSqlEditorStateSnapshot } from 'state/sql-editor'
+import { Button, Dropdown, IconPlus, IconSearch, IconX, Input, Menu, useCommandMenu } from 'ui'
+import { COMMAND_ROUTES } from 'ui/src/components/Command/Command.constants'
+import QueryItem from './QueryItem'
 
 const SideBarContent = observer(() => {
-  const { data: profile } = useProfileQuery()
-  const sqlEditorStore: any = useSqlStore()
+  const { ui } = useStore()
+  const { ref, id } = useParams()
+  const router = useRouter()
+  const { profile } = useProfile()
   const [filterString, setFilterString] = useState('')
+  const { setPages, setIsOpen } = useCommandMenu()
+  const showCmdkHelper = useFlag('dashboardCmdk')
 
-  const canCreateSQLSnippet = checkPermissions(PermissionAction.CREATE, 'user_content', {
-    resource: { type: 'sql', owner_id: profile?.id },
-    subject: { id: profile?.id },
+  const snap = useSqlEditorStateSnapshot()
+  const { isLoading, isSuccess } = useSqlSnippetsQuery(ref, {
+    refetchOnWindowFocus: false,
+    staleTime: 300, // 5 minutes
+    onSuccess(data) {
+      if (ref) snap.setRemoteSnippets(data.snippets, ref)
+    },
   })
 
-  const handleNewQuery = useOptimisticSqlSnippetCreate(canCreateSQLSnippet)
+  const snippets = useSnippets(ref)
 
-  const getStartedTabs = (sqlEditorStore?.tabs ?? []).filter((tab: any) => {
-    return tab.type === TAB_TYPES.WELCOME
-  })
-
-  const favorites = (sqlEditorStore?.tabs ?? []).filter((tab: any) => {
-    return tab.type !== TAB_TYPES.WELCOME && tab.favorite
-  })
-
-  const queries = (sqlEditorStore?.tabs ?? []).filter((tab: any) => {
-    return tab.type !== TAB_TYPES.WELCOME && !tab.favorite
-  })
+  const [favorites, queries] = useMemo(
+    () => (snippets ? partition(snippets, (snippet) => snippet.content.favorite) : [[], []]),
+    [snippets]
+  )
 
   const favouriteTabs =
     filterString.length === 0
       ? favorites
-      : favorites.filter((tab: any) => tab.name.includes(filterString))
+      : favorites.filter((tab) => tab.name.toLowerCase().includes(filterString.toLowerCase()))
 
   const queryTabs =
     filterString.length === 0
       ? queries
-      : queries.filter((tab: any) => tab.name.includes(filterString))
+      : queries.filter((tab) => tab.name.toLowerCase().includes(filterString.toLowerCase()))
+  const canCreateSQLSnippet = useCheckPermissions(PermissionAction.CREATE, 'user_content', {
+    resource: { type: 'sql', owner_id: profile?.id },
+    subject: { id: profile?.id },
+  })
+
+  const handleNewQuery = async () => {
+    if (!ref) return console.error('Project ref is required')
+    if (!canCreateSQLSnippet) {
+      return ui.setNotification({
+        category: 'info',
+        message: 'Your queries will not be saved as you do not have sufficient permissions',
+      })
+    }
+
+    try {
+      const snippet = createSqlSnippetSkeleton({ name: 'Untitled query', owner_id: profile?.id })
+      const data = { ...snippet, id: uuidv4() }
+
+      snap.addSnippet(data as SqlSnippet, ref, true)
+
+      router.push(`/project/${ref}/sql/${data.id}`)
+    } catch (error: any) {
+      ui.setNotification({
+        category: 'error',
+        message: `Failed to create new query: ${error.message}`,
+      })
+    }
+  }
 
   return (
     <div className="mt-6">
       <Menu type="pills">
         {IS_PLATFORM && (
-          <div className="my-4 mx-3 space-y-1 px-3">
-            <Button
-              block
-              icon={<IconPlus />}
-              type="default"
-              style={{ justifyContent: 'start' }}
-              onClick={() => handleNewQuery()}
-            >
-              New query
-            </Button>
+          <div className="my-4 mx-3 space-y-2 px-3">
+            <div className="flex items-center mb-3 w-full justify-center min-w-[210px] ">
+              <Dropdown
+                align="start"
+                side="bottom"
+                sideOffset={3}
+                className="max-w-[210px]"
+                overlay={[
+                  <Dropdown.Item key="new-blank-query" onClick={() => handleNewQuery()}>
+                    <div className="space-y-1">
+                      <p className="block text-scale-1200 text-xs">New blank query</p>
+                    </div>
+                  </Dropdown.Item>,
+                  <div key={'divider'} className="my-1 border-t border-scale-400" />,
+                  showCmdkHelper ? (
+                    <Dropdown.Item
+                      key="new-ai-query"
+                      onClick={() => {
+                        setIsOpen(true)
+                        setPages([COMMAND_ROUTES.GENERATE_SQL])
+                      }}
+                    >
+                      <div className="space-y-1">
+                        <p className="block text-scale-1200 text-xs">New AI query</p>
+                      </div>
+                    </Dropdown.Item>
+                  ) : null,
+                ]}
+              >
+                <Button
+                  block
+                  icon={<IconPlus />}
+                  className="min-w-[208px]"
+                  type="outline"
+                  disabled={isLoading}
+                  style={{ justifyContent: 'start' }}
+                >
+                  New query
+                </Button>
+              </Dropdown>
+            </div>
             <Input
+              size="tiny"
               icon={<IconSearch size="tiny" />}
               placeholder="Search"
+              disabled={isLoading}
               onChange={(e) => setFilterString(e.target.value)}
               value={filterString}
-              size="tiny"
               actions={
                 filterString && (
                   <IconX
@@ -193,44 +145,32 @@ const SideBarContent = observer(() => {
             />
           </div>
         )}
-
-        {(sqlEditorStore?.tabs ?? []).length === 0 ? (
-          <div className="my-4 flex items-center space-x-2 px-7">
-            <IconLoader className="animate-spin" size={16} strokeWidth={2} />
-            <p className="text-sm">加载SQL代码片段</p>
+        {isLoading ? (
+          <div className="px-5 my-4 space-y-2">
+            <ShimmeringLoader />
+            <ShimmeringLoader className="w-3/4" />
+            <ShimmeringLoader className="w-1/2" />
           </div>
-        ) : (
+        ) : isSuccess ? (
           <div className="space-y-6">
             {IS_PLATFORM && (
               <div className="px-3">
-                <Menu.Group title="Getting started" />
-                {getStartedTabs.map((tab: any) => {
-                  const { id, name } = tab || {}
-                  return (
-                    <ProductMenuItem
-                      key={id}
-                      name={name}
-                      isActive={sqlEditorStore.activeTab.id === id}
-                      onClick={() => sqlEditorStore.selectTab(id)}
-                    />
-                  )
-                })}
+                <Menu.Group title="开始使用" />
+                <ProductMenuItem
+                  name="Welcome"
+                  isActive={id === undefined}
+                  url={`/project/${ref}/sql`}
+                />
               </div>
             )}
             <div className="space-y-6 px-3">
               {favouriteTabs.length >= 1 && (
                 <div className="editor-product-menu">
-                  <Menu.Group title="Favorites" />
+                  <Menu.Group title="收藏" />
                   <div className="space-y-1">
-                    {favouriteTabs.map((tabInfo: any) => {
+                    {favouriteTabs.map((tabInfo) => {
                       const { id } = tabInfo || {}
-                      return (
-                        <OpenQueryItem
-                          key={id}
-                          tabInfo={tabInfo}
-                          canCreateSQLSnippet={canCreateSQLSnippet}
-                        />
-                      )
+                      return <QueryItem key={id} tabInfo={tabInfo} />
                     })}
                   </div>
                 </div>
@@ -238,27 +178,23 @@ const SideBarContent = observer(() => {
               {queryTabs.length >= 1 && (
                 <div className="editor-product-menu">
                   <Menu.Group title="SQL代码片段" />
-                  <div className="space-y-1">
-                    {queryTabs.map((tabInfo: any) => {
+                  <div className="space-y-1 pb-8">
+                    {queryTabs.map((tabInfo) => {
                       const { id } = tabInfo || {}
-                      return (
-                        <OpenQueryItem
-                          key={id}
-                          tabInfo={tabInfo}
-                          canCreateSQLSnippet={canCreateSQLSnippet}
-                        />
-                      )
+                      return <QueryItem key={id} tabInfo={tabInfo} />
                     })}
                   </div>
                 </div>
               )}
               {filterString.length > 0 && favouriteTabs.length === 0 && queryTabs.length === 0 && (
                 <div className="px-4">
-                  <p className="text-sm">No queries found</p>
+                  <p className="text-sm">找不到查询</p>
                 </div>
               )}
             </div>
           </div>
+        ) : (
+          <div></div>
         )}
       </Menu>
     </div>

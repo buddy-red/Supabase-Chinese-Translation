@@ -13,9 +13,7 @@ import {
   Listbox,
   SearchButton,
 } from 'ui'
-import { REFERENCES } from '~/components/Navigation/Navigation.constants'
-
-import { getPageType } from '~/lib/helpers'
+import { REFERENCES } from './NavigationMenu.constants'
 
 const TopNavBar: FC = () => {
   const { isDarkMode, toggleTheme } = useTheme()
@@ -33,16 +31,9 @@ const TopNavBar: FC = () => {
     ? pathSegments[pathSegments.indexOf(library) + 1]
     : versions[0]
 
-  const pageType = getPageType(asPath)
-
   useEffect(() => {
     setMounted(true)
   }, [isDarkMode])
-
-  const pageLinks = [
-    { text: 'Guides', key: 'docs', link: '/' },
-    { text: 'Reference', key: 'reference', link: '/reference' },
-  ]
 
   const onSelectVersion = (version: string) => {
     // [Joshen] Ideally we use <Link> but this works for now
@@ -65,7 +56,7 @@ const TopNavBar: FC = () => {
   }
 
   return (
-    <nav className="h-[60px] border-b px-4 backdrop-blur backdrop-filter bg-white-1200 dark:bg-blackA-300">
+    <nav className="h-[60px] border-b px-4 backdrop-blur backdrop-filter bg-white-1200 bg-scale-200/90">
       <div className="max-w-[1400px] grid grid-cols-12 mx-auto gap-4 px-5 h-full">
         <div className="col-span-3 flex items-center">
           <button className="mr-4 block stroke-2 lg:hidden" onClick={toggleMobileMenu}>
@@ -120,7 +111,7 @@ const TopNavBar: FC = () => {
                 <div className="flex items-center space-x-2">
                   <IconSearch className="text-scale-1100" size={18} strokeWidth={2} />
                   <p className="text-scale-1100 text-sm group-hover:text-scale-1200 transition">
-                    搜索文档...
+                    Search docs...
                   </p>
                 </div>
                 <div className="flex items-center space-x-1">
@@ -134,16 +125,15 @@ const TopNavBar: FC = () => {
           </div>
         </div>
         <div className="col-span-4 flex items-center justify-end gap-3">
-          <Button
-            type="outline"
-            as="a"
-            // @ts-ignore
-            href="https://app.supabase.com"
-            className="text-scale-1100 text-sm"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            Go to Dashboard
+          <Button type="outline" asChild>
+            <a
+              href="https://supabase.com/dashboard"
+              className="text-scale-1100 text-sm"
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              Go to Dashboard
+            </a>
           </Button>
           <ul className="flex items-center">
             <li className="px-4">

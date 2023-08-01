@@ -1,28 +1,20 @@
-import { observer } from 'mobx-react-lite'
-
-import { useStore } from 'hooks'
-import { useParams } from 'common/hooks'
-import { NextPageWithLayout } from 'types'
-import { IS_PLATFORM, PROJECT_STATUS } from 'lib/constants'
-import { ProjectLayoutWithAuth } from 'components/layouts'
-import { ExampleProject, ClientLibrary } from 'components/interfaces/Home'
+import { ClientLibrary, ExampleProject } from 'components/interfaces/Home'
 import { CLIENT_LIBRARIES, EXAMPLE_PROJECTS } from 'components/interfaces/Home/Home.constants'
 import ProjectUsageSection from 'components/interfaces/Home/ProjectUsageSection'
+import { ProjectLayoutWithAuth } from 'components/layouts'
+import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
 import ProjectPausedState from 'components/layouts/ProjectLayout/ProjectPausedState'
-import OveragesBanner from 'components/ui/OveragesBanner/OveragesBanner'
 import ProjectUpgradeFailedBanner from 'components/ui/ProjectUpgradeFailedBanner'
+import { IS_PLATFORM, PROJECT_STATUS } from 'lib/constants'
+import { NextPageWithLayout } from 'types'
 
 const Home: NextPageWithLayout = () => {
-  const { ui } = useStore()
-  const { ref } = useParams()
-
-  const project = ui.selectedProject
-  const projectTier = ui.selectedProject?.subscription_tier
+  const { project } = useProjectContext()
 
   const projectName =
     project?.ref !== 'default' && project?.name !== undefined
       ? project?.name
-      : '欢迎来到您的项目'
+      : '项目欢迎您'
 
   return (
     <div className="mx-auto my-16 w-full max-w-7xl space-y-16">
@@ -36,7 +28,7 @@ const Home: NextPageWithLayout = () => {
         <ProjectUpgradeFailedBanner />
       </div>
 
-      {project?.status === PROJECT_STATUS.INACTIVE && <ProjectPausedState project={project} />}
+      {project?.status === PROJECT_STATUS.INACTIVE && <ProjectPausedState />}
 
       <div className="mx-6">
         {IS_PLATFORM && project?.status !== PROJECT_STATUS.INACTIVE && <ProjectUsageSection />}
@@ -78,4 +70,4 @@ Home.getLayout = (page) => (
   </ProjectLayoutWithAuth>
 )
 
-export default observer(Home)
+export default Home

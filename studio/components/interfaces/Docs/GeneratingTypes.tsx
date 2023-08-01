@@ -1,12 +1,11 @@
-import { FC, useState } from 'react'
-import Link from 'next/link'
-import React from 'react'
-import { Button, IconDownload, IconExternalLink } from 'ui'
-import { API_ADMIN_URL } from 'lib/constants'
-import { get } from 'lib/common/fetch'
-import { useStore } from 'hooks'
 import { useParams } from 'common/hooks'
 import CodeSnippet from 'components/to-be-cleaned/Docs/CodeSnippet'
+import { useStore } from 'hooks'
+import { get } from 'lib/common/fetch'
+import { API_ADMIN_URL } from 'lib/constants'
+import Link from 'next/link'
+import { useState } from 'react'
+import { Button, IconDownload, IconExternalLink } from 'ui'
 
 interface Props {
   selectedLang: string
@@ -47,8 +46,8 @@ export default function GeneratingTypes({ selectedLang }: Props) {
     <>
       <h2 className="doc-heading flex items-center justify-between">
         <span>Generating types</span>
-        <Link href="https://www.supabase.cc/docs/guides/database/api/generating-types">
-          <a target="_blank">
+        <Link href="https://supabase.com/docs/guides/database/api/generating-types">
+          <a target="_blank" rel="noreferrer">
             <Button type="default" icon={<IconExternalLink />}>
               Documentation
             </Button>
@@ -63,7 +62,7 @@ export default function GeneratingTypes({ selectedLang }: Props) {
           </p>
           <p>
             You can generate types from your database either through the{' '}
-            <Link href="https://www.supabase.cc/docs/guides/database/api/generating-types">
+            <Link href="https://supabase.com/docs/guides/database/api/generating-types">
               Supabase CLI
             </Link>
             , or by downloading the types file via the button on the right and importing it in your

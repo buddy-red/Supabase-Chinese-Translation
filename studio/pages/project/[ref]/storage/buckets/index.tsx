@@ -1,61 +1,46 @@
-import React, { useEffect } from 'react'
-import { useRouter } from 'next/router'
-import { observer } from 'mobx-react-lite'
+import { useEffect } from 'react'
 
-import { API_URL } from 'lib/constants'
-import { useFlag, useStore } from 'hooks'
 import { useParams } from 'common/hooks'
-import { post } from 'lib/common/fetch'
-import { PROJECT_STATUS } from 'lib/constants'
 import { StorageLayout } from 'components/layouts'
+import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import StorageBucketsError from 'components/layouts/StorageLayout/StorageBucketsError'
 import ProductEmptyState from 'components/to-be-cleaned/ProductEmptyState'
-import { useStorageStore } from 'localStores/storageExplorer/StorageExplorerStore'
+import { useBucketsQuery } from 'data/storage/buckets-query'
+import { post } from 'lib/common/fetch'
+import { API_URL, PROJECT_STATUS } from 'lib/constants'
 import { NextPageWithLayout } from 'types'
-import { useProjectApiQuery } from 'data/config/project-api-query'
-import { find } from 'lodash'
 
 /**
  * PageLayout is used to setup layout - as usual it will requires inject global store
  */
-const PageLayout: NextPageWithLayout = ({}) => {
+const PageLayout: NextPageWithLayout = () => {
   const { ref } = useParams()
-  const { ui } = useStore()
-  const project = ui.selectedProject
+  const { project } = useProjectContext()
 
-  const storageStore = useStorageStore()
-  const { openCreateBucketModal } = storageStore
-
-  const kpsEnabled = useFlag('initWithKps')
-
-  const { data: settings, isLoading } = useProjectApiQuery({ projectRef: ref })
-  const apiService = settings?.autoApiService
-  const serviceKey = find(apiService?.service_api_keys ?? [], (key) => key.tags === 'service_role')
-  const canAccessStorage = !isLoading && apiService && serviceKey !== undefined
+  const { error, isError } = useBucketsQuery({ projectRef: ref })
 
   useEffect(() => {
     if (project && project.status === PROJECT_STATUS.INACTIVE) {
-      post(`${API_URL}/projects/${ref}/restore`, { kps_enabled: kpsEnabled })
+      post(`${API_URL}/projects/${ref}/restore`, {})
     }
-  }, [project])
+  }, [ref, project])
 
   if (!project) return <div></div>
+
+  if (isError) <StorageBucketsError error={error as any} />
 
   return (
     <div className="storage-container flex flex-grow">
       <ProductEmptyState
-        title="存储"
-        ctaButtonLabel="新建存储桶"
-        infoButtonLabel="关于存储"
-        infoButtonUrl="https://www.supabase.cc/docs/guides/storage"
-        onClickCta={openCreateBucketModal}
-        disabled={!canAccessStorage}
-        disabledMessage="您需要额外的权限以创建存储桶"
+        title="Storage"
+        infoButtonLabel="About storage"
+        infoButtonUrl="https://supabase.com/docs/guides/storage"
       >
         <p className="text-scale-1100 text-sm">
-          创建存储桶来存储和提供任何类型的数字内容
+          Create buckets to store and serve any type of digital content.
         </p>
         <p className="text-scale-1100 text-sm">
-          根据您的安全偏好，将您的存储桶设为私有或公开。
+          Make your buckets private or public depending on your security preference.
         </p>
       </ProductEmptyState>
     </div>
@@ -64,4 +49,4 @@ const PageLayout: NextPageWithLayout = ({}) => {
 
 PageLayout.getLayout = (page) => <StorageLayout title="Buckets">{page}</StorageLayout>
 
-export default observer(PageLayout)
+export default PageLayout

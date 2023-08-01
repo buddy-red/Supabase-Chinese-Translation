@@ -10,6 +10,9 @@ import Panel from 'components/ui/Panel'
 import SqlEditor from 'components/ui/SqlEditor'
 import { POSTGRES_DATA_TYPES } from 'components/interfaces/TableGridEditor/SidePanelEditor/SidePanelEditor.constants'
 import ConfirmationModal from 'components/ui/ConfirmationModal'
+import { isResponseOk } from 'lib/common/fetch'
+import { SupaResponse } from 'types'
+import { Function } from 'components/interfaces/Functions/Functions.types'
 
 // [Refactor] Remove local state, just use the Form component
 
@@ -120,6 +123,7 @@ interface ICreateFunctionStore {
   formState: CreateFunctionFormState
   meta: any
   schemas: Dictionary<any>[]
+  isEditing: boolean
   onFormChange: (value: { key: string; value: any }) => void
   onFormArrayChange: (value: {
     operation: 'add' | 'delete' | 'update'
@@ -317,15 +321,15 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
         _localState.setLoading(true)
 
         const body = _localState.formState.requestBody
-        const response: any = body.id
+        const response: SupaResponse<Function> = body.id
           ? await (_localState!.meta as any).functions.update(body.id, body)
           : await (_localState!.meta as any).functions.create(body)
 
-        if (response.error) {
+        if (!isResponseOk(response)) {
           ui.setNotification({
             category: 'error',
             message: `Failed to create function: ${
-              response.error?.message ?? 'Submit request failed'
+              response.error.message ?? 'Submit request failed'
             }`,
           })
           _localState.setLoading(false)
@@ -406,7 +410,7 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
                 <SidePanel.Separator />
                 <SidePanel.Content>
                   <Panel>
-                    <div className={`space-y-8 rounded bg-bg-alt-light py-4 dark:bg-bg-alt-dark`}>
+                    <div className={`space-y-8 rounded bg-scale-200 py-4`}>
                       <div className={`px-6`}>
                         <Toggle
                           onChange={() => _localState.toggleAdvancedVisible()}
@@ -450,15 +454,14 @@ const CreateFunction: FC<CreateFunctionProps> = ({ func, visible, setVisible }) 
             setIsClosingPanel(false)
             setVisible(!visible)
           }}
-          children={
-            <Modal.Content>
-              <p className="py-4 text-sm text-scale-1100">
-                There are unsaved changes. Are you sure you want to close the panel? Your changes
-                will be lost.
-              </p>
-            </Modal.Content>
-          }
-        />
+        >
+          <Modal.Content>
+            <p className="py-4 text-sm text-scale-1100">
+              There are unsaved changes. Are you sure you want to close the panel? Your changes will
+              be lost.
+            </p>
+          </Modal.Content>
+        </ConfirmationModal>
       </SidePanel>
     </>
   )
@@ -606,15 +609,7 @@ const InputArgument: FC<InputArgumentProps> = observer(({ idx, name, type, error
         ))}
       </Listbox>
       {!readonly && (
-        <div>
-          <Button
-            danger
-            type="default"
-            icon={<IconTrash size="tiny" />}
-            onClick={onDelete}
-            size="small"
-          />
-        </div>
+        <Button type="danger" icon={<IconTrash size="tiny" />} onClick={onDelete} size="small" />
       )}
     </div>
   )
@@ -718,15 +713,7 @@ const InputConfigParam: FC<InputConfigParamProps> = observer(({ idx, name, value
         size="small"
         error={error?.value}
       />
-      <div>
-        <Button
-          danger
-          type="default"
-          icon={<IconTrash size="tiny" />}
-          onClick={onDelete}
-          size="small"
-        />
-      </div>
+      <Button type="danger" icon={<IconTrash size="tiny" />} onClick={onDelete} size="small" />
     </div>
   )
 })
@@ -740,9 +727,11 @@ const InputDefinition: FC = observer(({}) => {
         <p className="text-sm text-scale-1100">
           The language below should be written in `{_localState!.formState.language.value}`.
         </p>
-        <p className="text-sm text-scale-1100">
-          Change the language in the Advanced Settings below.
-        </p>
+        {!_localState?.isEditing && (
+          <p className="text-sm text-scale-1100">
+            Change the language in the Advanced Settings below.
+          </p>
+        )}
       </div>
       <div className="h-40 border dark:border-dark">
         <SqlEditor

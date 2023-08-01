@@ -1,6 +1,6 @@
 const Nav = [
   {
-    label: '快速上手',
+    label: 'Getting Started',
     items: [
       { name: 'Supabase JavaScript Library', url: '/reference/javascript', items: [] },
       { name: 'Installing', url: '/reference/javascript/installing', items: [] },
@@ -158,6 +158,11 @@ const Nav = [
       {
         name: 'from.createSignedUrls()',
         url: '/reference/javascript/storage-from-createsignedurls',
+        items: [],
+      },
+      {
+        name: 'from.createSignedUploadUrl()',
+        url: '/reference/javascript/storage-from-createsigneduploadurl',
         items: [],
       },
       {

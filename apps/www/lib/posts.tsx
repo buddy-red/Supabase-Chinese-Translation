@@ -53,6 +53,7 @@ export const getSortedPosts = (
       ...data,
       date: formattedDate,
       readingTime,
+      publishedAt: data.published_at ?? null,
       url: url,
       path: contentPath,
     }
@@ -65,7 +66,10 @@ export const getSortedPosts = (
   let sortedPosts = [...allPostsData]
 
   sortedPosts = sortedPosts.sort((a, b) => {
-    if (new Date(a.date) < new Date(b.date)) {
+    const isPublishedAtBefore =
+      a.publishedAt && b.publishedAt && Date.parse(a.publishedAt) < Date.parse(b.publishedAt)
+
+    if (isPublishedAtBefore || new Date(a.date) < new Date(b.date)) {
       return 1
     } else {
       return -1
@@ -74,7 +78,7 @@ export const getSortedPosts = (
 
   if (tags) {
     sortedPosts = sortedPosts.filter((post: any) => {
-      const found = tags.some((tag: any) => post.tags.includes(tag))
+      const found = tags.some((tag: any) => post.tags?.includes(tag))
       return found
     })
   }
@@ -147,7 +151,7 @@ export const getAllCategories = (directory: Directories) => {
 
   posts.map((post: any) => {
     // add tags into categories array
-    post.tags.map((tag: string) => {
+    post.tags?.map((tag: string) => {
       if (!categories.includes(tag)) return categories.push(tag)
     })
   })

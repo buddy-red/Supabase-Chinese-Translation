@@ -33,7 +33,7 @@ Our next major decision was to choose global deployments instead of a deploying 
 ![Functions deployment region](/images/blog/launch-week-4/thursday-functions/where-functions-deploy.png)
 Launching Functions in a single region (e.g. close to your database) can present a lot of advantages if there are a lot of database operations being executed within your business logic.
 
-However, Supabase already offers a flexible solution for that - [Database Functions](https://www.supabase.cc/docs/guides/database/functions)! As such, for Supabase [Edge] Functions, we decided to deploy far-and-wide so that they are as close to your end-users as possible. You can even invoke a Database Function from an Edge Function, allowing you to enjoy the best of both worlds.
+However, Supabase already offers a flexible solution for that - [Database Functions](https://supabase.com/docs/guides/database/functions)! As such, for Supabase [Edge] Functions, we decided to deploy far-and-wide so that they are as close to your end-users as possible. You can even invoke a Database Function from an Edge Function, allowing you to enjoy the best of both worlds.
 
 ## The Deno runtime
 
@@ -67,7 +67,7 @@ The primary goal of this architecture is to reduce the amount of work done in th
 
 Supabase Edge Functions are deployed to one region - Earth (and we're exploring Mars as an additional region 👽). Edge Functions are deployed to over 30 data centers in a matter of seconds, ensuring fast response times no matter where your users are located.
 
-[Database Functions](https://www.supabase.cc/docs/guides/database/functions) (also served via our [REST and GraphQL APIs](https://www.supabase.cc/docs/guides/database/api)) are colocated with your Postgres database, making them ideal for DB-intensive operations. These APIs can also be called seamlessly from your Supabase Edge Functions, making for a powerful combination.
+[Database Functions](https://supabase.com/docs/guides/database/functions) (also served via our [REST and GraphQL APIs](https://supabase.com/docs/guides/database/api)) are colocated with your Postgres database, making them ideal for DB-intensive operations. These APIs can also be called seamlessly from your Supabase Edge Functions, making for a powerful combination.
 
 ### Scale to zero
 
@@ -77,25 +77,21 @@ Functions scale down to zero and you only pay for what you use. This makes them 
 
 Delivering a phenomenal Developer Experience is something we care about a lot at Supabase. In the serverless functions space, we've found that local development and testing, coupled with fast deploys are critical.
 
-We've [extended the Supabase CLI](https://www.supabase.cc/docs/guides/local-development) to optimize the Edge Functions DX along these two dimensions. You get live-reloading, and a local Deno environment that matches the production environment, making for a great local iteration environment.
+We've [extended the Supabase CLI](https://supabase.com/docs/guides/local-development) to optimize the Edge Functions DX along these two dimensions. You get live-reloading, and a local Deno environment that matches the production environment, making for a great local iteration environment.
 
-<video width="99%" autoPlay="autoplay" muted playsInline controls={true}>
+<video width="99%" autoPlay muted playsInline controls={true}>
   <source
     src="https://xguihxuzqibwxjnimxev.supabase.co/storage/v1/object/public/videos/marketing/blog/launch-week-4/functions-hot-reloading.mp4"
     type="video/mp4"
-    muted
-    playsInline
   />
 </video>
 
 Once you've tested your Function locally (or gone straight to production cos you live _on the edge_ ... get it?) it takes just seconds to deploy a new function and see the logs streaming in your Dashboard—ensuring a tight iteration loop with your production environment.
 
-<video width="99%" autoPlay="autoplay" muted playsInline controls={true}>
+<video width="99%" autoPlay muted playsInline controls={true}>
   <source
     src="https://xguihxuzqibwxjnimxev.supabase.co/storage/v1/object/public/videos/marketing/blog/launch-week-4/logs-polish.mov"
     type="video/mp4"
-    muted
-    playsInline
   />
 </video>
 
@@ -119,7 +115,7 @@ To round off the end-to-end experience, `supabase-js` now works in Deno, making 
 </div>
 
 Can't wait to get started? Develop, test, and deploy your first Supabase Edge Function in less than 7 minutes with our [Quickstart Video Tutorial](https://youtu.be/rzglqRdZUQE)!
-Check the [Edge Functions Docs](https://www.supabase.cc/docs/guides/functions) for the steps.
+Check the [Edge Functions Docs](https://supabase.com/docs/guides/functions) for the steps.
 
 ## Example apps: Mobile payments with React Native and Flutter
 

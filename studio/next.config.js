@@ -1,11 +1,10 @@
 const { withSentryConfig } = require('@sentry/nextjs')
-const withPlugins = require('next-compose-plugins')
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 })
 
 // this is required to use shared packages in the packages directory
-const withTM = require('next-transpile-modules')(['ui', 'common'])
+const withTM = require('next-transpile-modules')(['ui', 'common', 'shared-data'])
 
 // Required for nextjs standalone build
 const path = require('path')
@@ -18,13 +17,19 @@ const path = require('path')
 const csp = [
   "frame-ancestors 'none';",
   // IS_PLATFORM
-  process.env.NEXT_PUBLIC_IS_PLATFORM === 'true' ? 'upgrade-insecure-requests;' : '',
+  process.env.NEXT_PUBLIC_IS_PLATFORM === 'true' && process.env.NEXT_PUBLIC_ENVIRONMENT === 'prod'
+    ? 'upgrade-insecure-requests;'
+    : '',
 ]
   .filter(Boolean)
   .join(' ')
 
+/**
+ * @type {import('next').NextConfig}
+ */
 const nextConfig = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH,
+  output: 'standalone',
   async redirects() {
     return [
       {
@@ -128,8 +133,38 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/project/:ref/sql/templates',
+        destination: '/project/:ref/sql',
+        permanent: true,
+      },
+      {
         source: '/org/:slug/settings',
         destination: '/org/:slug/general',
+        permanent: true,
+      },
+      {
+        source: '/project/:ref/settings/billing/update',
+        destination: '/project/:ref/settings/billing/subscription',
+        permanent: true,
+      },
+      {
+        source: '/project/:ref/settings/billing/update/free',
+        destination: '/project/:ref/settings/billing/subscription',
+        permanent: true,
+      },
+      {
+        source: '/project/:ref/settings/billing/update/pro',
+        destination: '/project/:ref/settings/billing/subscription',
+        permanent: true,
+      },
+      {
+        source: '/project/:ref/settings/billing/update/team',
+        destination: '/project/:ref/settings/billing/subscription',
+        permanent: true,
+      },
+      {
+        source: '/project/:ref/settings/billing/update/enterprise',
+        destination: '/project/:ref/settings/billing/subscription',
         permanent: true,
       },
     ]
@@ -168,19 +203,16 @@ const nextConfig = {
     ]
   },
   images: {
-    domains: ['github.com'],
+    domains: ['github.com', 'api-frameworks.vercel.sh', 'vercel.com'],
   },
   // Ref: https://nextjs.org/docs/advanced-features/output-file-tracing#caveats
   experimental: {
-    outputStandalone: true,
     outputFileTracingRoot: path.join(__dirname, '../../'),
   },
 }
 
 // Export all config
-const plugins = [[withBundleAnalyzer({})], withTM()]
-
-const moduleExports = withPlugins(plugins, nextConfig)
+const moduleExports = withTM(withBundleAnalyzer(nextConfig))
 
 const sentryWebpackPluginOptions = {
   // Additional config options for the Sentry Webpack plugin. Keep in mind that
@@ -200,4 +232,4 @@ const sentryWebpackPluginOptions = {
 module.exports =
   process.env.NEXT_PUBLIC_IS_PLATFORM === 'true'
     ? withSentryConfig(moduleExports, sentryWebpackPluginOptions)
-    : withPlugins([withTM()], nextConfig)
+    : withTM(nextConfig)

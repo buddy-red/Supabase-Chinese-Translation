@@ -7,7 +7,7 @@ import { PermissionAction } from '@supabase/shared-types/out/constants'
 import { QueryKey, useQueryClient } from '@tanstack/react-query'
 
 import { SchemaView } from 'types'
-import { checkPermissions, useFlag, useStore, useUrlState } from 'hooks'
+import { useCheckPermissions, useFlag, useStore, useUrlState } from 'hooks'
 import useEntityType from 'hooks/misc/useEntityType'
 import { useParams } from 'common/hooks'
 import GridHeaderActions from './GridHeaderActions'
@@ -35,6 +35,7 @@ import { ForeignRowSelectorProps } from './SidePanelEditor/RowEditor/ForeignRowS
 import TwoOptionToggle from 'components/ui/TwoOptionToggle'
 import TableDefinition from './TableDefinition'
 import APIDocumentationPanel from './APIDocumentationPanel'
+import { ERROR_PRIMARY_KEY_NOTFOUND } from 'components/grid/constants'
 
 export interface TableGridEditorProps {
   /** Theme for the editor */
@@ -115,9 +116,10 @@ const TableGridEditor = ({
     }
   }
 
-  const isReadOnly =
-    !checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables') &&
-    !checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'columns')
+  const canEditTables = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
+  const canEditColumns = useCheckPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'columns')
+
+  const isReadOnly = !canEditTables && !canEditColumns
 
   const getEncryptedColumns = async (table: any) => {
     const columns = await vault.listEncryptedColumns(table.schema, table.name)
@@ -213,7 +215,6 @@ const TableGridEditor = ({
   const isTableSelected = entityType?.type === ENTITY_TYPE.TABLE
   const isForeignTableSelected = entityType?.type === ENTITY_TYPE.FOREIGN_TABLE
   const isLocked = meta.excludedSchemas.includes(entityType?.schema ?? '')
-  const canUpdateTables = checkPermissions(PermissionAction.TENANT_SQL_ADMIN_WRITE, 'tables')
   const canEditViaTableEditor = isTableSelected && !isLocked
 
   // [Joshen] We can tweak below to eventually support composite keys as the data
@@ -236,7 +237,7 @@ const TableGridEditor = ({
           {
             table: selectedTable as PostgresTable,
             columns: (selectedTable as PostgresTable).columns ?? [],
-            primaryKeys: (selectedTable as PostgresTable).primary_keys,
+            primaryKeys: (selectedTable as PostgresTable).primary_keys ?? [],
             relationships: formattedRelationships,
           },
           encryptedColumns
@@ -320,6 +321,12 @@ const TableGridEditor = ({
     )
 
     const configuration = { identifiers }
+    if (Object.keys(identifiers).length === 0) {
+      return ui.setNotification({
+        category: 'error',
+        message: ERROR_PRIMARY_KEY_NOTFOUND,
+      })
+    }
 
     mutateUpdateTableRow({
       projectRef: project.ref,
@@ -344,7 +351,7 @@ const TableGridEditor = ({
         theme={theme}
         gridProps={{ height: '100%' }}
         storageRef={projectRef}
-        editable={!isReadOnly && canUpdateTables && canEditViaTableEditor}
+        editable={!isReadOnly && canEditTables && canEditViaTableEditor}
         schema={selectedTable.schema}
         table={gridTable}
         refreshDocs={refreshDocs}

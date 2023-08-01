@@ -1,16 +1,15 @@
+import { observer } from 'mobx-react-lite'
 import Link from 'next/link'
 import { useState } from 'react'
-import { observer } from 'mobx-react-lite'
 import { Alert, Button, IconAlertCircle, IconExternalLink, IconHelpCircle, IconRefreshCw } from 'ui'
 
-import { useStore } from 'hooks'
+import InformationBox from 'components/ui/InformationBox'
+import Panel from 'components/ui/Panel'
 import { ProjectApiResponse } from 'data/config/project-api-query'
-import { CustomDomainResponse } from 'data/custom-domains/custom-domains-query'
 import { useCustomDomainDeleteMutation } from 'data/custom-domains/custom-domains-delete-mutation'
+import { CustomDomainResponse } from 'data/custom-domains/custom-domains-query'
 import { useCustomDomainReverifyMutation } from 'data/custom-domains/custom-domains-reverify-mutation'
 import DNSRecord from './DNSRecord'
-import Panel from 'components/ui/Panel'
-import InformationBox from 'components/ui/InformationBox'
 
 export type CustomDomainVerifyProps = {
   projectRef?: string
@@ -19,7 +18,6 @@ export type CustomDomainVerifyProps = {
 }
 
 const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomainVerifyProps) => {
-  const { ui } = useStore()
   const [isNotVerifiedYet, setIsNotVerifiedYet] = useState(false)
 
   const { mutate: reverifyCustomDomain, isLoading: isReverifyLoading } =
@@ -28,7 +26,7 @@ const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomain
         if (res.status === '2_initiated') setIsNotVerifiedYet(true)
       },
     })
-  const { mutateAsync: deleteCustomDomain, isLoading: isDeleting } = useCustomDomainDeleteMutation()
+  const { mutate: deleteCustomDomain, isLoading: isDeleting } = useCustomDomainDeleteMutation()
 
   const hasCAAErrors = customDomain.ssl.validation_errors?.reduce(
     (acc, error) => acc || error.message.includes('caa_error'),
@@ -36,22 +34,13 @@ const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomain
   )
 
   const onReverifyCustomDomain = () => {
-    if (!projectRef) {
-      throw new Error('Project ref is required')
-    }
-
+    if (!projectRef) return console.error('Project ref is required')
     reverifyCustomDomain({ projectRef })
   }
 
   const onCancelCustomDomain = async () => {
-    if (!projectRef) {
-      throw new Error('Project ref is required')
-    }
-    try {
-      await deleteCustomDomain({ projectRef })
-    } catch (error: any) {
-      ui.setNotification({ category: 'error', message: error.message })
-    }
+    if (!projectRef) return console.error('Project ref is required')
+    deleteCustomDomain({ projectRef })
   }
 
   return (
@@ -126,58 +115,65 @@ const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomain
           </Alert>
         )}
 
-        <div className="space-y-2">
-          <div className="flex gap-4">
-            <div className="w-[50px]">
-              <p className="text-scale-1100 text-sm">Type</p>
-            </div>
-            <div className="text-sm grid gap-2 md:grid md:grid-cols-12 md:gap-x-4 input-mono flex-1">
-              <div className="flex flex-row space-x-2 justify-between col-span-12">
-                <label className="block text-scale-1100 text-sm break-all">Name</label>
+        {customDomain.ssl.status === 'validation_timed_out' ? (
+          <Alert withIcon variant="warning" title="Validation timed out">
+            Please click "Verify" again to retry the validation of the records
+          </Alert>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex gap-4">
+              <div className="w-[50px]">
+                <p className="text-scale-1100 text-sm">Type</p>
+              </div>
+              <div className="text-sm grid gap-2 md:grid md:grid-cols-12 md:gap-x-4 input-mono flex-1">
+                <div className="flex flex-row space-x-2 justify-between col-span-12">
+                  <label className="block text-scale-1100 text-sm break-all">Name</label>
+                </div>
+              </div>
+              <div className="text-sm grid gap-2 md:grid md:grid-cols-12 md:gap-x-4 input-mono flex-1">
+                <div className="flex flex-row space-x-2 justify-between col-span-12">
+                  <label className="block text-scale-1100 text-sm break-all">Content</label>
+                </div>
               </div>
             </div>
-            <div className="text-sm grid gap-2 md:grid md:grid-cols-12 md:gap-x-4 input-mono flex-1">
-              <div className="flex flex-row space-x-2 justify-between col-span-12">
-                <label className="block text-scale-1100 text-sm break-all">Content</label>
+
+            {customDomain.verification_errors?.includes(
+              'custom hostname does not CNAME to this zone.'
+            ) && (
+              <DNSRecord
+                type="CNAME"
+                name={customDomain.hostname}
+                value={settings?.autoApiService.endpoint ?? '加载...'}
+              />
+            )}
+
+            {customDomain.ownership_verification && (
+              <DNSRecord
+                type={customDomain.ownership_verification.type}
+                name={customDomain.ownership_verification.name}
+                value={customDomain.ownership_verification.value}
+              />
+            )}
+
+            {customDomain.ssl.status === 'pending_validation' && (
+              <DNSRecord
+                type="TXT"
+                name={customDomain.ssl.txt_name ?? '加载...'}
+                value={customDomain.ssl.txt_value ?? '加载...'}
+              />
+            )}
+
+            {customDomain.ssl.status === 'pending_deployment' && (
+              <div className="flex items-center justify-center space-x-2 py-8">
+                <IconAlertCircle size={16} strokeWidth={1.5} />
+                <p className="text-sm text-scale-1100">
+                  SSL certificate is being deployed. Please wait a few minutes and try again.
+                </p>
               </div>
-            </div>
+            )}
           </div>
+        )}
 
-          {customDomain.verification_errors?.includes(
-            'custom hostname does not CNAME to this zone.'
-          ) && (
-            <DNSRecord
-              type="CNAME"
-              name={customDomain.hostname}
-              value={settings?.autoApiService.endpoint ?? 'Loading...'}
-            />
-          )}
-
-          {customDomain.ownership_verification && (
-            <DNSRecord
-              type={customDomain.ownership_verification.type}
-              name={customDomain.ownership_verification.name}
-              value={customDomain.ownership_verification.value}
-            />
-          )}
-
-          {customDomain.ssl.status === 'pending_validation' && (
-            <DNSRecord
-              type="TXT"
-              name={customDomain.ssl.txt_name ?? 'Loading...'}
-              value={customDomain.ssl.txt_value ?? 'Loading...'}
-            />
-          )}
-
-          {customDomain.ssl.status === 'pending_deployment' && (
-            <div className="flex items-center justify-center space-x-2 py-8">
-              <IconAlertCircle size={16} strokeWidth={1.5} />
-              <p className="text-sm text-scale-1100">
-                SSL certificate is being deployed. Please wait a few minutes and try again.
-              </p>
-            </div>
-          )}
-        </div>
         <div className="!mt-4">
           <p className="text-sm text-scale-1000">
             One of the records requires you to replace the CNAME record set up in the first step
@@ -194,8 +190,8 @@ const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomain
 
       <Panel.Content>
         <div className="flex items-center justify-between">
-          <Link href="https://www.supabase.cc/docs/guides/platform/custom-domains">
-            <a target="_blank">
+          <Link href="https://supabase.com/docs/guides/platform/custom-domains">
+            <a target="_blank" rel="noreferrer">
               <Button type="default" icon={<IconExternalLink />}>
                 Documentation
               </Button>

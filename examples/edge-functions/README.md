@@ -6,7 +6,7 @@
 
 ## Example Functions
 
-We're constantly adding new Function Examples, [check our docs](https://www.supabase.cc/docs/guides/functions#examples) for a complete list!
+We're constantly adding new Function Examples, [check our docs](https://supabase.com/docs/guides/functions#examples) for a complete list!
 
 ## Develop locally
 
@@ -14,7 +14,7 @@ We're constantly adding new Function Examples, [check our docs](https://www.supa
 - Run `cp ./supabase/.env.local.example ./supabase/.env.local` to create your local `.env` file.
 - Set the required variables for the corresponding edge functions in the `.env.local` file.
 - Run `supabase functions serve --env-file ./supabase/.env.local --no-verify-jwt`
-- Run the CURL command in the example function, or use the [invoke method](https://www.supabase.cc/docs/reference/javascript/invoke) on the Supabase client or use the test client [app](./app/).
+- Run the CURL command in the example function, or use the [invoke method](https://supabase.com/docs/reference/javascript/invoke) on the Supabase client or use the test client [app](./app/).
 
 ## Test Client
 
@@ -31,7 +31,7 @@ Note: when testing locally, the select dropdown doesn't have any effect, and inv
 ## Deploy
 
 - Generate access token and log in to CLI
-  - Navigate to https://app.supabase.com/account/tokens
+  - Navigate to https://supabase.com/dashboard/account/tokens
   - Click "Generate New Token"
   - Copy newly created token
   - Run `supabase login`
@@ -56,7 +56,7 @@ This example includes a create-react-app in the [`./app/`](./app/) directory whi
 
 - `cd app`
 - `cp .env.example .env`
-- Fill in your env vars from https://app.supabase.com/project/_/settings/api
+- Fill in your env vars from https://supabase.com/dashboard/project/_/settings/api
 - `npm install`
 - `npm start`
 
@@ -81,20 +81,29 @@ jobs:
 
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      PROJECT_ID: zdtdtxajzydjqzuktnqx
+      PROJECT_ID: your-project-id
 
     steps:
       - uses: actions/checkout@v3
 
       - uses: supabase/setup-cli@v1
         with:
-          version: 1.0.0
+          version: latest
 
-      - run: supabase functions deploy your-function-name --project-ref $PROJECT_ID
+      - run: supabase functions deploy --project-ref $PROJECT_ID
+```
+
+Since Supabase CLI [v1.62.0](https://github.com/supabase/cli/releases/tag/v1.62.0) you can deploy all functions with a single command.
+
+Individual function configuration like [JWT verification](/docs/reference/cli/config#functions.function_name.verify_jwt) and [import map location](/docs/reference/cli/config#functions.function_name.import_map) can be set via the `config.toml` file.
+
+```toml
+[functions.hello-world]
+verify_jwt = false
 ```
 
 ## 👁⚡️👁
 
-\o/ That's it, you can now invoke your Supabase Function via the [`supabase-js`](https://www.supabase.cc/docs/reference/javascript/invoke) and [`supabase-dart`](https://www.supabase.cc/docs/reference/dart/invoke) client libraries. (More client libraries coming soon. Check the [supabase-community](https://github.com/supabase-community#client-libraries) org for details).
+\o/ That's it, you can now invoke your Supabase Function via the [`supabase-js`](https://supabase.com/docs/reference/javascript/invoke) and [`supabase-dart`](https://supabase.com/docs/reference/dart/invoke) client libraries. (More client libraries coming soon. Check the [supabase-community](https://github.com/supabase-community#client-libraries) org for details).
 
-For more info on Supabase Functions, check out the [docs](https://www.supabase.cc/docs/guides/functions) and the [examples](https://github.com/supabase/supabase/tree/master/examples/edge-functions).
+For more info on Supabase Functions, check out the [docs](https://supabase.com/docs/guides/functions) and the [examples](https://github.com/supabase/supabase/tree/master/examples/edge-functions).

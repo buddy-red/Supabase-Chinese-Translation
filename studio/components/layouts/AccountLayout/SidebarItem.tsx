@@ -24,7 +24,7 @@ const SidebarItem: FC<Props> = ({
   if (href === undefined) {
     const icon = isExternal ? (
       <IconArrowUpRight size="tiny" />
-    ) : label === 'Logout' ? (
+    ) : label === '退出登陆' ? (
       <IconLogOut size="tiny" />
     ) : undefined
 

@@ -14,7 +14,7 @@ cp supabase/.env.local.example supabase/.env.local
 
 ## Run locally
 
-Make sure you have the latest version of the [Supabase CLI installed](https://www.supabase.cc/docs/guides/cli#installation).
+Make sure you have the latest version of the [Supabase CLI installed](https://supabase.com/docs/guides/cli#installation).
 
 ```bash
 supabase start

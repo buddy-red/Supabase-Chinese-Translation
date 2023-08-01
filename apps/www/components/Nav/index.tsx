@@ -2,33 +2,36 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-import { Button, Badge, IconStar, IconChevronDown } from 'ui'
+import Announcement from '~/components/Announcement/Announcement'
+import { Button, Badge, IconStar, IconChevronDown, LW8CountdownBanner } from 'ui'
 import FlyOut from '~/components/UI/FlyOut'
 import Transition from 'lib/Transition'
 
-import SolutionsData from 'data/Solutions.json'
+import SolutionsData from 'data/Solutions'
 
 import Solutions from '~/components/Nav/Product'
 import Developers from '~/components/Nav/Developers'
-import Announcement from '~/components/Nav/Announcement'
+
+import ScrollProgress from '~/components/ScrollProgress'
 
 import { useIsLoggedIn, useTheme } from 'common'
 import TextLink from '../TextLink'
 import Image from 'next/image'
 import * as supabaseLogoWordmarkDark from 'common/assets/images/supabase-logo-wordmark--dark.png'
 import * as supabaseLogoWordmarkLight from 'common/assets/images/supabase-logo-wordmark--light.png'
-import CountdownBanner from '../LaunchWeek/Banners/CountdownBanner'
 
 const Nav = () => {
   const { isDarkMode } = useTheme()
-  const { pathname } = useRouter()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [openProduct, setOpenProduct] = useState(false)
   const [openDevelopers, setOpenDevelopers] = useState(false)
   const isLoggedIn = useIsLoggedIn()
 
-  const isLaunchWeekPage = pathname.includes('launch-week')
-  const showLaunchWeekNavMode = isLaunchWeekPage && !open && !openProduct && !openDevelopers
+  const isHomePage = router.pathname === '/'
+  const isLaunchWeekPage = router.pathname.includes('launch-week')
+  const showLaunchWeekNavMode =
+    (isLaunchWeekPage || isHomePage) && !open && !openProduct && !openDevelopers
 
   React.useEffect(() => {
     if (open) {
@@ -112,7 +115,7 @@ const Nav = () => {
 
   const HamburgerButton = (props: HamburgerButtonProps) => (
     <div
-      className="absolute inset-y-0 left-0 flex items-center px-2 lg:hidden"
+      className="absolute inset-y-0 left-0 flex items-center px-4 lg:hidden"
       onClick={() => props.toggleFlyOut()}
     >
       <button
@@ -195,10 +198,10 @@ const Nav = () => {
 
   return (
     <>
-      <Announcement>
-        <CountdownBanner />
+      <Announcement link="/launch-week">
+        <LW8CountdownBanner />
       </Announcement>
-      <div className="sticky top-0 z-50 transform" style={{ transform: 'translate3d(0,0,999px)' }}>
+      <div className="sticky top-0 z-40 transform" style={{ transform: 'translate3d(0,0,999px)' }}>
         <div
           className={[
             'absolute inset-0 h-full w-full opacity-80 bg-scale-200',
@@ -208,8 +211,9 @@ const Nav = () => {
         />
         <nav
           className={[
-            `border-scale-400 border-b backdrop-blur-sm transition-opacity`,
+            `border-scale-300 border-b backdrop-blur-sm transition-opacity`,
             showLaunchWeekNavMode && '!opacity-100 !border-[#e0d2f430]',
+            isLaunchWeekPage && showLaunchWeekNavMode && '!border-b-0',
           ].join(' ')}
         >
           {/* <div className="relative flex justify-between h-16 mx-auto lg:container lg:px-10 xl:px-0"> */}
@@ -224,19 +228,21 @@ const Nav = () => {
                   <Link href="/" as="/">
                     <a className="block w-auto h-6">
                       <Image
-                        src={
-                          isLaunchWeekPage
-                            ? supabaseLogoWordmarkDark
-                            : isDarkMode
-                            ? supabaseLogoWordmarkDark
-                            : supabaseLogoWordmarkLight
-                        }
+                        src={isDarkMode ? supabaseLogoWordmarkDark : supabaseLogoWordmarkLight}
                         width={124}
                         height={24}
                         alt="Supabase Logo"
                       />
                     </a>
                   </Link>
+
+                  {isLaunchWeekPage && (
+                    <Link href="/launch-week" as="/launch-week">
+                      <a className="hidden ml-2 xl:block font-mono text-sm uppercase leading-4">
+                        Launch Week
+                      </a>
+                    </Link>
+                  )}
                 </div>
                 <div className="hidden pl-4 sm:ml-6 sm:space-x-4 lg:flex">
                   <FlyOutNavButton
@@ -259,6 +265,18 @@ const Nav = () => {
                       ].join(' ')}
                     >
                       Pricing
+                    </a>
+                  </Link>
+                  <Link href="/docs">
+                    <a
+                      className={[
+                        `text-scale-1200 hover:text-brand-900 hover:border-brand-900 dark:text-dark-100 dark:hover:border-dark-100 inline-flex items-center
+                        border-b-2 border-transparent p-5 px-1
+                        text-sm font-medium`,
+                        showLaunchWeekNavMode && '!text-white',
+                      ].join(' ')}
+                    >
+                      Docs
                     </a>
                   </Link>
                   <Link href="/blog">
@@ -318,14 +336,14 @@ const Nav = () => {
                   </Link>
                 ) : (
                   <>
-                    <Link href="https://app.supabase.com/">
+                    <Link href="https://supabase.com/dashboard">
                       <a>
                         <Button type="default" className="hidden lg:block">
                           Sign in
                         </Button>
                       </a>
                     </Link>
-                    <Link href="https://app.supabase.com/">
+                    <Link href="https://supabase.com/dashboard">
                       <a>
                         <Button className="hidden text-white lg:block">Start your project</Button>
                       </a>
@@ -382,7 +400,7 @@ const Nav = () => {
               {/* </div> */}
               <div className="mt-6 mb-12">
                 <div className="pt-2 pb-4 space-y-1">
-                  <Link href="https://app.supabase.com/">
+                  <Link href="https://supabase.com/dashboard">
                     <a className="block pl-3 pr-4 text-base font-medium text-scale-900 dark:text-white">
                       Sign in
                     </a>
@@ -404,7 +422,14 @@ const Nav = () => {
                       Pricing
                     </a>
                   </Link>
-
+                  <Link href="/docs">
+                    <a
+                      target="_blank"
+                      className="block py-2 pl-3 pr-4 text-base font-medium rounded-md text-scale-900 dark:hover:bg-scale-600 hover:border-gray-300 hover:bg-gray-50 dark:text-white"
+                    >
+                      Docs
+                    </a>
+                  </Link>
                   <Link href="https://github.com/supabase/supabase">
                     <a
                       target="_blank"
@@ -436,6 +461,7 @@ const Nav = () => {
         <FlyOut open={openDevelopers} handleCancel={handleCancel}>
           <Developers />
         </FlyOut>
+        <ScrollProgress />
       </div>
     </>
   )

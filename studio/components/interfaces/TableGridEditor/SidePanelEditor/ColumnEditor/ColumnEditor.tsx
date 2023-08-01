@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { FC, useEffect, useState } from 'react'
-import { isEmpty } from 'lodash'
+import { useEffect, useState } from 'react'
+import { isEmpty, noop } from 'lodash'
 import { Dictionary } from 'components/grid'
 import { Checkbox, SidePanel, Input, Button, IconExternalLink, Toggle } from 'ui'
 import type {
@@ -39,7 +39,7 @@ import { EncryptionKeySelector } from 'components/interfaces/Settings/Vault'
 import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
 import { useForeignKeyConstraintsQuery } from 'data/database/foreign-key-constraints-query'
 
-interface Props {
+export interface ColumnEditorProps {
   column?: PostgresColumn
   selectedTable: PostgresTable
   visible: boolean
@@ -59,14 +59,14 @@ interface Props {
   updateEditorDirty: () => void
 }
 
-const ColumnEditor: FC<Props> = ({
+const ColumnEditor = ({
   column,
   selectedTable,
   visible = false,
-  closePanel = () => {},
-  saveChanges = () => {},
-  updateEditorDirty = () => {},
-}) => {
+  closePanel = noop,
+  saveChanges = noop,
+  updateEditorDirty = noop,
+}: ColumnEditorProps) => {
   const { ref } = useParams()
   const { meta, vault } = useStore()
   const { project } = useProjectContext()
@@ -198,10 +198,6 @@ const ColumnEditor: FC<Props> = ({
           applyFunction={(resolve: () => void) => onSaveChanges(resolve)}
         />
       }
-      onInteractOutside={(event) => {
-        const isToast = (event.target as Element)?.closest('#toast')
-        if (isToast) event.preventDefault()
-      }}
     >
       <FormSection header={<FormSectionLabel className="lg:!col-span-4">General</FormSectionLabel>}>
         <FormSectionContent loading={false} className="lg:!col-span-8">
@@ -247,18 +243,17 @@ const ColumnEditor: FC<Props> = ({
           <FormSectionLabel
             className="lg:!col-span-4"
             description={
-              <Link href="https://www.supabase.cc/docs/guides/database/tables#data-types">
-                <a target="_blank" rel="noreferrer">
-                  <Button
-                    as="span"
-                    type="default"
-                    size="tiny"
-                    // className="text-scale-1000 hover:text-scale-1200"
-                    icon={<IconExternalLink size={14} strokeWidth={2} />}
-                  >
+              <Link href="https://supabase.com/docs/guides/database/tables#data-types" passHref>
+                <Button
+                  asChild
+                  type="default"
+                  size="tiny"
+                  icon={<IconExternalLink size={14} strokeWidth={2} />}
+                >
+                  <a target="_blank" rel="noreferrer">
                     About data types
-                  </Button>
-                </a>
+                  </a>
+                </Button>
               </Link>
             }
           >
@@ -317,7 +312,7 @@ const ColumnEditor: FC<Props> = ({
       </FormSection>
       <SidePanel.Separator />
       <FormSection
-        header={<FormSectionLabel className="lg:!col-span-4">Configuration</FormSectionLabel>}
+        header={<FormSectionLabel className="lg:!col-span-4">Constraints</FormSectionLabel>}
       >
         <FormSectionContent loading={false} className="lg:!col-span-8">
           <Toggle
@@ -337,6 +332,15 @@ const ColumnEditor: FC<Props> = ({
             descriptionText="Enforce values in the column to be unique across rows"
             checked={columnFields.isUnique}
             onChange={() => onUpdateField({ isUnique: !columnFields.isUnique })}
+          />
+          <Input
+            label="CHECK Constraint"
+            labelOptional="Optional"
+            placeholder={`e.g length(${columnFields?.name || 'column_name'}) < 500`}
+            type="text"
+            value={columnFields?.check ?? ''}
+            onChange={(event: any) => onUpdateField({ check: event.target.value })}
+            className="[&_input]:font-mono"
           />
         </FormSectionContent>
       </FormSection>
