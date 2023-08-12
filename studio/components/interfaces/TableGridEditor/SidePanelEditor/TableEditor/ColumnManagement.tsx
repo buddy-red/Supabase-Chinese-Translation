@@ -1,27 +1,26 @@
+import * as Tooltip from '@radix-ui/react-tooltip'
+import type { PostgresColumn, PostgresTable, PostgresType } from '@supabase/postgres-meta'
+import { isEmpty, noop, partition } from 'lodash'
 import Link from 'next/link'
-import { FC, useState } from 'react'
-import { partition, isEmpty } from 'lodash'
-import { Alert, Button, IconEdit, IconHelpCircle, IconKey, IconTrash, IconExternalLink } from 'ui'
-
-import type { PostgresTable, PostgresColumn, PostgresType } from '@supabase/postgres-meta'
+import { useState } from 'react'
 import {
   DragDropContext,
-  Droppable,
   Draggable,
-  DroppableProvided,
   DraggableProvided,
+  Droppable,
+  DroppableProvided,
 } from 'react-beautiful-dnd'
-import * as Tooltip from '@radix-ui/react-tooltip'
+import { Alert, Button, IconEdit, IconExternalLink, IconHelpCircle, IconKey, IconTrash } from 'ui'
 
-import Column from './Column'
 import InformationBox from 'components/ui/InformationBox'
-import ForeignKeySelector from '../ForeignKeySelector/ForeignKeySelector'
-import { ImportContent } from './TableEditor.types'
 import { generateColumnField } from '../ColumnEditor/ColumnEditor.utils'
-import { ColumnField, ExtendedPostgresRelationship } from '../SidePanelEditor.types'
+import ForeignKeySelector from '../ForeignKeySelector/ForeignKeySelector'
 import { TEXT_TYPES } from '../SidePanelEditor.constants'
+import { ColumnField, ExtendedPostgresRelationship } from '../SidePanelEditor.types'
+import Column from './Column'
+import { ImportContent } from './TableEditor.types'
 
-interface Props {
+interface ColumnManagementProps {
   table?: Partial<PostgresTable>
   columns?: ColumnField[]
   enumTypes: PostgresType[]
@@ -32,16 +31,16 @@ interface Props {
   onClearImportContent: () => void
 }
 
-const ColumnManagement: FC<Props> = ({
+const ColumnManagement = ({
   table,
   columns = [],
   enumTypes = [],
   importContent,
   isNewRecord,
-  onColumnsUpdated = () => {},
-  onSelectImportData = () => {},
-  onClearImportContent = () => {},
-}) => {
+  onColumnsUpdated = noop,
+  onSelectImportData = noop,
+  onClearImportContent = noop,
+}: ColumnManagementProps) => {
   const [selectedColumnToEditRelation, setSelectedColumnToEditRelation] = useState<ColumnField>()
 
   const hasImportContent = !isEmpty(importContent)
@@ -141,21 +140,21 @@ const ColumnManagement: FC<Props> = ({
     <>
       <div className="w-full space-y-4 table-editor-columns">
         <div className="flex items-center justify-between w-full">
-          <h5>数据列</h5>
+          <h5>Columns</h5>
           {isNewRecord && (
             <>
               {hasImportContent ? (
                 <div className="flex items-center space-x-3">
                   <Button type="default" icon={<IconEdit />} onClick={onSelectImportData}>
-                    编辑内容
+                    Edit content
                   </Button>
                   <Button type="danger" icon={<IconTrash />} onClick={onClearImportContent}>
-                    移出内容
+                    Remove content
                   </Button>
                 </div>
               ) : (
                 <Button type="default" onClick={onSelectImportData}>
-                  通过电子表格导入数据
+                  Import data via spreadsheet
                 </Button>
               )}
             </>
@@ -193,7 +192,7 @@ const ColumnManagement: FC<Props> = ({
             {/* Drag handle */}
             {isNewRecord && <div className="w-[5%]" />}
             <div className="w-[25%] flex items-center space-x-2">
-              <h5 className="text-xs text-scale-900">名称</h5>
+              <h5 className="text-xs text-scale-900">Name</h5>
               <Tooltip.Root delayDuration={0}>
                 <Tooltip.Trigger>
                   <h5 className="text-xs text-scale-900">
@@ -219,10 +218,10 @@ const ColumnManagement: FC<Props> = ({
               </Tooltip.Root>
             </div>
             <div className="w-[25%]">
-              <h5 className="text-xs text-scale-900">类型</h5>
+              <h5 className="text-xs text-scale-900">Type</h5>
             </div>
             <div className={`${isNewRecord ? 'w-[25%]' : 'w-[30%]'} flex items-center space-x-2`}>
-              <h5 className="text-xs text-scale-900">默认值</h5>
+              <h5 className="text-xs text-scale-900">Default Value</h5>
 
               <Tooltip.Root delayDuration={0}>
                 <Tooltip.Trigger>
@@ -249,7 +248,7 @@ const ColumnManagement: FC<Props> = ({
               </Tooltip.Root>
             </div>
             <div className="w-[10%]">
-              <h5 className="text-xs text-scale-900">主键</h5>
+              <h5 className="text-xs text-scale-900">Primary</h5>
             </div>
             {/* Empty space */}
             <div className={`${hasImportContent ? 'w-[10%]' : 'w-0'}`} />
@@ -336,7 +335,7 @@ const ColumnManagement: FC<Props> = ({
         <div className="flex items-center justify-between">
           {!hasImportContent && (
             <Button type="default" onClick={() => onAddColumn()}>
-              添加数据列
+              Add column
             </Button>
           )}
           <Link href="https://supabase.com/docs/guides/database/tables#data-types">
@@ -346,7 +345,7 @@ const ColumnManagement: FC<Props> = ({
                 className="text-scale-1000 hover:text-scale-1200"
                 icon={<IconExternalLink size={12} strokeWidth={2} />}
               >
-                了解更多数据类型
+                Learn more about data types
               </Button>
             </a>
           </Link>

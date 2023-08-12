@@ -2,19 +2,19 @@ import { ClientLibrary, ExampleProject } from 'components/interfaces/Home'
 import { CLIENT_LIBRARIES, EXAMPLE_PROJECTS } from 'components/interfaces/Home/Home.constants'
 import ProjectUsageSection from 'components/interfaces/Home/ProjectUsageSection'
 import { ProjectLayoutWithAuth } from 'components/layouts'
-import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
 import ProjectPausedState from 'components/layouts/ProjectLayout/ProjectPausedState'
 import ProjectUpgradeFailedBanner from 'components/ui/ProjectUpgradeFailedBanner'
+import { useSelectedProject } from 'hooks'
 import { IS_PLATFORM, PROJECT_STATUS } from 'lib/constants'
 import { NextPageWithLayout } from 'types'
 
 const Home: NextPageWithLayout = () => {
-  const { project } = useProjectContext()
+  const project = useSelectedProject()
 
   const projectName =
     project?.ref !== 'default' && project?.name !== undefined
       ? project?.name
-      : '项目欢迎您'
+      : 'Welcome to your project'
 
   return (
     <div className="mx-auto my-16 w-full max-w-7xl space-y-16">
@@ -38,7 +38,7 @@ const Home: NextPageWithLayout = () => {
         <>
           <div className="space-y-8">
             <div className="mx-6">
-              <h4 className="text-lg">客户端库</h4>
+              <h4 className="text-lg">Client libraries</h4>
             </div>
             <div className="mx-6 mb-12 grid gap-12 md:grid-cols-3">
               {CLIENT_LIBRARIES.map((library) => (
@@ -48,7 +48,7 @@ const Home: NextPageWithLayout = () => {
           </div>
           <div className="space-y-8">
             <div className="mx-6">
-              <h4 className="text-lg">示例项目</h4>
+              <h4 className="text-lg">Example projects</h4>
             </div>
             <div className="mx-6 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {EXAMPLE_PROJECTS.sort((a, b) => a.title.localeCompare(b.title)).map((project) => (

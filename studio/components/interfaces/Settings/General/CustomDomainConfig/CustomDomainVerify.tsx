@@ -84,7 +84,7 @@ const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomain
                     <p>
                       You may also visit{' '}
                       <Link href={`https://whatsmydns.net/#TXT/${customDomain.hostname}`}>
-                        <a className="text-brand-900">here</a>
+                        <a className="text-brand">here</a>
                       </Link>{' '}
                       to check if your DNS has been propagated successfully before clicking verify.
                     </p>
@@ -93,7 +93,7 @@ const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomain
                   <p>
                     You may also visit{' '}
                     <Link href={`https://whatsmydns.net/#TXT/${customDomain.hostname}`}>
-                      <a className="text-brand-900">here</a>
+                      <a className="text-brand">here</a>
                     </Link>{' '}
                     to check if your DNS has been propagated successfully before clicking verify.
                   </p>
@@ -143,7 +143,7 @@ const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomain
               <DNSRecord
                 type="CNAME"
                 name={customDomain.hostname}
-                value={settings?.autoApiService.endpoint ?? '加载...'}
+                value={settings?.autoApiService.endpoint ?? 'Loading...'}
               />
             )}
 
@@ -158,8 +158,8 @@ const CustomDomainVerify = ({ projectRef, customDomain, settings }: CustomDomain
             {customDomain.ssl.status === 'pending_validation' && (
               <DNSRecord
                 type="TXT"
-                name={customDomain.ssl.txt_name ?? '加载...'}
-                value={customDomain.ssl.txt_value ?? '加载...'}
+                name={customDomain.ssl.txt_name ?? 'Loading...'}
+                value={customDomain.ssl.txt_value ?? 'Loading...'}
               />
             )}
 

@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import {
-  DropdownMenuCheckboxItem_Shadcn_,
   DropdownMenuContent_Shadcn_,
   DropdownMenuGroup_Shadcn_,
   DropdownMenuItem_Shadcn_,
@@ -10,12 +9,8 @@ import {
   DropdownMenuRadioItem_Shadcn_,
   DropdownMenuSeparator_Shadcn_,
   DropdownMenuShortcut_Shadcn_,
-  DropdownMenuSubContent_Shadcn_,
-  DropdownMenuSubTrigger_Shadcn_,
-  DropdownMenuSub_Shadcn_,
   DropdownMenuTrigger_Shadcn_,
   DropdownMenu_Shadcn_,
-  IconCheck,
   IconUser,
   useCommandMenu,
 } from 'ui'
@@ -40,8 +35,13 @@ const UserSettingsDropdown = () => {
 
   return (
     <DropdownMenu_Shadcn_ open={open} onOpenChange={() => setOpen(!open)} modal={false}>
-      <DropdownMenuTrigger_Shadcn_ className="flex items-center justify-center border font-bold rounded-full h-7 w-7 text-scale-1100 bg-surface-100">
-        {profile?.first_name ? profile?.first_name?.[0] : <IconUser size={14} strokeWidth={2} />}
+      <DropdownMenuTrigger_Shadcn_ asChild>
+        <button
+          id="user-settings-dropdown"
+          className="flex items-center justify-center border font-bold rounded-full h-7 w-7 text-scale-1100 bg-surface-100"
+        >
+          {profile?.first_name ? profile?.first_name?.[0] : <IconUser size={14} strokeWidth={2} />}
+        </button>
       </DropdownMenuTrigger_Shadcn_>
       <DropdownMenuContent_Shadcn_ align="end" className="w-60">
         <DropdownMenuGroup_Shadcn_>

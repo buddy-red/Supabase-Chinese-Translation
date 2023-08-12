@@ -592,11 +592,6 @@ module.exports = [
   },
   {
     permanent: false,
-    source: '/partners',
-    destination: '/partners/integrations',
-  },
-  {
-    permanent: false,
     source: '/learn-more',
     destination: '/?utm_source=event&utm_medium=billboard&utm_campaign=aws-atlanta',
   },
@@ -2251,4 +2246,16 @@ module.exports = [
     source: '/docs/guides/integrations/zuplo',
     destination: '/partners/integrations/zuplo',
   },
+  {
+    permanent: true,
+    source: '/docs/guides/platform/oauth-apps/publish-an-oauth-app',
+    destination:
+      '/docs/guides/platform/oauth-apps/build-a-supabase-integration#create-an-oauth-app',
+  },
+  {
+    permanent: true,
+    source: '/docs/guides/platform/oauth-apps/authorize-an-oauth-app',
+    destination: '/docs/guides/platform/oauth-apps/build-a-supabase-integration',
+  },
+  { permanent: true, source: '/docs/reference/cli/config', destination: '/docs/guides/cli/config' },
 ]

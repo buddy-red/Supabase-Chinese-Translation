@@ -11,10 +11,12 @@ import { useProjectsQuery } from 'data/projects/projects-query'
 import { useOrgSubscriptionQuery } from 'data/subscriptions/org-subscription-query'
 import { useSelectedOrganization } from 'hooks'
 import { TIME_PERIODS_BILLING, TIME_PERIODS_REPORTS } from 'lib/constants'
-import { Listbox } from 'ui'
+import { Button, IconExternalLink, IconInfo, Listbox } from 'ui'
 import Activity from './Activity'
 import Bandwidth from './Bandwidth'
 import SizeAndCounts from './SizeAndCounts'
+import InformationBox from 'components/ui/InformationBox'
+import Link from 'next/link'
 
 const Usage = () => {
   const { slug, projectRef } = useParams()
@@ -82,6 +84,10 @@ const Usage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateRange, subscription])
 
+  const selectedProject = selectedProjectRef
+    ? orgProjects?.find((it) => it.ref === selectedProjectRef)
+    : undefined
+
   return (
     <>
       <ScaffoldContainer className="sticky top-0 border-b bg-scale-200 z-10 overflow-hidden">
@@ -91,7 +97,7 @@ const Usage = () => {
           {isErrorSubscription && (
             <AlertError
               className="w-full"
-              subject="检索数据用量失败"
+              subject="Failed to retrieve usage data"
               error={subscriptionError}
             />
           )}
@@ -99,14 +105,11 @@ const Usage = () => {
           {isSuccessSubscription && (
             <>
               <DateRangePicker
-                id="billingCycle"
-                name="billingCycle"
                 onChange={setDateRange}
                 value={TIME_PERIODS_BILLING[0].key}
                 options={[...TIME_PERIODS_BILLING, ...TIME_PERIODS_REPORTS]}
                 loading={isLoadingSubscription}
                 currentBillingPeriodStart={subscription?.current_period_start}
-                className="!w-[200px]"
               />
 
               <Listbox
@@ -122,10 +125,10 @@ const Usage = () => {
                 <Listbox.Option
                   key="all-projects"
                   id="all-projects"
+                  label="All projects"
                   value="all-projects"
-                  label="所有项目"
                 >
-                  所有项目
+                  All projects
                 </Listbox.Option>
                 {orgProjects?.map((project) => (
                   <Listbox.Option
@@ -152,6 +155,38 @@ const Usage = () => {
           )}
         </div>
       </ScaffoldContainer>
+
+      {selectedProjectRef && (
+        <ScaffoldContainer className="mt-5">
+          <InformationBox
+            title="Usage filtered by project"
+            description={
+              <div className="space-y-3">
+                <p>
+                  You are currently viewing usage for the "
+                  {selectedProject?.name || selectedProjectRef}" project. Since your organization is
+                  using the new organization-level billing, the included quota is for your whole
+                  organization and not just this project. For billing purposes, we sum up usage from
+                  all your projects. To view your usage quota, set the project filter above back to
+                  "All Projects".
+                </p>
+                <div>
+                  <Link href="https://www.notion.so/supabase/Organization-Level-Billing-9c159d69375b4af095f0b67881276582?pvs=4">
+                    <a target="_blank" rel="noreferrer">
+                      <Button type="default" icon={<IconExternalLink strokeWidth={1.5} />}>
+                        Documentation
+                      </Button>
+                    </a>
+                  </Link>
+                </div>
+              </div>
+            }
+            defaultVisibility
+            hideCollapse
+            icon={<IconInfo />}
+          />
+        </ScaffoldContainer>
+      )}
 
       <Bandwidth
         orgSlug={slug as string}

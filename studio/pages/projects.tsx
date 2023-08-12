@@ -52,7 +52,7 @@ const ProjectsPage: NextPageWithLayout = () => {
         <div
           className={`py-4 px-5 ${navLayoutV2 ? 'h-full flex items-center justify-center' : ''}`}
         >
-          <AlertError subject="检索组织失败" />
+          <AlertError subject="Failed to retrieve organizations" />
         </div>
       )}
 
@@ -78,11 +78,11 @@ const ProjectsPage: NextPageWithLayout = () => {
 
 ProjectsPage.getLayout = (page) => (
   <AccountLayout
-    title="仪表板"
+    title="Dashboard"
     breadcrumbs={[
       {
         key: `supabase-projects`,
-        label: '项目',
+        label: 'Projects',
       },
     ]}
   >

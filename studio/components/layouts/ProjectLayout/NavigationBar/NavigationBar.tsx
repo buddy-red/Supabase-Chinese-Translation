@@ -31,16 +31,18 @@ const NavigationBar = ({}) => {
   const { isDarkMode, toggleTheme } = useTheme()
   const { ref: projectRef } = useParams()
 
-  const { project } = useProjectContext()
-  const navLayoutV2 = useFlag('navigationLayoutV2')
-
-  const activeRoute = router.pathname.split('/')[3]
-  const toolRoutes = generateToolRoutes(projectRef, project)
-  const productRoutes = generateProductRoutes(projectRef, project)
-  const otherRoutes = generateOtherRoutes(projectRef, project)
-  const showCmdkHelper = useFlag('dashboardCmdk')
   const os = detectOS()
   const { setIsOpen } = useCommandMenu()
+
+  const { project } = useProjectContext()
+  const navLayoutV2 = useFlag('navigationLayoutV2')
+  const showCmdkHelper = useFlag('dashboardCmdk')
+  const supabaseAIEnabled = useFlag('sqlEditorSupabaseAI')
+
+  const activeRoute = router.pathname.split('/')[3]
+  const toolRoutes = generateToolRoutes(projectRef, project, supabaseAIEnabled)
+  const productRoutes = generateProductRoutes(projectRef, project)
+  const otherRoutes = generateOtherRoutes(projectRef, project)
   return (
     <div
       className={[
@@ -49,8 +51,8 @@ const NavigationBar = ({}) => {
       ].join(' ')}
     >
       <ul className="flex flex-col space-y-2">
-        {!navLayoutV2 && (
-          <Link href="/projects">
+        {(!navLayoutV2 || !IS_PLATFORM) && (
+          <Link href={IS_PLATFORM ? '/projects' : `/project/${projectRef}`}>
             <a className="block">
               <img
                 src={`${router.basePath}/img/supabase-logo.svg`}
@@ -64,7 +66,7 @@ const NavigationBar = ({}) => {
           isActive={isUndefined(activeRoute) && !isUndefined(router.query.ref)}
           route={{
             key: 'HOME',
-            label: '首页',
+            label: 'Home',
             icon: <IconHome size={18} strokeWidth={2} />,
             link: `/project/${projectRef}`,
           }}

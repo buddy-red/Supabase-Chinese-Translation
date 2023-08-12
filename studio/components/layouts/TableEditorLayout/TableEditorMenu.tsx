@@ -108,13 +108,13 @@ const TableEditorMenu = ({
         {!meta.schemas.isInitialized ? (
           <div className="flex h-[26px] items-center space-x-3 rounded border border-gray-500 px-3">
             <IconLoader className="animate-spin" size={12} />
-            <span className="text-xs text-scale-900">加载模式...</span>
+            <span className="text-xs text-scale-900">Loading schemas...</span>
           </div>
         ) : meta.schemas.hasError ? (
-          <Alert variant="warning" title="加载模式失败" className="!px-3 !py-3">
-            <p className="mb-2">出错: {meta.schemas?.error?.message}</p>
+          <Alert variant="warning" title="Failed to load schemas" className="!px-3 !py-3">
+            <p className="mb-2">Error: {meta.schemas?.error?.message}</p>
             <Button type="default" size="tiny" onClick={() => meta.schemas.load()}>
-              重新加载模式
+              Reload schemas
             </Button>
           </Alert>
         ) : (
@@ -130,10 +130,10 @@ const TableEditorMenu = ({
               disabled
               key="normal-schemas"
               value="normal-schemas"
-              label="模式"
+              label="Schemas"
               className="!w-[200px]"
             >
-              <p className="text-xs text-scale-1100">模式</p>
+              <p className="text-xs text-scale-1100">Schemas</p>
             </Listbox.Option>
             {openSchemas.map((schema) => (
               <Listbox.Option
@@ -141,7 +141,7 @@ const TableEditorMenu = ({
                 value={schema.name}
                 label={schema.name}
                 className="!w-[200px]"
-                addOnBefore={() => <span className="text-scale-900 text-xs">模式</span>}
+                addOnBefore={() => <span className="text-scale-900 text-xs">schema</span>}
               >
                 <span className="text-scale-1200 text-xs">{schema.name}</span>
               </Listbox.Option>
@@ -190,7 +190,7 @@ const TableEditorMenu = ({
                   style={{ justifyContent: 'start' }}
                   onClick={onAddTable}
                 >
-                  <span>新建数据表</span>
+                  <span>New table</span>
                 </Button>
               </Tooltip.Trigger>
               {!canCreateTables && (
@@ -204,7 +204,7 @@ const TableEditorMenu = ({
                       ].join(' ')}
                     >
                       <span className="text-xs text-scale-1200">
-                        您需要额外的权限才能创建数据表
+                        You need additional permissions to create tables
                       </span>
                     </div>
                   </Tooltip.Content>
@@ -224,7 +224,7 @@ const TableEditorMenu = ({
                 <IconSearch className="text-scale-900" size={12} strokeWidth={1.5} />
               )
             }
-            placeholder="搜索数据表"
+            placeholder="Search tables"
             onChange={(e) => setSearchText(e.target.value.trim())}
             value={searchText}
             size="tiny"
@@ -242,17 +242,17 @@ const TableEditorMenu = ({
       {isLoading ? (
         <div className="mx-7 flex items-center space-x-2">
           <IconLoader className="animate-spin" size={14} strokeWidth={1.5} />
-          <p className="text-sm text-scale-1000">加载实体...</p>
+          <p className="text-sm text-scale-1000">Loading entities...</p>
         </div>
       ) : searchText.length === 0 && (entityTypes?.length ?? 0) === 0 ? (
         <div className="mx-7 space-y-1 rounded-md border border-scale-400 bg-scale-300 py-3 px-4">
-          <p className="text-xs">无实体可用</p>
-          <p className="text-xs text-scale-1100">该模式尚无可用实体</p>
+          <p className="text-xs">No entities available</p>
+          <p className="text-xs text-scale-1100">This schema has no entities available yet</p>
         </div>
       ) : searchText.length > 0 && (entityTypes?.length ?? 0) === 0 ? (
         <div className="mx-7 space-y-1 rounded-md border border-scale-400 bg-scale-300 py-3 px-4">
-          <p className="text-xs">找不到结果</p>
-          <p className="text-xs text-scale-1100">没有与您的搜索匹配的实体</p>
+          <p className="text-xs">No results found</p>
+          <p className="text-xs text-scale-1100">There are no entities that match your search</p>
         </div>
       ) : (
         <Menu
@@ -266,7 +266,7 @@ const TableEditorMenu = ({
               <>
                 <div className="flex w-full items-center justify-between">
                   <div className="flex items-center space-x-1">
-                    <p>数据表</p>
+                    <p>Tables</p>
                     {totalCount !== undefined && (
                       <p style={{ fontVariantNumeric: 'tabular-nums' }}>({totalCount})</p>
                     )}
@@ -292,7 +292,7 @@ const TableEditorMenu = ({
                             setSort('alphabetical')
                           }}
                         >
-                          按字母顺序
+                          Alphabetical
                         </Dropdown.Item>,
                         <Dropdown.Item
                           key="grouped-alphabetical"
@@ -307,7 +307,7 @@ const TableEditorMenu = ({
                             setSort('grouped-alphabetical')
                           }}
                         >
-                          实体类型
+                          Entity Type
                         </Dropdown.Item>,
                       ]}
                     >
@@ -326,7 +326,7 @@ const TableEditorMenu = ({
                                 'border border-scale-200',
                               ].join(' ')}
                             >
-                              <span className="text-xs">排序方式</span>
+                              <span className="text-xs">Sort By</span>
                             </div>
                           </Tooltip.Content>
                         </Tooltip.Portal>

@@ -112,10 +112,10 @@ const Column = ({
                 ].join(' ')}
               >
                 {column.foreignKey === undefined ? (
-                  <span className="text-xs text-scale-1200">编辑外键关系</span>
+                  <span className="text-xs text-scale-1200">Edit foreign key relation</span>
                 ) : (
                   <div>
-                    <p className="text-xs text-scale-1100">外键关系:</p>
+                    <p className="text-xs text-scale-1100">Foreign key relation:</p>
                     <div className="flex items-center space-x-1">
                       <p className="text-xs text-scale-1200">
                         {column.foreignKey.source_schema}.{column.foreignKey.source_table_name}.
@@ -130,7 +130,7 @@ const Column = ({
                     {column.foreignKey.deletion_action !==
                       FOREIGN_KEY_DELETION_ACTION.NO_ACTION && (
                       <p className="text-xs text-scale-1200 mt-1">
-                        于删除: {getForeignKeyDeletionAction(column.foreignKey.deletion_action)}
+                        On delete: {getForeignKeyDeletionAction(column.foreignKey.deletion_action)}
                       </p>
                     )}
                   </div>
@@ -197,7 +197,7 @@ const Column = ({
               align="end"
               header={
                 <div className="flex items-center justify-center">
-                  <h5 className="text-sm text-scale-1200">附加选项</h5>
+                  <h5 className="text-sm text-scale-1200">Extra options</h5>
                 </div>
               }
               overlay={[
@@ -205,8 +205,8 @@ const Column = ({
                   {!column.isPrimaryKey && (
                     <>
                       <Checkbox
-                        label="可以为空"
-                        description="指定如果未提供值，数据列是否可以采用NULL值"
+                        label="Is Nullable"
+                        description="Specify if the column can assume a NULL value if no value is provided"
                         checked={column.isNullable}
                         className="p-4"
                         onChange={() => onUpdateColumn({ isNullable: !column.isNullable })}
@@ -218,8 +218,8 @@ const Column = ({
                   {column.isNewColumn && (
                     <>
                       <Checkbox
-                        label="唯一"
-                        description="强制数据列中的值在行中是否应该唯一"
+                        label="Is Unique"
+                        description="Enforce if values in the column should be unique across rows"
                         checked={column.isUnique}
                         className="p-4"
                         onChange={() => onUpdateColumn({ isUnique: !column.isUnique })}
@@ -230,8 +230,8 @@ const Column = ({
                   {column.format.includes('int') && (
                     <>
                       <Checkbox
-                        label="身份"
-                        description="自动为数据列分配连续唯一编号"
+                        label="Is Identity"
+                        description="Automatically assign a sequential unique number to the column"
                         checked={column.isIdentity}
                         className="p-4"
                         onChange={() => {
@@ -246,8 +246,8 @@ const Column = ({
 
                   {!column.isPrimaryKey && (
                     <Checkbox
-                      label="定义为数组"
-                      description="将数据列定义为可变长度多维数组"
+                      label="Define as Array"
+                      description="Define your column as a variable-length multidimensional array"
                       checked={column.isArray}
                       className="p-4"
                       onChange={() => {

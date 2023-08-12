@@ -539,7 +539,7 @@ const DATABASE_PERMISSIONS = {
 }
 
 const SQL_EDITOR_PERMISSIONS = {
-  title: 'SQL编辑器',
+  title: 'SQL Editor',
   actions: [
     {
       description: 'Can run a SELECT-based query',

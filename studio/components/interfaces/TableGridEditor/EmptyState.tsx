@@ -1,17 +1,17 @@
-import { FC } from 'react'
-import { observer } from 'mobx-react-lite'
 import { PermissionAction } from '@supabase/shared-types/out/constants'
-import { useCheckPermissions, useLocalStorage, useStore } from 'hooks'
-import { useEntityTypesQuery } from 'data/entity-types/entity-types-infinite-query'
-import ProductEmptyState from 'components/to-be-cleaned/ProductEmptyState'
-import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import { observer } from 'mobx-react-lite'
 
-interface Props {
+import { useProjectContext } from 'components/layouts/ProjectLayout/ProjectContext'
+import ProductEmptyState from 'components/to-be-cleaned/ProductEmptyState'
+import { useEntityTypesQuery } from 'data/entity-types/entity-types-infinite-query'
+import { useCheckPermissions, useLocalStorage, useStore } from 'hooks'
+
+interface EmptyStateProps {
   selectedSchema: string
   onAddTable: () => void
 }
 
-const EmptyState: FC<Props> = ({ selectedSchema, onAddTable }) => {
+const EmptyState = ({ selectedSchema, onAddTable }: EmptyStateProps) => {
   const { meta } = useStore()
   const isProtectedSchema = meta.excludedSchemas.includes(selectedSchema)
   const canCreateTables =
@@ -41,22 +41,22 @@ const EmptyState: FC<Props> = ({ selectedSchema, onAddTable }) => {
     <div className="w-full h-full flex items-center justify-center">
       {totalCount === 0 ? (
         <ProductEmptyState
-          title="数据表编辑器"
-          ctaButtonLabel={canCreateTables ? '新建数据表' : undefined}
+          title="Table Editor"
+          ctaButtonLabel={canCreateTables ? 'Create a new table' : undefined}
           onClickCta={canCreateTables ? onAddTable : undefined}
         >
-          <p className="text-sm text-scale-1100">该模式中没有可用的数据表表</p>
+          <p className="text-sm text-scale-1100">There are no tables available in this schema.</p>
         </ProductEmptyState>
       ) : (
         <div className="flex flex-col items-center space-y-4">
           <ProductEmptyState
-            title="数据表编辑器"
-            ctaButtonLabel={canCreateTables ? '新建数据表' : undefined}
+            title="Table Editor"
+            ctaButtonLabel={canCreateTables ? 'Create a new table' : undefined}
             onClickCta={canCreateTables ? onAddTable : undefined}
           >
             <p className="text-sm text-scale-1100">
-              在左侧导航面板中选择一个数据表，即可查看其数据。
-              {canCreateTables && ', 或新建一个'}
+              Select a table from the navigation panel on the left to view its data
+              {canCreateTables && ', or create a new one.'}
             </p>
           </ProductEmptyState>
         </div>

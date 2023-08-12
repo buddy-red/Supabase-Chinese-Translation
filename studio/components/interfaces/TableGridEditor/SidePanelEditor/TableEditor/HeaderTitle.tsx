@@ -1,30 +1,29 @@
-import { FC } from 'react'
 import type { PostgresTable } from '@supabase/postgres-meta'
 
-interface Props {
+interface HeaderTitleProps {
   schema: string
   table: PostgresTable
   isDuplicating: boolean
 }
 
-const HeaderTitle: FC<Props> = ({ schema, table, isDuplicating }) => {
+const HeaderTitle = ({ schema, table, isDuplicating }: HeaderTitleProps) => {
   if (!table) {
     return (
       <>
-        新建数据表 <code className="text-sm">{schema}</code>
+        Create a new table under <code className="text-sm">{schema}</code>
       </>
     )
   }
   if (isDuplicating) {
     return (
       <>
-        复制数据表 <code className="text-sm">{table.name}</code>
+        Duplicate table <code className="text-sm">{table.name}</code>
       </>
     )
   }
   return (
     <>
-      更新数据表 <code className="text-sm">{table.name}</code>
+      Update table <code className="text-sm">{table.name}</code>
     </>
   )
 }

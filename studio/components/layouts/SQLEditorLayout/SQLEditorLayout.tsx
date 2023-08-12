@@ -12,7 +12,7 @@ const SQLEditorLayout = ({ title, children }: SQLEditorLayoutProps) => {
   const productMenu = useMemo(() => <SQLEditorMenu key="sql-editor-menu" />, [])
 
   return (
-    <ProjectLayoutNonBlocking title={title || 'SQL'} product="SQL编辑器" productMenu={productMenu}>
+    <ProjectLayoutNonBlocking title={title || 'SQL'} product="SQL Editor" productMenu={productMenu}>
       {children}
     </ProjectLayoutNonBlocking>
   )

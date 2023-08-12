@@ -4,7 +4,7 @@ import { SupaResponse } from 'types/base'
 import { Session } from '@supabase/gotrue-js'
 
 export function handleError<T>(e: any, requestId: string): SupaResponse<T> {
-  const message = e?.message ? `发生了一个错误: ${e.message}` : '发生了一个错误'
+  const message = e?.message ? `An error has occurred: ${e.message}` : 'An error has occurred'
   const error = { code: 500, message, requestId }
   return { error } as unknown as SupaResponse<T>
 }
@@ -81,7 +81,7 @@ export async function handleResponseError<T = unknown>(
   } else if (resJson.error && resJson.error.message) {
     return { error: { code: response.status, ...resJson.error } } as unknown as SupaResponse<T>
   } else {
-    const message = resTxt ?? `发生了一个错误: ${response.status}`
+    const message = resTxt ?? `An error has occurred: ${response.status}`
     const error = { code: response.status, message, requestId }
     return { error } as unknown as SupaResponse<T>
   }

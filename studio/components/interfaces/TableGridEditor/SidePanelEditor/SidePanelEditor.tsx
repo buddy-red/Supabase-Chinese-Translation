@@ -356,7 +356,7 @@ const SidePanelEditor = ({
       } else if (isNewRecord) {
         toastId = ui.setNotification({
           category: 'loading',
-          message: `正在创建数据表: ${payload.name}...`,
+          message: `Creating new table: ${payload.name}...`,
         })
 
         const table = await meta.createTable(

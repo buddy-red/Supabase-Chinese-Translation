@@ -8,7 +8,7 @@ export interface ClientLoadingErrorProps {
 
 const ClientLoadingError = ({
   projectRef,
-  description = '发生了一个错误',
+  description = 'An error has occurred',
 }: ClientLoadingErrorProps) => {
   return (
     <div className="px-6 py-4 bg-scale-400 border border-scale-600 rounded flex justify-between items-center">
@@ -17,13 +17,14 @@ const ClientLoadingError = ({
         <div className="space-y-1">
           <p className="text-sm text-scale-1200">{description}</p>
           <p className="text-sm text-scale-1000">
-            试着刷新您的浏览器，如果此问题仍然存在，请通过技术支持与我们联系。
+            Try refreshing your browser. However, if this issue persists, please reach out to us via
+            support.
           </p>
         </div>
       </div>
       <Link href={`/support/new?ref=${projectRef}`}>
         <a target="_blank" rel="noreferrer">
-          <Button>联系技术支持</Button>
+          <Button>Contact support</Button>
         </a>
       </Link>
     </div>
