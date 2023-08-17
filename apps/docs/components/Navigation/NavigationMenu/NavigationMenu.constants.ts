@@ -3,13 +3,13 @@ import type { HomepageMenuItems, NavMenuConstant, References } from '../Navigati
 export const HOMEPAGE_MENU_ITEMS: HomepageMenuItems = [
   [
     {
-      label: 'Home',
+      label: '首页',
       icon: 'home',
       href: '/',
       level: 'home',
     },
     {
-      label: 'Getting Started',
+      label: '快速上手',
       icon: 'getting-started',
       href: '/guides/getting-started',
       level: 'gettingstarted',
@@ -17,13 +17,13 @@ export const HOMEPAGE_MENU_ITEMS: HomepageMenuItems = [
   ],
   [
     {
-      label: 'Database',
+      label: '数据库',
       icon: 'database',
       href: '/guides/database',
       level: 'database',
     },
     {
-      label: 'Serverless APIs',
+      label: '无服务器API',
       icon: 'serverless-apis',
       href: '/guides/api',
       level: 'api',
@@ -35,25 +35,25 @@ export const HOMEPAGE_MENU_ITEMS: HomepageMenuItems = [
       level: 'auth',
     },
     {
-      label: 'Edge Functions',
+      label: '边缘函数',
       icon: 'edge-functions',
       href: '/guides/functions',
       level: 'functions',
     },
     {
-      label: 'Realtime',
+      label: '实时',
       icon: 'realtime',
       href: '/guides/realtime',
       level: 'realtime',
     },
     {
-      label: 'Storage',
+      label: '存储',
       icon: 'storage',
       href: '/guides/storage',
       level: 'storage',
     },
     {
-      label: 'AI & Vectors',
+      label: 'AI & 向量',
       icon: 'ai',
       href: '/guides/ai',
       level: 'ai',
@@ -61,19 +61,19 @@ export const HOMEPAGE_MENU_ITEMS: HomepageMenuItems = [
   ],
   [
     {
-      label: 'Local Dev / CLI',
+      label: '本地开发 / CLI',
       icon: 'reference-cli',
       href: '/guides/cli',
       level: 'reference_javascript',
     },
     {
-      label: 'Platform',
+      label: '平台',
       icon: 'platform',
       href: '/guides/platform',
       level: 'platform',
     },
     {
-      label: 'Self-Hosting',
+      label: '自托管',
       icon: 'self-hosting',
       href: '/guides/self-hosting',
       level: 'self_hosting',
@@ -81,7 +81,7 @@ export const HOMEPAGE_MENU_ITEMS: HomepageMenuItems = [
   ],
   [
     {
-      label: 'Client Library Reference',
+      label: '客户端库参考',
     },
     {
       label: 'JavaScript',
@@ -124,28 +124,28 @@ export const HOMEPAGE_MENU_ITEMS: HomepageMenuItems = [
       community: true,
     },
     {
-      label: 'Resources',
+      label: '资源',
     },
     {
-      label: 'CLI Commands',
+      label: 'CLI命令',
       icon: 'reference-cli',
       href: '/reference/cli/introduction',
       level: 'reference_javascript',
     },
     {
-      label: 'Management API',
+      label: '管理API',
       icon: 'reference-api',
       href: '/reference/api/introduction',
       level: 'reference_javascript',
     },
     {
-      label: 'Guides and Examples',
+      label: '指南与示例',
       icon: 'resources',
       href: '/guides/resources',
       level: 'resources',
     },
     {
-      label: 'Integrations',
+      label: '集成',
       icon: 'integrations',
       hasLightIcon: true,
       href: 'https://supabase.com/partners/integrations',
@@ -154,7 +154,7 @@ export const HOMEPAGE_MENU_ITEMS: HomepageMenuItems = [
   ],
   [
     {
-      label: 'Status',
+      label: '状态',
       icon: 'status',
       href: 'https://status.supabase.com/',
     },
@@ -307,10 +307,10 @@ export const gettingstarted: NavMenuConstant = {
 export const cli = {
   title: 'CLI',
   items: [
-    { name: 'Overview', url: '/guides/cli' },
-    { name: 'Managing Environments', url: '/guides/cli/managing-environments' },
+    { name: '总览', url: '/guides/cli' },
+    { name: '管理环境', url: '/guides/cli/managing-environments' },
     {
-      name: 'Using environment variables in config.toml',
+      name: 'config.toml中使用环境变量',
       url: '/guides/cli/using-environment-variables-in-config',
     },
   ],
@@ -417,19 +417,19 @@ export const SocialLoginItems = [
 
 export const PhoneLoginsItems = [
   {
-    name: 'MessageBird SMS Login',
+    name: 'MessageBird短信登录',
     icon: '/docs/img/icons/messagebird-icon',
     linkDescription: 'Communication between businesses and their customers — across any channel.',
     url: '/guides/auth/phone-login/messagebird',
   },
   {
-    name: 'Twilio SMS Login',
+    name: 'Twilio短信登录',
     icon: '/docs/img/icons/twilio-icon',
     url: '/guides/auth/phone-login/twilio',
     linkDescription: 'Customer engagement platform used by hundreds of thousands of businesses.',
   },
   {
-    name: 'Vonage SMS Login',
+    name: 'Vonage短信登录',
     icon: '/docs/img/icons/vonage-icon',
     url: '/guides/auth/phone-login/vonage',
     linkDescription:
@@ -443,7 +443,7 @@ export const auth = {
   title: 'Auth',
   items: [
     {
-      name: 'Overview',
+      name: '总览',
       url: '/guides/auth',
     },
     {
@@ -454,23 +454,23 @@ export const auth = {
       ],
     },
     {
-      name: 'Authentication',
+      name: '身份验证',
       url: undefined,
       items: [
-        { name: 'Email Login', url: '/guides/auth/auth-email' },
-        { name: 'Magic Link Login', url: '/guides/auth/auth-magic-link' },
+        { name: 'Email登陆', url: '/guides/auth/auth-email' },
+        { name: '魔法链接登陆', url: '/guides/auth/auth-magic-link' },
         {
-          name: 'Phone Login',
+          name: '手机登陆',
           url: '/guides/auth/phone-login',
           items: [...PhoneLoginsItems],
         },
         {
-          name: 'Social Login',
+          name: '社交登陆',
           url: '/guides/auth/social-login',
           items: [...SocialLoginItems],
         },
         {
-          name: 'Enterprise SSO',
+          name: '企业SSO',
           url: '/guides/auth/enterprise-sso',
           items: [
             {
@@ -479,12 +479,12 @@ export const auth = {
             },
           ],
         },
-        { name: 'Password Reset', url: '/guides/auth/auth-password-reset' },
-        { name: 'Email Templates', url: '/guides/auth/auth-email-templates' },
+        { name: '密码重置', url: '/guides/auth/auth-password-reset' },
+        { name: '电子邮件模版', url: '/guides/auth/auth-email-templates' },
       ],
     },
     {
-      name: 'Authorization',
+      name: '身份验证',
       url: undefined,
       items: [
         { name: 'Enable Captcha Protection', url: '/guides/auth/auth-captcha' },
@@ -511,7 +511,7 @@ export const auth = {
       ],
     },
     {
-      name: 'Deep Dive',
+      name: '深入研究',
       url: undefined,
       items: [
         {
@@ -535,12 +535,12 @@ export const auth = {
 
 export const database: NavMenuConstant = {
   icon: 'database',
-  title: 'Database',
+  title: '数据库',
   url: '/guides/database',
   items: [
     { name: 'Overview', url: '/guides/database' },
     {
-      name: 'Fundamentals',
+      name: '基本知识',
       url: undefined,
       items: [
         { name: 'Connecting to your database', url: '/guides/database/connecting-to-postgres' },
@@ -553,7 +553,7 @@ export const database: NavMenuConstant = {
       ],
     },
     {
-      name: 'Postgres Guides',
+      name: 'Postgres指南',
       url: undefined,
       items: [
         {
@@ -575,7 +575,7 @@ export const database: NavMenuConstant = {
       ],
     },
     {
-      name: 'Extensions',
+      name: '扩展功能',
       url: undefined,
       items: [
         { name: 'Overview', url: '/guides/database/extensions' },
@@ -676,7 +676,7 @@ export const database: NavMenuConstant = {
       ],
     },
     {
-      name: 'Foreign Data Wrappers',
+      name: '外部数据包装',
       url: undefined,
       items: [
         { name: 'Overview', url: '/guides/database/extensions/wrappers/overview' },
@@ -693,7 +693,7 @@ export const database: NavMenuConstant = {
       ],
     },
     {
-      name: 'Examples',
+      name: '示例',
       url: undefined,
       items: [
         {
@@ -715,13 +715,13 @@ export const database: NavMenuConstant = {
 
 export const api: NavMenuConstant = {
   icon: 'serverless-apis',
-  title: 'Serverless APIs',
+  title: '无服务器API',
   url: '/guides/api',
   items: [
-    { name: 'Overview', url: '/guides/api', items: [] },
-    { name: 'Quickstart', url: '/guides/api/quickstart', items: [] },
+    { name: '总览', url: '/guides/api', items: [] },
+    { name: '快速上手', url: '/guides/api/quickstart', items: [] },
     {
-      name: 'Guides',
+      name: '指南',
       url: '/guides/api',
       items: [
         { name: 'Creating API routes', url: '/guides/api/creating-routes', items: [] },
@@ -735,7 +735,7 @@ export const api: NavMenuConstant = {
       ],
     },
     {
-      name: 'REST & REALTIME',
+      name: 'REST & 实时',
       url: undefined,
       items: [
         { name: 'Auto-generated Docs', url: '/guides/api/rest/auto-generated-docs', items: [] },
@@ -757,15 +757,15 @@ export const functions: NavMenuConstant = {
   url: '/guides/functions',
   items: [
     {
-      name: 'Overview',
+      name: '总览',
       url: '/guides/functions',
     },
     {
-      name: 'Quickstart',
+      name: '快速上手',
       url: '/guides/functions/quickstart',
     },
     {
-      name: 'Features',
+      name: '功能特色',
       url: undefined,
       items: [
         { name: 'TypeScript Support', url: '/guides/functions/typescript-support' },
@@ -775,7 +775,7 @@ export const functions: NavMenuConstant = {
       ],
     },
     {
-      name: 'Guides',
+      name: '指南',
       url: undefined,
       items: [
         { name: 'Developing Functions locally', url: '/guides/functions/local-development' },
@@ -797,7 +797,7 @@ export const functions: NavMenuConstant = {
       ],
     },
     {
-      name: 'Third-Party Tools',
+      name: '第三方工具',
       url: undefined,
       items: [
         { name: 'Dart Edge on Supabase', url: '/guides/functions/dart-edge' },
@@ -810,7 +810,7 @@ export const functions: NavMenuConstant = {
       ],
     },
     {
-      name: 'Examples',
+      name: '示例',
       url: '/guides/functions/examples',
       items: [
         { name: 'Generating OpenAI GPT3 completions', url: '/guides/ai/examples/openai' },
@@ -835,19 +835,19 @@ export const functions: NavMenuConstant = {
 
 export const realtime: NavMenuConstant = {
   icon: 'realtime',
-  title: 'Realtime',
+  title: '实时',
   url: '/guides/realtime',
   items: [
     {
-      name: 'Overview',
+      name: '总览',
       url: '/guides/realtime',
     },
     {
-      name: 'Concepts',
+      name: '概念',
       url: '/guides/realtime/concepts',
     },
     {
-      name: 'Features',
+      name: '功能特色',
       url: undefined,
       items: [
         { name: 'Broadcast', url: '/guides/realtime/broadcast' },
@@ -1171,13 +1171,13 @@ export const platform: NavMenuConstant = {
 
 export const resources: NavMenuConstant = {
   icon: 'resources',
-  title: 'Resources',
+  title: '资源',
   url: '/guides/resources',
   items: [
-    { name: 'Examples', url: '/guides/resources/examples' },
+    { name: '示例', url: '/guides/resources/examples' },
     { name: 'Glossary', url: '/guides/resources/glossary' },
     {
-      name: 'Migrate to Supabase',
+      name: '迁移至Supabase',
       url: '/guides/resources/migrating-to-supabase',
       items: [
         {
@@ -1211,51 +1211,51 @@ export const resources: NavMenuConstant = {
 }
 
 export const self_hosting: NavMenuConstant = {
-  title: 'Self-Hosting',
+  title: '自托管',
   icon: 'self-hosting',
   url: '/guides/self-hosting',
   items: [
-    { name: 'Overview', url: '/guides/self-hosting' },
-    { name: 'Self-Hosting with Docker', url: '/guides/self-hosting/docker' },
+    { name: '总览', url: '/guides/self-hosting' },
+    { name: 'Docker自托管', url: '/guides/self-hosting/docker' },
     {
-      name: 'Auth Server',
+      name: '身份验证服务器',
       items: [
-        { name: 'Reference', url: '/reference/self-hosting-auth/introduction' },
-        { name: 'Configuration', url: '/guides/self-hosting/auth/config' },
+        { name: '参考', url: '/reference/self-hosting-auth/introduction' },
+        { name: '配置', url: '/guides/self-hosting/auth/config' },
       ],
     },
     {
-      name: 'Storage Server',
+      name: '存储服务器',
       items: [
-        { name: 'Reference', url: '/reference/self-hosting-storage/introduction' },
-        { name: 'Configuration', url: '/guides/self-hosting/storage/config' },
+        { name: '参考', url: '/reference/self-hosting-storage/introduction' },
+        { name: '配置', url: '/guides/self-hosting/storage/config' },
       ],
     },
     {
-      name: 'Realtime Server',
+      name: '实时服务器',
       items: [
-        { name: 'Reference', url: '/reference/self-hosting-realtime/introduction' },
-        { name: 'Configuration', url: '/guides/self-hosting/realtime/config' },
+        { name: '参考', url: '/reference/self-hosting-realtime/introduction' },
+        { name: '配置', url: '/guides/self-hosting/realtime/config' },
       ],
     },
     {
-      name: 'Analytics Server',
+      name: '统计分析服务器',
       items: [
-        { name: 'Reference', url: '/reference/self-hosting-analytics/introduction', items: [] },
-        { name: 'Configuration', url: '/guides/self-hosting/analytics/config', items: [] },
+        { name: '参考', url: '/reference/self-hosting-analytics/introduction', items: [] },
+        { name: '配置', url: '/guides/self-hosting/analytics/config', items: [] },
       ],
     },
     {
-      name: 'Functions Server',
+      name: '函数服务器',
       items: [
-        { name: 'Reference', url: '/reference/self-hosting-functions/introduction', items: [] },
+        { name: '参考', url: '/reference/self-hosting-functions/introduction', items: [] },
       ],
     },
   ],
 }
 
 export const migrate = {
-  title: 'Migrate to Supabase',
+  title: '迁移到Supabase',
   url: '/guides/migrate',
   items: [
     { name: 'Firebase Auth', url: '/guides/migrations/firebase-auth' },
@@ -1268,11 +1268,11 @@ export const migrate = {
 }
 
 export const reference = {
-  title: 'API Reference',
+  title: 'API参考',
   icon: 'reference',
   items: [
     {
-      name: 'Client libraries',
+      name: '客户端库',
       items: [
         {
           name: 'supabase-js',
@@ -1330,7 +1330,7 @@ export const reference = {
           icon: '/img/icons/menu/reference-cli',
         },
         {
-          name: 'Management API',
+          name: '管理API',
           url: '/reference/javascript',
           icon: '/img/icons/menu/reference-api',
         },
@@ -1403,42 +1403,42 @@ export const reference_cli = {
 }
 export const reference_api = {
   icon: 'reference-api',
-  title: 'Management API',
+  title: '管理API',
   url: '/guides/reference/api',
   parent: '/reference',
 }
 
 export const reference_self_hosting_auth = {
   icon: 'reference-auth',
-  title: 'Self-Hosting Auth',
+  title: '自托管身份验证',
   url: '/guides/reference/self-hosting/auth',
   parent: '/reference',
 }
 
 export const reference_self_hosting_storage = {
   icon: 'reference-storage',
-  title: 'Self-Hosting Storage',
+  title: '自托管存储',
   url: '/guides/reference/self-hosting/storage',
   parent: '/reference',
 }
 
 export const reference_self_hosting_realtime = {
   icon: 'reference-realtime',
-  title: 'Self-Hosting Realtime',
+  title: '自托管实时',
   url: '/guides/reference/self-hosting/realtime',
   parent: '/reference',
 }
 
 export const reference_self_hosting_analytics = {
   icon: 'reference-analytics',
-  title: 'Self-Hosting Analytics',
+  title: '自托管统计分析',
   url: '/guides/reference/self-hosting/analytics',
   parent: '/reference',
 }
 
 export const reference_self_hosting_functions = {
   icon: 'reference-functions',
-  title: 'Self-Hosting Functions',
+  title: '自托管函数',
   url: '/guides/reference/self-hosting/functions',
   parent: '/reference',
 }
@@ -1526,7 +1526,7 @@ export const references = [
     ],
   },
   {
-    label: 'Platform Tools',
+    label: '平台工具',
     items: [
       {
         label: 'CLI',
@@ -1535,7 +1535,7 @@ export const references = [
         url: '/reference/cli/start',
       },
       {
-        label: 'Management API',
+        label: '管理API',
         description: 'something about the reference',
         icon: '/docs/img/icons/api-icon.svg',
         url: '/reference/management-api/start',
@@ -1543,22 +1543,22 @@ export const references = [
     ],
   },
   {
-    label: 'Self-Hosting',
+    label: '自托管',
     items: [
       {
-        label: 'Auth server',
+        label: 'Auth服务器',
         description: 'something about the reference',
         icon: '/docs/img/icons/menu/auth.svg',
         url: '/reference/auth/start',
       },
       {
-        label: 'Storage server',
+        label: '存储服务器',
         description: 'something about the reference',
         icon: '/docs/img/icons/menu/storage.svg',
         url: '/reference/storage/start',
       },
       {
-        label: 'Realtime server',
+        label: '实时服务器',
         description: 'something about the reference',
         icon: '/docs/img/icons/menu/realtime.svg',
         url: '/reference/realtime/start',
